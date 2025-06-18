@@ -20,7 +20,7 @@ const Index = () => {
       </div>
 
       {/* Content */}
-      <div className="relative z-20 flex flex-col items-start justify-center h-full w-full px-8 pb-20">
+      <div className="relative z-20 flex flex-col justify-between h-full w-full px-8 py-20">
         <div className="max-w-md">
           {/* Logo/Title */}
           <div className="mb-8">
@@ -33,13 +33,13 @@ const Index = () => {
               <div>FUTURO</div>
             </div>
           </div>
-          
-          {/* Action button */}
-          <div className="flex justify-start">
-            <button className="bg-lime-400 hover:bg-lime-300 text-black w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg">
-              →
-            </button>
-          </div>
+        </div>
+        
+        {/* Action button - positioned at bottom */}
+        <div className="flex justify-start">
+          <button className="bg-lime-400 hover:bg-lime-300 text-black w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg">
+            →
+          </button>
         </div>
       </div>
     </div>
