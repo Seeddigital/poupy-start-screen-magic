@@ -1,34 +1,45 @@
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-pink-900 relative overflow-hidden flex items-center justify-center">
-      {/* Background image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
-        style={{
-          backgroundImage: `url('/lovable-uploads/b4be7b86-490c-4039-b0ca-a2fe1701693d.png')`
-        }}
-      />
-      
-      {/* Neon glow effects */}
-      <div className="absolute top-10 left-10 w-32 h-32 bg-pink-500 rounded-full blur-3xl opacity-20"></div>
-      <div className="absolute bottom-20 right-20 w-40 h-40 bg-purple-500 rounded-full blur-3xl opacity-20"></div>
-      <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-blue-400 rounded-full blur-2xl opacity-25"></div>
+    <div className="min-h-screen bg-gradient-to-b from-purple-900 via-blue-900 to-black relative overflow-hidden flex items-center justify-center">
+      {/* Background neon effects */}
+      <div className="absolute inset-0">
+        <div className="absolute left-0 top-0 h-full w-32 bg-gradient-to-r from-pink-500/30 to-transparent"></div>
+        <div className="absolute left-8 top-1/4 w-4 h-32 bg-yellow-400 rounded-full blur-sm opacity-80"></div>
+        <div className="absolute left-8 top-1/2 w-4 h-24 bg-pink-400 rounded-full blur-sm opacity-80"></div>
+        <div className="absolute left-8 bottom-1/4 w-4 h-28 bg-purple-400 rounded-full blur-sm opacity-80"></div>
+      </div>
 
-      {/* Main content */}
-      <div className="relative z-10 text-center px-8">
-        <div className="mb-8">
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-yellow-300 via-pink-300 to-purple-300 bg-clip-text text-transparent mb-4">
-            poupy!
-          </h1>
-          <p className="text-2xl text-white font-medium mb-2">PARA O SEU</p>
-          <p className="text-2xl text-white font-bold">FUTURO</p>
-        </div>
-        
-        <div className="flex justify-center">
-          <button className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-4 px-8 rounded-full text-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
-            Começar →
-          </button>
+      {/* Main character - 3D pig */}
+      <div className="absolute top-1/4 right-8 z-10">
+        <img 
+          src="/lovable-uploads/9e2f2d5a-bbb6-43f2-a0ad-1ae5f8936a39.png" 
+          alt="Poupy mascot"
+          className="w-80 h-auto object-contain"
+        />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-20 flex flex-col items-start justify-center h-full w-full px-8 pb-20">
+        <div className="max-w-md">
+          {/* Logo/Title */}
+          <div className="mb-8">
+            <h1 className="text-7xl font-black text-lime-400 leading-none mb-2">
+              poupy!
+            </h1>
+            <div className="text-white text-xl font-bold uppercase tracking-wide">
+              <div>PARA</div>
+              <div>O SEU</div>
+              <div>FUTURO</div>
+            </div>
+          </div>
+          
+          {/* Action button */}
+          <div className="flex justify-start">
+            <button className="bg-lime-400 hover:bg-lime-300 text-black w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg">
+              →
+            </button>
+          </div>
         </div>
       </div>
     </div>
