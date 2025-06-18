@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -10,42 +11,73 @@ interface AuthModalProps {
   children: React.ReactNode;
 }
 
+const countries = [
+  { code: '+55', flag: '🇧🇷', name: 'Brasil', format: '(##) #####-####', length: 11 },
+  { code: '+1', flag: '🇺🇸', name: 'Estados Unidos', format: '(###) ###-####', length: 10 },
+  { code: '+351', flag: '🇵🇹', name: 'Portugal', format: '### ### ###', length: 9 },
+  { code: '+33', flag: '🇫🇷', name: 'França', format: '## ## ## ## ##', length: 10 },
+  { code: '+44', flag: '🇬🇧', name: 'Reino Unido', format: '#### ### ####', length: 10 },
+  { code: '+49', flag: '🇩🇪', name: 'Alemanha', format: '### ### ####', length: 10 },
+];
+
 const AuthModal = ({ children }: AuthModalProps) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(countries[0]); // Brasil por padrão
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  // Função para formatar o telefone
-  const formatPhone = (value: string) => {
+  // Função para formatar o telefone baseado no país selecionado
+  const formatPhone = (value: string, country: typeof countries[0]) => {
     // Remove tudo que não é número
     const numbers = value.replace(/\D/g, '');
-
-    // Limita a 11 dígitos (DDD + 9 dígitos)
-    const limited = numbers.slice(0, 11);
-
-    // Aplica a formatação (11) 91234-5678
-    if (limited.length <= 2) {
-      return limited;
-    } else if (limited.length <= 3) {
-      return `(${limited.slice(0, 2)}) ${limited.slice(2)}`;
-    } else if (limited.length <= 7) {
-      return `(${limited.slice(0, 2)}) ${limited.slice(2, 3)}${limited.slice(3)}`;
+    
+    // Limita ao número máximo de dígitos do país
+    const limited = numbers.slice(0, country.length);
+    
+    // Aplica formatação específica por país
+    if (country.code === '+55') { // Brasil
+      if (limited.length <= 2) {
+        return limited;
+      } else if (limited.length <= 3) {
+        return `(${limited.slice(0, 2)}) ${limited.slice(2)}`;
+      } else if (limited.length <= 7) {
+        return `(${limited.slice(0, 2)}) ${limited.slice(2, 3)}${limited.slice(3)}`;
+      } else {
+        return `(${limited.slice(0, 2)}) ${limited.slice(2, 3)}${limited.slice(3, 7)}-${limited.slice(7)}`;
+      }
+    } else if (country.code === '+1') { // EUA
+      if (limited.length <= 3) {
+        return limited;
+      } else if (limited.length <= 6) {
+        return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
+      } else {
+        return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
+      }
     } else {
-      return `(${limited.slice(0, 2)}) ${limited.slice(2, 3)}${limited.slice(3, 7)}-${limited.slice(7)}`;
+      // Formatação genérica para outros países
+      return limited;
     }
   };
   
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhone(e.target.value);
+    const formatted = formatPhone(e.target.value, selectedCountry);
     setPhone(formatted);
   };
 
-  // Validação do telefone brasileiro
+  const handleCountryChange = (countryCode: string) => {
+    const country = countries.find(c => c.code === countryCode);
+    if (country) {
+      setSelectedCountry(country);
+      setPhone(''); // Limpa o campo ao trocar de país
+    }
+  };
+
+  // Validação do telefone baseada no país
   const isPhoneValid = () => {
     const numbers = phone.replace(/\D/g, '');
-    return numbers.length === 11 && numbers.startsWith('11'); // Exemplo com DDD 11
+    return numbers.length === selectedCountry.length;
   };
   
   const isPasswordValid = () => {
@@ -130,18 +162,43 @@ const AuthModal = ({ children }: AuthModalProps) => {
             >
               <div className="w-full bg-white rounded-[20px] sm:rounded-[25px] md:rounded-[30px] p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4">
                 
-                {/* Campo de Telefone */}
+                {/* Campo de Telefone com Dropdown de País */}
                 <div className="relative">
-                  <div className="w-full h-[56px] sm:h-[60px] md:h-[66px] bg-black bg-opacity-[0.03] rounded-[15px] sm:rounded-[18px] md:rounded-[20px] flex items-center px-3 sm:px-4">
-                    {/* Ícone da bandeira do Brasil */}
-                    <div className="w-8 h-6 sm:w-10 sm:h-7 md:w-12 md:h-9 mr-2 sm:mr-3 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold text-xs sm:text-sm">
-                      BR
-                    </div>
+                  <div className="w-full h-[56px] sm:h-[60px] md:h-[66px] bg-black bg-opacity-[0.03] rounded-[15px] sm:rounded-[18px] md:rounded-[20px] flex items-center px-3 sm:px-4 gap-2">
+                    {/* Dropdown de países */}
+                    <Select value={selectedCountry.code} onValueChange={handleCountryChange}>
+                      <SelectTrigger className="w-auto border-none bg-transparent h-full p-0 focus:ring-0 focus:ring-offset-0">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <span className="text-lg sm:text-xl">{selectedCountry.flag}</span>
+                          <span className="text-sm sm:text-base font-medium text-black opacity-60">{selectedCountry.code}</span>
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 shadow-lg">
+                        {countries.map((country) => (
+                          <SelectItem 
+                            key={country.code} 
+                            value={country.code}
+                            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-lg">{country.flag}</span>
+                              <span className="font-medium">{country.code}</span>
+                              <span className="text-gray-600">{country.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Separador visual */}
+                    <div className="w-px h-6 bg-black opacity-20"></div>
+                    
+                    {/* Campo de telefone */}
                     <Input 
                       type="tel" 
                       value={phone} 
                       onChange={handlePhoneChange} 
-                      placeholder="(11) 91234-5678" 
+                      placeholder={selectedCountry.code === '+55' ? '(11) 91234-5678' : 'Número de telefone'} 
                       className="border-none bg-transparent text-black placeholder:text-black placeholder:opacity-40 text-base sm:text-lg font-medium h-full flex-1" 
                       style={{
                         fontFamily: 'Inter',
@@ -149,7 +206,6 @@ const AuthModal = ({ children }: AuthModalProps) => {
                         fontSize: 'inherit',
                         letterSpacing: '-0.02em'
                       }} 
-                      maxLength={15} 
                     />
                   </div>
                 </div>
