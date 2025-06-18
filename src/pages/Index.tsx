@@ -2,14 +2,6 @@
 const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 via-blue-900 to-black relative overflow-hidden flex items-center justify-center">
-      {/* Background neon effects */}
-      <div className="absolute inset-0">
-        <div className="absolute left-0 top-0 h-full w-32 bg-gradient-to-r from-pink-500/30 to-transparent"></div>
-        <div className="absolute left-8 top-1/4 w-4 h-32 bg-yellow-400 rounded-full blur-sm opacity-80"></div>
-        <div className="absolute left-8 top-1/2 w-4 h-24 bg-pink-400 rounded-full blur-sm opacity-80"></div>
-        <div className="absolute left-8 bottom-1/4 w-4 h-28 bg-purple-400 rounded-full blur-sm opacity-80"></div>
-      </div>
-
       {/* Main character - 3D pig */}
       <div className="absolute top-1/4 right-8 z-10">
         <img 
