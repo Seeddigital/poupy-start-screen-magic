@@ -1,4 +1,5 @@
 
+
 const Index = () => {
   return (
     <div 
@@ -15,8 +16,20 @@ const Index = () => {
         <img 
           src="/lovable-uploads/2f3aebd9-efad-4886-8ce5-2d0b5dfc408d.png" 
           alt="Logo" 
-          className="h-32 w-auto"
+          className="h-16 w-auto"
         />
+      </div>
+
+      {/* Texto principal centralizado */}
+      <div className="text-center z-10">
+        <h1 className="text-8xl md:text-9xl font-bold text-[#a8e202] mb-4 leading-none">
+          poupy!
+        </h1>
+        <h2 className="text-4xl md:text-6xl font-bold text-white tracking-wider">
+          PARA<br />
+          O SEU<br />
+          FUTURO
+        </h2>
       </div>
 
       {/* Botão de login no canto inferior direito */}
@@ -32,3 +45,4 @@ const Index = () => {
 };
 
 export default Index;
+
