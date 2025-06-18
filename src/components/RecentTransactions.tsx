@@ -12,32 +12,32 @@ const transactions = [
 
 export function RecentTransactions() {
   return (
-    <Card className="col-span-full">
+    <Card className="bg-transparent border-none shadow-none">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Transações Recentes</CardTitle>
+        <CardTitle className="text-lg font-semibold text-white">Transações Recentes</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {transactions.map((transaction) => (
-            <div key={transaction.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+            <div key={transaction.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${transaction.type === 'income' ? 'bg-green-100' : 'bg-red-100'}`}>
-                  <transaction.icon className={`h-4 w-4 ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`} />
+                <div className={`p-2 rounded-full ${transaction.type === 'income' ? 'bg-green-500/20 border border-green-400/30' : 'bg-red-500/20 border border-red-400/30'}`}>
+                  <transaction.icon className={`h-4 w-4 ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`} />
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{transaction.description}</p>
-                  <p className="text-sm text-gray-500">{transaction.date}</p>
+                  <p className="font-medium text-white">{transaction.description}</p>
+                  <p className="text-sm text-white/60">{transaction.date}</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className={`font-semibold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                <p className={`font-semibold ${transaction.type === 'income' ? 'text-green-400' : 'text-red-400'}`}>
                   {transaction.type === 'income' ? '+' : ''}R$ {Math.abs(transaction.amount).toFixed(2)}
                 </p>
                 {transaction.type === 'expense' && (
-                  <ArrowUpRight className="h-3 w-3 text-red-500 ml-auto" />
+                  <ArrowUpRight className="h-3 w-3 text-red-400 ml-auto" />
                 )}
                 {transaction.type === 'income' && (
-                  <ArrowDownLeft className="h-3 w-3 text-green-500 ml-auto" />
+                  <ArrowDownLeft className="h-3 w-3 text-green-400 ml-auto" />
                 )}
               </div>
             </div>

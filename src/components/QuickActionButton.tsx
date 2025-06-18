@@ -13,7 +13,7 @@ export function QuickActionButton({ label, icon: Icon, onClick, variant = "defau
   return (
     <Button 
       variant={variant}
-      className="h-20 flex-col gap-2 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+      className="h-20 w-full flex-col gap-2 bg-white/10 hover:bg-white/20 text-white shadow-lg hover:shadow-xl transition-all duration-200 border border-white/20 backdrop-blur-sm"
       onClick={onClick}
     >
       <Icon className="h-6 w-6" />
