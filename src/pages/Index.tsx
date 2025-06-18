@@ -20,8 +20,8 @@ const Index = () => {
         </div>
         
         {/* Action button - positioned at bottom */}
-        <div className="flex justify-start px-0 my-0 mx-0 py-[9px]">
-          <button className="bg-lime-400 hover:bg-lime-300 text-black w-16 h-16 flex items-center justify-center text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg py-0 my-0 mx-[104px] text-left rounded-full">
+        <div className="flex justify-start px-0 mx-0 py-0 my-0">
+          <button className="text-black w-16 h-16 flex items-center justify-center text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg py-0 mx-[104px] text-left rounded-full my-[34px] bg-[b#A8E202] bg-[#a8e202]">
             →
           </button>
         </div>
