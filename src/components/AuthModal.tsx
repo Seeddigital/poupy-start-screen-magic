@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { X, ArrowRight } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -21,7 +19,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       {/* Container principal com dimensões do iPhone */}
       <div className="relative w-[440px] h-[956px] bg-black overflow-hidden rounded-3xl">
         {/* Close button */}
@@ -36,7 +34,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         <div 
           className="absolute w-[658px] h-[986px] -left-[109px] -top-[194px]"
           style={{
-            backgroundImage: `url('/lovable-uploads/f3ee6670-5552-48cc-adb1-a46a742158df.png')`,
+            backgroundImage: `url('/lovable-uploads/902cfe0a-0896-4c82-9b75-b2249aff1df5.png')`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
