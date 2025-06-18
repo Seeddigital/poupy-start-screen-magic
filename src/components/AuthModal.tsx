@@ -48,12 +48,10 @@ const AuthModal = ({ children }: AuthModalProps) => {
     return numbers.length === 11 && numbers.startsWith('11'); // Exemplo com DDD 11
   };
 
-  // Validação da senha
   const isPasswordValid = () => {
     return password.length >= 6;
   };
 
-  // Verifica se o formulário está válido
   const isFormValid = () => {
     return isPhoneValid() && isPasswordValid();
   };
@@ -116,9 +114,13 @@ const AuthModal = ({ children }: AuthModalProps) => {
 
           {/* Logo Poupy - mesmo posicionamento e fonte da tela inicial */}
           <div className="absolute left-[23px] top-[507px] w-[296px] h-[170px]">
-            {/* Texto "poupy" com a mesma fonte */}
+            {/* Imagem do logo "poupy" */}
             <div className="absolute w-[241px] h-[91px] left-0 top-[30px]">
-              <div className="text-[#A8E202] font-bold text-4xl tracking-tight" style={{ fontFamily: 'Inter' }}>poupy</div>
+              <img 
+                src="/lovable-uploads/3e79f112-8b63-419b-b03c-370cdc90cefc.png" 
+                alt="Poupy"
+                className="w-full h-full object-contain"
+              />
             </div>
             
             {/* Texto "para o seu futuro" com a mesma fonte */}
