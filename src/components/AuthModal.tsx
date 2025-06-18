@@ -88,9 +88,9 @@ const AuthModal = ({ children }: AuthModalProps) => {
         {children}
       </DialogTrigger>
       <DialogContent className="p-0 bg-transparent border-none max-w-[440px] w-full h-[956px] overflow-hidden">
-        {/* Container principal */}
-        <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
-          {/* Imagem de fundo */}
+        {/* Container principal com mesmo fundo da tela inicial */}
+        <div className="relative w-full h-full bg-black overflow-hidden">
+          {/* Mesma imagem de fundo da tela inicial */}
           <div 
             className="absolute w-[658px] h-[986px] -left-[109px] -top-[194px]"
             style={{
@@ -100,7 +100,7 @@ const AuthModal = ({ children }: AuthModalProps) => {
             }}
           />
           
-          {/* Gradientes de overlay */}
+          {/* Mesmos gradientes da tela inicial */}
           <div 
             className="absolute w-[531px] h-[365px] -left-[33px] top-[362px]"
             style={{
@@ -114,22 +114,22 @@ const AuthModal = ({ children }: AuthModalProps) => {
             }}
           />
 
-          {/* Logo Poupy */}
+          {/* Logo Poupy - mesmo posicionamento e fonte da tela inicial */}
           <div className="absolute left-[23px] top-[507px] w-[296px] h-[170px]">
-            {/* Texto "poupy" */}
+            {/* Texto "poupy" com a mesma fonte */}
             <div className="absolute w-[241px] h-[91px] left-0 top-[30px]">
-              <div className="text-[#A8E202] font-bold text-4xl tracking-tight">poupy</div>
+              <div className="text-[#A8E202] font-bold text-4xl tracking-tight" style={{ fontFamily: 'Inter' }}>poupy</div>
             </div>
             
-            {/* Texto "para o seu futuro" */}
+            {/* Texto "para o seu futuro" com a mesma fonte */}
             <div className="absolute left-[124px] top-[30px] w-[195px] h-[140px]">
-              <h1 className="font-bold text-[38px] leading-[35px] tracking-tight uppercase text-white">
+              <h1 className="font-bold text-[38px] leading-[35px] tracking-tight uppercase text-white" style={{ fontFamily: 'Inter' }}>
                 para o seu futuro
               </h1>
             </div>
           </div>
 
-          {/* Box de Login */}
+          {/* Box de Login com exatamente o mesmo design */}
           <form onSubmit={handleSubmit} className="absolute left-[14px] top-[729px] w-[412px] h-[210px]">
             <div className="w-full h-full bg-white rounded-[30px] p-6 space-y-4">
               
@@ -146,6 +146,7 @@ const AuthModal = ({ children }: AuthModalProps) => {
                     onChange={handlePhoneChange}
                     placeholder="(11) 91234-5678"
                     className="border-none bg-transparent text-black placeholder:text-black placeholder:opacity-40 text-lg font-medium h-full flex-1"
+                    style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: '18px', letterSpacing: '-0.02em' }}
                     maxLength={15}
                   />
                 </div>
@@ -162,6 +163,7 @@ const AuthModal = ({ children }: AuthModalProps) => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Senha"
                       className="border-none bg-transparent text-black placeholder:text-black placeholder:opacity-40 text-lg font-medium h-full flex-1"
+                      style={{ fontFamily: 'Inter', fontWeight: 500, fontSize: '18px', letterSpacing: '-0.02em' }}
                     />
                     <button
                       type="button"
@@ -173,7 +175,7 @@ const AuthModal = ({ children }: AuthModalProps) => {
                   </div>
                 </div>
 
-                {/* Botão Avançar */}
+                {/* Botão Avançar - mesmo verde limão da tela inicial */}
                 <Button
                   type="submit"
                   disabled={!isFormValid() || isLoading}
