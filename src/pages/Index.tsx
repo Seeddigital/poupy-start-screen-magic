@@ -1,5 +1,4 @@
 
-
 const Index = () => {
   return (
     <div 
@@ -20,18 +19,6 @@ const Index = () => {
         />
       </div>
 
-      {/* Texto principal centralizado */}
-      <div className="text-center z-10">
-        <h1 className="text-8xl md:text-9xl font-bold text-[#a8e202] mb-4 leading-none">
-          poupy!
-        </h1>
-        <h2 className="text-4xl md:text-6xl font-bold text-white tracking-wider">
-          PARA<br />
-          O SEU<br />
-          FUTURO
-        </h2>
-      </div>
-
       {/* Botão de login no canto inferior direito */}
       <div className="absolute bottom-8 right-8 z-10">
         <button className="w-16 h-16 bg-[#a8e202] rounded-full flex items-center justify-center text-black text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg">
@@ -45,4 +32,3 @@ const Index = () => {
 };
 
 export default Index;
-
