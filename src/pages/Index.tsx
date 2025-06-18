@@ -6,7 +6,7 @@ const Index = () => {
     backgroundRepeat: 'no-repeat'
   }}>
       {/* Logo no canto inferior esquerdo */}
-      <div className="absolute bottom-8 left-8 z-10">
+      <div className="absolute bottom-8 left-8 z-10 mx-[29px]">
         <img alt="Logo" className="h-28 w-auto" src="/lovable-uploads/a5f7a3ad-fd73-4d04-979c-aa6192a26233.png" />
       </div>
 
