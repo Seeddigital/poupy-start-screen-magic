@@ -1,12 +1,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowDownLeft, ArrowUpRight, Coffee, Gas, ShoppingBag, Wifi } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Coffee, Fuel, ShoppingBag, Wifi } from "lucide-react";
 
 const transactions = [
   { id: 1, description: "Café da manhã", amount: -15.50, type: "expense", icon: Coffee, date: "Hoje" },
   { id: 2, description: "Salário", amount: 3500.00, type: "income", icon: ArrowDownLeft, date: "Ontem" },
   { id: 3, description: "Supermercado", amount: -125.30, type: "expense", icon: ShoppingBag, date: "Ontem" },
-  { id: 4, description: "Combustível", amount: -80.00, type: "expense", icon: Gas, date: "2 dias atrás" },
+  { id: 4, description: "Combustível", amount: -80.00, type: "expense", icon: Fuel, date: "2 dias atrás" },
   { id: 5, description: "Internet", amount: -89.90, type: "expense", icon: Wifi, date: "3 dias atrás" }
 ];
 
