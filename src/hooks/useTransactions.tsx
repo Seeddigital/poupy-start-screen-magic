@@ -29,8 +29,8 @@ interface Category {
   name: string;
   color: string;
   icon?: string;
-  amount?: number;
-  percentage?: number;
+  amount: number;
+  percentage: number;
 }
 
 export const useTransactions = () => {
@@ -65,12 +65,19 @@ export const useTransactions = () => {
       }
 
       console.log('Fetched transactions:', data);
-      setTransactions(data || []);
+      
+      // Type assertion to ensure proper typing
+      const typedTransactions = (data || []).map(transaction => ({
+        ...transaction,
+        type: transaction.type as 'income' | 'expense' | 'transfer'
+      }));
+      
+      setTransactions(typedTransactions);
       
       // Calculate monthly expenses
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
-      const monthlyTotal = (data || [])
+      const monthlyTotal = typedTransactions
         .filter(t => {
           const transactionDate = new Date(t.transaction_date);
           return transactionDate.getMonth() === currentMonth && 

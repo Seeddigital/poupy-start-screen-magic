@@ -9,12 +9,24 @@ import {
 } from "@/components/ui/dialog";
 
 interface Transaction {
-  id: number;
-  icon: string;
-  name: string;
-  subcategory: string;
+  id: string;
+  description: string;
   amount: number;
-  date: string;
+  type: 'income' | 'expense' | 'transfer';
+  category_id: string;
+  account_id: string;
+  transaction_date: string;
+  notes?: string;
+  created_at: string;
+  categories?: {
+    name: string;
+    color: string;
+    icon?: string;
+  };
+  accounts?: {
+    name: string;
+    type: string;
+  };
 }
 
 interface CategoryTransactionsModalProps {
@@ -46,7 +58,7 @@ const CategoryTransactionsModal = ({
   };
 
   const categoryTransactions = transactions.filter(t => 
-    t.subcategory.toLowerCase().includes(category.name.toLowerCase())
+    t.categories?.name.toLowerCase().includes(category.name.toLowerCase())
   );
 
   return (
@@ -87,18 +99,17 @@ const CategoryTransactionsModal = ({
                   {/* Left side - Icon and Details */}
                   <div className="flex items-center gap-3 flex-1">
                     <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
-                      <img 
-                        src={transaction.icon} 
-                        alt={transaction.name}
-                        className="w-full h-full object-contain"
-                      />
+                      <div 
+                        className="w-6 h-6 rounded-full"
+                        style={{ backgroundColor: transaction.categories?.color || '#gray' }}
+                      ></div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-white font-medium text-sm truncate">
-                        {transaction.name}
+                        {transaction.description}
                       </p>
                       <p className="text-gray-400 text-xs truncate">
-                        {transaction.subcategory}
+                        {transaction.categories?.name} • {transaction.accounts?.name}
                       </p>
                     </div>
                   </div>
@@ -106,12 +117,12 @@ const CategoryTransactionsModal = ({
                   {/* Right side - Amount and Date */}
                   <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                     <p className={`font-bold text-sm ${
-                      transaction.amount > 0 ? 'text-[#A8E202]' : 'text-red-500'
+                      transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'
                     }`}>
-                      {transaction.amount > 0 ? '+' : '-'} {formatCurrency(transaction.amount)}
+                      {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
                     </p>
                     <p className="text-gray-400 text-xs">
-                      {transaction.date}
+                      {new Date(transaction.transaction_date).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                 </div>
