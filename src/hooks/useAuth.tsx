@@ -21,7 +21,22 @@ const MOCK_USERS = [
     userData: {
       id: 'mock-user-1',
       email: 'mock@poupy.com',
-      user_metadata: { full_name: 'Usuário Teste' }
+      aud: 'authenticated',
+      role: 'authenticated',
+      email_confirmed_at: new Date().toISOString(),
+      phone: '11999999999',
+      confirmed_at: new Date().toISOString(),
+      last_sign_in_at: new Date().toISOString(),
+      app_metadata: {
+        provider: 'phone',
+        providers: ['phone']
+      },
+      user_metadata: { 
+        full_name: 'Usuário Teste' 
+      },
+      identities: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
   }
 ];
@@ -37,7 +52,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (savedUser) {
       const userData = JSON.parse(savedUser);
       setUser(userData);
-      setSession({ user: userData } as Session);
+      setSession({ 
+        user: userData,
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer'
+      } as Session);
     }
     setLoading(false);
   }, []);
@@ -60,9 +82,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Save to localStorage
       localStorage.setItem('poupy-user', JSON.stringify(userData));
       
+      // Create mock session
+      const mockSession = {
+        user: userData,
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer'
+      } as Session;
+      
       // Update state
       setUser(userData);
-      setSession({ user: userData } as Session);
+      setSession(mockSession);
       
       console.log('Login successful, user set:', userData);
       return { success: true };
