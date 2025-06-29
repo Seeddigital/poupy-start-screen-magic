@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Phone, Lock } from 'lucide-react';
+import { X, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -15,14 +15,31 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
 
+  const formatPhoneNumber = (value: string) => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, '');
+    
+    // Aplica a máscara (11) 91234 5678
+    if (numbers.length <= 11) {
+      return numbers.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2 $3').replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2 $3');
+    }
+    
+    return value;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setPhone(formatted);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Simular autenticação com telefone e senha
-      // Em um cenário real, você faria uma chamada para sua API
-      await authenticateWithPhone(phone, password);
+      // Extrair apenas os números do telefone
+      const cleanPhone = phone.replace(/\D/g, '');
+      await signIn(cleanPhone, password);
       toast.success('Login realizado com sucesso!');
       onClose();
     } catch (error: any) {
@@ -33,93 +50,74 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     }
   };
 
-  const authenticateWithPhone = async (phone: string, password: string) => {
-    // Simular validação de credenciais
-    // Você pode implementar sua lógica de autenticação aqui
-    // Por exemplo, validar contra uma lista de usuários pré-definidos
-    
-    const validCredentials = [
-      { phone: '11999999999', password: 'poupy123' },
-      { phone: '11888888888', password: 'cliente456' },
-      // Adicione mais credenciais conforme necessário
-    ];
-
-    const isValid = validCredentials.some(
-      cred => cred.phone === phone && cred.password === password
-    );
-
-    if (!isValid) {
-      throw new Error('Telefone ou senha incorretos');
-    }
-
-    // Se válido, criar uma sessão simulada
-    // Em um cenário real, você criaria um token JWT ou similar
-    localStorage.setItem('user_session', JSON.stringify({
-      phone,
-      authenticated: true,
-      loginTime: new Date().toISOString()
-    }));
-  };
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md mx-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md mx-4">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-xl font-bold text-gray-900">
             Entrar no Poupy
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors"
           >
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Campo de Telefone com Bandeira do Brasil */}
           <div>
-            <label className="block text-sm text-gray-300 mb-2">Telefone</label>
             <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                <img 
+                  src="/lovable-uploads/2adb1bdd-a959-41a9-b76c-bbd95a3e644c.png" 
+                  alt="Brasil" 
+                  className="w-6 h-6 rounded"
+                />
+              </div>
               <input
                 type="tel"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full bg-gray-800 text-white px-10 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                placeholder="11999999999"
+                onChange={handlePhoneChange}
+                className="w-full bg-gray-100 text-gray-900 pl-16 pr-4 py-4 rounded-xl border-0 focus:bg-gray-200 focus:outline-none text-lg"
+                placeholder="(11) 91234 5678"
+                maxLength={15}
                 required
               />
             </div>
           </div>
 
+          {/* Campo de Senha */}
           <div>
-            <label className="block text-sm text-gray-300 mb-2">Senha</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-800 text-white px-10 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                placeholder="Sua senha"
-                required
-              />
-            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-gray-100 text-gray-900 px-4 py-4 rounded-xl border-0 focus:bg-gray-200 focus:outline-none text-lg"
+              placeholder="Senha"
+              required
+            />
           </div>
 
+          {/* Botão de Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#A8E202] text-black py-4 rounded-xl font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? (
+              'Entrando...'
+            ) : (
+              <ArrowRight size={24} />
+            )}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-500 text-sm">
             Entre em contato para obter suas credenciais de acesso
           </p>
         </div>
