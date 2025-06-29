@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Eye, EyeOff, Bell } from 'lucide-react';
 
@@ -72,11 +71,13 @@ const Dashboard = () => {
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
-        {/* Logo Poupy - Simplified circular design */}
+        {/* Logo Poupy - Using the actual logo image */}
         <div className="flex items-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#D1FF00] rounded-full flex items-center justify-center">
-            <span className="text-black font-bold text-lg sm:text-xl">P</span>
-          </div>
+          <img 
+            src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" 
+            alt="Poupy Logo" 
+            className="h-10 sm:h-12 w-auto"
+          />
         </div>
 
         {/* Icons */}
