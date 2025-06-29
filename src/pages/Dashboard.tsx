@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Bell, Home, MessageSquare, Plus, Calendar, Bookmark } from 'lucide-react';
+import { Eye, EyeOff, Bell, Home, CreditCard, Plus, List, Book } from 'lucide-react';
 
 const Dashboard = () => {
   const [showValues, setShowValues] = useState(true);
@@ -69,7 +69,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden pb-20">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         {/* Logo Poupy - Using the actual logo image */}
@@ -172,24 +172,40 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation Menu */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 px-4 py-3">
-        <div className="flex items-center justify-center max-w-sm mx-auto">
-          <div className="flex items-center justify-between w-full bg-gray-900 rounded-full px-6 py-2">
-            <button className="p-2 text-gray-400 hover:text-white transition-colors">
-              <Home size={24} />
+      {/* Bottom Navigation Menu - Glassmorphism Style */}
+      <nav className="fixed bottom-4 left-4 right-4 mx-auto max-w-sm">
+        <div 
+          className="bg-black/40 backdrop-blur-md rounded-3xl px-6 py-4"
+          style={{ 
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          <div className="flex items-center justify-between">
+            {/* Home - Active */}
+            <button className="p-3 transition-colors">
+              <Home size={24} className="text-[#D1FF00]" fill="currentColor" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-white transition-colors">
-              <MessageSquare size={24} />
+            
+            {/* Transactions - Inactive */}
+            <button className="p-3 transition-colors">
+              <CreditCard size={24} className="text-white/60" />
             </button>
-            <button className="p-3 bg-[#A8E202] rounded-full text-black hover:bg-[#96CC02] transition-colors">
-              <Plus size={24} />
+            
+            {/* Add Button - Central */}
+            <button className="p-4 bg-[#D1FF00] rounded-full text-black hover:bg-[#B8E600] transition-all transform hover:scale-105">
+              <Plus size={28} strokeWidth={2.5} />
             </button>
-            <button className="p-2 text-gray-400 hover:text-white transition-colors">
-              <Calendar size={24} />
+            
+            {/* Categories - Inactive */}
+            <button className="p-3 transition-colors">
+              <List size={24} className="text-white/60" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-white transition-colors">
-              <Bookmark size={24} />
+            
+            {/* Learning - Inactive */}
+            <button className="p-3 transition-colors">
+              <Book size={24} className="text-white/60" />
             </button>
           </div>
         </div>
