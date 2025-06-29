@@ -13,8 +13,8 @@ interface Transaction {
   description: string;
   amount: number;
   type: 'income' | 'expense' | 'transfer';
-  category_id: string;
-  account_id: string;
+  category_id: number; // Changed from string to number
+  account_id: number; // Changed from string to number
   transaction_date: string;
   notes?: string;
   created_at: string;

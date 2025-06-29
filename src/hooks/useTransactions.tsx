@@ -9,7 +9,7 @@ interface Transaction {
   amount: number;
   type: 'income' | 'expense' | 'transfer';
   category_id: number; // Changed from string to number
-  account_id: string;
+  account_id: number; // Changed from string to number
   transaction_date: string;
   notes?: string;
   created_at: string;
@@ -70,7 +70,8 @@ export const useTransactions = () => {
       const typedTransactions = (data || []).map(transaction => ({
         ...transaction,
         type: transaction.type as 'income' | 'expense' | 'transfer',
-        category_id: transaction.category_id as number // Ensure it's typed as number
+        category_id: transaction.category_id as number, // Ensure it's typed as number
+        account_id: transaction.account_id as number // Ensure it's typed as number
       }));
       
       setTransactions(typedTransactions);

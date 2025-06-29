@@ -13,7 +13,7 @@ export type Database = {
         Row: {
           balance: number | null
           created_at: string | null
-          id: string
+          id: number
           name: string
           type: string
           updated_at: string | null
@@ -22,7 +22,7 @@ export type Database = {
         Insert: {
           balance?: number | null
           created_at?: string | null
-          id?: string
+          id?: number
           name: string
           type: string
           updated_at?: string | null
@@ -31,7 +31,7 @@ export type Database = {
         Update: {
           balance?: number | null
           created_at?: string | null
-          id?: string
+          id?: number
           name?: string
           type?: string
           updated_at?: string | null
@@ -116,7 +116,7 @@ export type Database = {
       }
       transactions: {
         Row: {
-          account_id: string
+          account_id: number
           amount: number
           category_id: number | null
           created_at: string | null
@@ -129,7 +129,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          account_id: string
+          account_id: number
           amount: number
           category_id?: number | null
           created_at?: string | null
@@ -142,7 +142,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          account_id?: string
+          account_id?: number
           amount?: number
           category_id?: number | null
           created_at?: string | null
