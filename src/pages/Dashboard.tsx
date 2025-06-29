@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTransactions } from '@/hooks/useTransactions';
@@ -9,6 +9,7 @@ import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 import AuthModal from '../components/AuthModal';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -20,6 +21,16 @@ const Dashboard = () => {
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    console.log('Dashboard - checking auth state:', { user: !!user });
+    if (!user) {
+      console.log('No user found, redirecting to home');
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -52,29 +63,15 @@ const Dashboard = () => {
     try {
       await signOut();
       toast.success('Logout realizado com sucesso!');
+      navigate('/');
     } catch (error) {
       toast.error('Erro ao fazer logout');
     }
   };
 
-  // Show auth modal if user is not logged in
+  // Show loading or redirect if no user
   if (!user) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <img src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" alt="Poupy Logo" className="h-16 w-auto mx-auto mb-6" />
-          <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Poupy</h1>
-          <p className="text-gray-400 mb-8">Faça login para acessar suas finanças</p>
-          <button
-            onClick={() => setIsAuthModalOpen(true)}
-            className="bg-[#A8E202] text-black px-8 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors"
-          >
-            Entrar
-          </button>
-        </div>
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      </div>
-    );
+    return null; // Will redirect in useEffect
   }
 
   const userName = user.user_metadata?.full_name || "Usuário";

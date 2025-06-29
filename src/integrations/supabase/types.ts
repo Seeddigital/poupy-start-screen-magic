@@ -37,7 +37,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_uuids"
+            referencedColumns: ["uuid"]
+          },
+        ]
       }
       categories: {
         Row: {
@@ -64,7 +72,15 @@ export type Database = {
           name?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_uuids"
+            referencedColumns: ["uuid"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -88,7 +104,15 @@ export type Database = {
           id?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_uuids"
+            referencedColumns: ["uuid"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -145,11 +169,32 @@ export type Database = {
             referencedRelation: "categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_uuids"
+            referencedColumns: ["uuid"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      user_uuids: {
+        Row: {
+          email: string | null
+          uuid: string | null
+        }
+        Insert: {
+          email?: string | null
+          uuid?: string | null
+        }
+        Update: {
+          email?: string | null
+          uuid?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
