@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Bell, Home, CreditCard, Plus, Grid3x3, BookOpen } from 'lucide-react';
+import { Eye, EyeOff, Bell, Home, Receipt, Plus, Grid3X3, BookOpen } from 'lucide-react';
 
 const Dashboard = () => {
   const [showValues, setShowValues] = useState(true);
@@ -190,7 +190,7 @@ const Dashboard = () => {
             
             {/* Transactions - Inactive */}
             <button className="p-3 transition-colors">
-              <CreditCard size={24} className="text-white/60" />
+              <Receipt size={24} className="text-white/60" />
             </button>
             
             {/* Add Button - Central */}
@@ -200,7 +200,7 @@ const Dashboard = () => {
             
             {/* Categories - Inactive */}
             <button className="p-3 transition-colors">
-              <Grid3x3 size={24} className="text-white/60" />
+              <Grid3X3 size={24} className="text-white/60" />
             </button>
             
             {/* Learning - Inactive */}
