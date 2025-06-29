@@ -1,121 +1,89 @@
+
 import React, { useState } from 'react';
-import { Eye, EyeOff, Bell } from 'lucide-react';
+import { Eye, EyeOff, Bell, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useTransactions } from '@/hooks/useTransactions';
 import BottomNavigation from '../components/BottomNavigation';
 import CategoryChart from '../components/CategoryChart';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
+import AuthModal from '../components/AuthModal';
+import { toast } from 'sonner';
 
 const Dashboard = () => {
+  const { user, signOut } = useAuth();
+  const { transactions, categories, monthlyExpenses, loading } = useTransactions();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Mock data - in real app this would come from API
-  const userName = "Rodrigo";
-  const monthlyExpenses = 12574.34;
-  const categories = [{
-    name: "Alimentação",
-    color: "#FF6B35",
-    amount: 2543.21,
-    percentage: 20
-  }, {
-    name: "Saúde",
-    color: "#F7DC6F",
-    amount: 1876.45,
-    percentage: 15
-  }, {
-    name: "Aluguel",
-    color: "#E74C3C",
-    amount: 1200.00,
-    percentage: 10
-  }, {
-    name: "Supermercado",
-    color: "#3498DB",
-    amount: 3456.78,
-    percentage: 27
-  }, {
-    name: "Transporte",
-    color: "#9B59B6",
-    amount: 987.65,
-    percentage: 8
-  }, {
-    name: "Lazer",
-    color: "#1ABC9C",
-    amount: 2510.25,
-    percentage: 20
-  }];
-  const transactions = [{
-    id: 1,
-    icon: "/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png",
-    name: "Restaurante Madero",
-    subcategory: "Alimentação • Nubank",
-    amount: -120.45,
-    date: "12 Jun 2025",
-    paymentMethod: "Nubank",
-    notes: "Almoço de negócios"
-  }, {
-    id: 2,
-    icon: "/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png",
-    name: "Salário iFood",
-    subcategory: "Conta Corrente Itaú",
-    amount: 3007.32,
-    date: "10 Jun 2025",
-    paymentMethod: "Transferência"
-  }, {
-    id: 3,
-    icon: "/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png",
-    name: "Farmácia Drogal",
-    subcategory: "Saúde • Personalite",
-    amount: -267.32,
-    date: "10 Jun 2025",
-    paymentMethod: "Personalite"
-  }, {
-    id: 4,
-    icon: "/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png",
-    name: "Strem XBox",
-    subcategory: "Lazer • Personalite",
-    amount: -32.98,
-    date: "06 Jun 2025",
-    paymentMethod: "Personalite"
-  }, {
-    id: 5,
-    icon: "/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png",
-    name: "Aluguel Apartamento",
-    subcategory: "Aluguel • Transferência",
-    amount: -1200.00,
-    date: "05 Jun 2025",
-    paymentMethod: "Transferência"
-  }];
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(Math.abs(value));
   };
+
   const handleTransactionClick = transaction => {
     setSelectedTransaction(transaction);
     setIsTransactionModalOpen(true);
   };
+
   const handleCategoryClick = category => {
     setSelectedCategory(category);
     setIsCategoryModalOpen(true);
   };
+
   const handleCategoryTransactionClick = transaction => {
     setSelectedTransaction(transaction);
     setIsCategoryModalOpen(false);
     setIsTransactionModalOpen(true);
   };
+
   const handleExpenseCardClick = () => {
     setShowChart(!showChart);
   };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success('Logout realizado com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao fazer logout');
+    }
+  };
+
+  // Show auth modal if user is not logged in
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <img src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" alt="Poupy Logo" className="h-16 w-auto mx-auto mb-6" />
+          <h1 className="text-2xl font-bold mb-4">Bem-vindo ao Poupy</h1>
+          <p className="text-gray-400 mb-8">Faça login para acessar suas finanças</p>
+          <button
+            onClick={() => setIsAuthModalOpen(true)}
+            className="bg-[#A8E202] text-black px-8 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors"
+          >
+            Entrar
+          </button>
+        </div>
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      </div>
+    );
+  }
+
+  const userName = user.user_metadata?.full_name || "Usuário";
+
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
-        {/* Logo Poupy - Using the actual logo image */}
+        {/* Logo Poupy */}
         <div className="flex items-center">
           <img src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" alt="Poupy Logo" className="h-10 sm:h-12 w-auto" />
         </div>
@@ -127,6 +95,9 @@ const Dashboard = () => {
           </button>
           <button className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 border border-gray-700 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
             <Bell size={18} className="text-white" />
+          </button>
+          <button onClick={handleSignOut} className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 border border-gray-700 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors">
+            <LogOut size={18} className="text-white" />
           </button>
         </div>
       </header>
@@ -193,44 +164,55 @@ const Dashboard = () => {
       <div className="px-4 sm:px-6">
         <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Transações</h2>
         
-        <div className="space-y-4">
-          {transactions.map(transaction => (
-            <div 
-              key={transaction.id} 
-              className="flex items-center justify-between py-3 sm:py-4 cursor-pointer hover:bg-gray-900 rounded-lg px-2 transition-colors" 
-              onClick={() => handleTransactionClick(transaction)}
-            >
-              {/* Left side - Icon and Details */}
-              <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
-                  <img src={transaction.icon} alt={transaction.name} className="w-full h-full object-contain" />
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400">Carregando transações...</p>
+          </div>
+        ) : transactions.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400">Nenhuma transação encontrada</p>
+            <p className="text-gray-500 text-sm mt-2">Suas transações aparecerão aqui</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {transactions.map(transaction => (
+              <div 
+                key={transaction.id} 
+                className="flex items-center justify-between py-3 sm:py-4 cursor-pointer hover:bg-gray-900 rounded-lg px-2 transition-colors" 
+                onClick={() => handleTransactionClick(transaction)}
+              >
+                {/* Left side - Icon and Details */}
+                <div className="flex items-center gap-3 sm:gap-4 flex-1">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
+                    <div className="w-6 h-6 rounded-full" style={{ backgroundColor: transaction.categories?.color || '#gray' }}></div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium text-sm sm:text-base truncate">
+                      {transaction.description}
+                    </p>
+                    <p className="text-gray-400 text-xs sm:text-sm truncate">
+                      {transaction.categories?.name} • {transaction.accounts?.name}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium text-sm sm:text-base truncate">
-                    {transaction.name}
-                  </p>
-                  <p className="text-gray-400 text-xs sm:text-sm truncate">
-                    {transaction.subcategory}
-                  </p>
-                </div>
-              </div>
 
-              {/* Right side - Amount and Date */}
-              <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
-                <p className={`font-bold text-sm sm:text-base ${transaction.amount > 0 ? 'text-[#A8E202]' : 'text-red-500'}`}>
-                  {showValues ? (
-                    transaction.amount > 0 
-                      ? `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}` 
-                      : `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}`
-                  ) : '••••••'}
-                </p>
-                <p className="text-gray-400 text-xs sm:text-sm">
-                  {transaction.date}
-                </p>
+                {/* Right side - Amount and Date */}
+                <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
+                  <p className={`font-bold text-sm sm:text-base ${transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'}`}>
+                    {showValues ? (
+                      transaction.type === 'income' 
+                        ? `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}` 
+                        : `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}`
+                    ) : '••••••'}
+                  </p>
+                  <p className="text-gray-400 text-xs sm:text-sm">
+                    {new Date(transaction.transaction_date).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Bottom Navigation Menu */}
