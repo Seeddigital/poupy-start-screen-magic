@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -6,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthModalProps {
   children: React.ReactNode;
@@ -27,6 +27,7 @@ const AuthModal = ({ children }: AuthModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Função para formatar o telefone baseado no país selecionado
   const formatPhone = (value: string, country: typeof countries[0]) => {
@@ -107,6 +108,8 @@ const AuthModal = ({ children }: AuthModalProps) => {
         title: "🎉 Bem-vindo ao Poupy!",
         description: "Login realizado com sucesso!"
       });
+      // Redirect to dashboard after successful login
+      navigate('/dashboard');
     }, 1500);
   };
 
