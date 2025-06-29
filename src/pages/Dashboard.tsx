@@ -1,21 +1,29 @@
+
 import React, { useState } from 'react';
 import { Eye, EyeOff, Bell } from 'lucide-react';
 import BottomNavigation from '../components/BottomNavigation';
+import CategoryChart from '../components/CategoryChart';
+import TransactionDetailModal from '../components/TransactionDetailModal';
+import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 
 const Dashboard = () => {
   const [showValues, setShowValues] = useState(true);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
 
   // Mock data - in real app this would come from API
   const userName = "Rodrigo";
   const monthlyExpenses = 12574.34;
   
   const categories = [
-    { name: "Alimentação", color: "#FF6B35" },
-    { name: "Saúde", color: "#F7DC6F" },
-    { name: "Aluguel", color: "#E74C3C" },
-    { name: "Supermercado", color: "#3498DB" },
-    { name: "Transporte", color: "#9B59B6" },
-    { name: "Lazer", color: "#1ABC9C" }
+    { name: "Alimentação", color: "#FF6B35", amount: 2543.21, percentage: 20 },
+    { name: "Saúde", color: "#F7DC6F", amount: 1876.45, percentage: 15 },
+    { name: "Aluguel", color: "#E74C3C", amount: 1200.00, percentage: 10 },
+    { name: "Supermercado", color: "#3498DB", amount: 3456.78, percentage: 27 },
+    { name: "Transporte", color: "#9B59B6", amount: 987.65, percentage: 8 },
+    { name: "Lazer", color: "#1ABC9C", amount: 2510.25, percentage: 20 }
   ];
 
   const transactions = [
@@ -25,7 +33,9 @@ const Dashboard = () => {
       name: "Restaurante Madero",
       subcategory: "Alimentação • Nubank",
       amount: -120.45,
-      date: "12 Jun 2025"
+      date: "12 Jun 2025",
+      paymentMethod: "Nubank",
+      notes: "Almoço de negócios"
     },
     {
       id: 2,
@@ -33,31 +43,35 @@ const Dashboard = () => {
       name: "Salário iFood",
       subcategory: "Conta Corrente Itaú",
       amount: 3007.32,
-      date: "10 Jun 2025"
+      date: "10 Jun 2025",
+      paymentMethod: "Transferência"
     },
     {
       id: 3,
       icon: "/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png",
       name: "Farmácia Drogal",
-      subcategory: "Cuidados com saúde • Personalite",
+      subcategory: "Saúde • Personalite",
       amount: -267.32,
-      date: "10 Jun 2025"
+      date: "10 Jun 2025",
+      paymentMethod: "Personalite"
     },
     {
       id: 4,
       icon: "/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png",
       name: "Strem XBox",
-      subcategory: "Lazer e Bem estar • Personalite",
+      subcategory: "Lazer • Personalite",
       amount: -32.98,
-      date: "06 Jun 2025"
+      date: "06 Jun 2025",
+      paymentMethod: "Personalite"
     },
     {
       id: 5,
       icon: "/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png",
       name: "Aluguel Apartamento",
-      subcategory: "Moradia • Transferência",
+      subcategory: "Aluguel • Transferência",
       amount: -1200.00,
-      date: "05 Jun 2025"
+      date: "05 Jun 2025",
+      paymentMethod: "Transferência"
     }
   ];
 
@@ -66,6 +80,22 @@ const Dashboard = () => {
       style: 'currency',
       currency: 'BRL'
     }).format(Math.abs(value));
+  };
+
+  const handleTransactionClick = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsTransactionModalOpen(true);
+  };
+
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    setIsCategoryModalOpen(true);
+  };
+
+  const handleCategoryTransactionClick = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsCategoryModalOpen(false);
+    setIsTransactionModalOpen(true);
   };
 
   return (
@@ -111,6 +141,15 @@ const Dashboard = () => {
           </p>
         </div>
 
+        {/* Categories Chart */}
+        <div className="mt-6">
+          <h3 className="text-white font-medium mb-4">Gastos por Categoria</h3>
+          <CategoryChart 
+            data={categories} 
+            onCategoryClick={handleCategoryClick}
+          />
+        </div>
+
         {/* Categories Legend */}
         <div className="mt-4 flex flex-wrap gap-3 sm:gap-4">
           {categories.map((category, index) => (
@@ -132,7 +171,11 @@ const Dashboard = () => {
         
         <div className="space-y-4">
           {transactions.map((transaction) => (
-            <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4">
+            <div 
+              key={transaction.id} 
+              className="flex items-center justify-between py-3 sm:py-4 cursor-pointer hover:bg-gray-900 rounded-lg px-2 transition-colors"
+              onClick={() => handleTransactionClick(transaction)}
+            >
               {/* Left side - Icon and Details */}
               <div className="flex items-center gap-3 sm:gap-4 flex-1">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
@@ -172,8 +215,23 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation Menu - Replace with component */}
+      {/* Bottom Navigation Menu */}
       <BottomNavigation />
+
+      {/* Modals */}
+      <TransactionDetailModal
+        transaction={selectedTransaction}
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+      />
+
+      <CategoryTransactionsModal
+        category={selectedCategory}
+        transactions={transactions}
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onTransactionClick={handleCategoryTransactionClick}
+      />
     </div>
   );
 };
