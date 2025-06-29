@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Mail, Lock, User } from 'lucide-react';
+import { X, Phone, Lock } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -10,32 +10,55 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (isLogin) {
-        await signIn(email, password);
-        toast.success('Login realizado com sucesso!');
-      } else {
-        await signUp(email, password, fullName);
-        toast.success('Conta criada com sucesso! Verifique seu email.');
-      }
+      // Simular autenticação com telefone e senha
+      // Em um cenário real, você faria uma chamada para sua API
+      await authenticateWithPhone(phone, password);
+      toast.success('Login realizado com sucesso!');
       onClose();
     } catch (error: any) {
       console.error('Auth error:', error);
-      toast.error(error.message || 'Erro ao fazer login/cadastro');
+      toast.error(error.message || 'Telefone ou senha incorretos');
     } finally {
       setLoading(false);
     }
+  };
+
+  const authenticateWithPhone = async (phone: string, password: string) => {
+    // Simular validação de credenciais
+    // Você pode implementar sua lógica de autenticação aqui
+    // Por exemplo, validar contra uma lista de usuários pré-definidos
+    
+    const validCredentials = [
+      { phone: '11999999999', password: 'poupy123' },
+      { phone: '11888888888', password: 'cliente456' },
+      // Adicione mais credenciais conforme necessário
+    ];
+
+    const isValid = validCredentials.some(
+      cred => cred.phone === phone && cred.password === password
+    );
+
+    if (!isValid) {
+      throw new Error('Telefone ou senha incorretos');
+    }
+
+    // Se válido, criar uma sessão simulada
+    // Em um cenário real, você criaria um token JWT ou similar
+    localStorage.setItem('user_session', JSON.stringify({
+      phone,
+      authenticated: true,
+      loginTime: new Date().toISOString()
+    }));
   };
 
   if (!isOpen) return null;
@@ -45,7 +68,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md mx-4">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-white">
-            {isLogin ? 'Entrar' : 'Criar Conta'}
+            Entrar no Poupy
           </h2>
           <button
             onClick={onClose}
@@ -56,33 +79,16 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
-            <div>
-              <label className="block text-sm text-gray-300 mb-2">Nome Completo</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-gray-800 text-white px-10 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                  placeholder="Seu nome completo"
-                  required={!isLogin}
-                />
-              </div>
-            </div>
-          )}
-
           <div>
-            <label className="block text-sm text-gray-300 mb-2">Email</label>
+            <label className="block text-sm text-gray-300 mb-2">Telefone</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="w-full bg-gray-800 text-white px-10 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                placeholder="seu@email.com"
+                placeholder="11999999999"
                 required
               />
             </div>
@@ -99,7 +105,6 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 className="w-full bg-gray-800 text-white px-10 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
                 placeholder="Sua senha"
                 required
-                minLength={6}
               />
             </div>
           </div>
@@ -109,20 +114,14 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             disabled={loading}
             className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Carregando...' : (isLogin ? 'Entrar' : 'Criar Conta')}
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-400">
-            {isLogin ? 'Não tem uma conta?' : 'Já tem uma conta?'}
+          <p className="text-gray-400 text-sm">
+            Entre em contato para obter suas credenciais de acesso
           </p>
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-[#A8E202] hover:underline mt-1"
-          >
-            {isLogin ? 'Criar conta' : 'Fazer login'}
-          </button>
         </div>
       </div>
     </div>

@@ -77,7 +77,8 @@ const Dashboard = () => {
     );
   }
 
-  const userName = user.user_metadata?.full_name || "Usuário";
+  // Usar o telefone como nome do usuário
+  const userName = user.phone ? `Usuário ${user.phone.slice(-4)}` : "Usuário";
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">

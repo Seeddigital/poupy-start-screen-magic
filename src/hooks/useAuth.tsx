@@ -1,14 +1,16 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+
+interface User {
+  phone: string;
+  authenticated: boolean;
+  loginTime: string;
+}
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string) => Promise<void>;
+  signIn: (phone: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -16,63 +18,76 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session);
-        setSession(session);
-        setUser(session?.user ?? null);
+    // Verificar se existe uma sessão salva
+    const checkSession = () => {
+      try {
+        const savedSession = localStorage.getItem('user_session');
+        if (savedSession) {
+          const session = JSON.parse(savedSession);
+          
+          // Verificar se a sessão ainda é válida (por exemplo, menos de 24 horas)
+          const loginTime = new Date(session.loginTime);
+          const now = new Date();
+          const hoursDiff = (now.getTime() - loginTime.getTime()) / (1000 * 3600);
+          
+          if (hoursDiff < 24 && session.authenticated) {
+            setUser(session);
+          } else {
+            // Sessão expirada
+            localStorage.removeItem('user_session');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+        localStorage.removeItem('user_session');
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    return () => subscription.unsubscribe();
+    checkSession();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-  };
+  const signIn = async (phone: string, password: string) => {
+    // Validar credenciais
+    const validCredentials = [
+      { phone: '11999999999', password: 'poupy123' },
+      { phone: '11888888888', password: 'cliente456' },
+      // Adicione mais credenciais conforme necessário
+    ];
 
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-      },
-    });
-    if (error) throw error;
+    const isValid = validCredentials.some(
+      cred => cred.phone === phone && cred.password === password
+    );
+
+    if (!isValid) {
+      throw new Error('Telefone ou senha incorretos');
+    }
+
+    // Criar sessão
+    const userSession = {
+      phone,
+      authenticated: true,
+      loginTime: new Date().toISOString()
+    };
+
+    localStorage.setItem('user_session', JSON.stringify(userSession));
+    setUser(userSession);
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    localStorage.removeItem('user_session');
+    setUser(null);
   };
 
   return (
     <AuthContext.Provider value={{
       user,
-      session,
       loading,
       signIn,
-      signUp,
       signOut,
     }}>
       {children}
