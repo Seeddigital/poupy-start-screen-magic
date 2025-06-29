@@ -21,7 +21,7 @@ const Dashboard = () => {
   const transactions = [
     {
       id: 1,
-      icon: "🍔",
+      icon: "/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png",
       name: "Restaurante Madero",
       subcategory: "Alimentação • Nubank",
       amount: -120.45,
@@ -29,7 +29,7 @@ const Dashboard = () => {
     },
     {
       id: 2,
-      icon: "💰",
+      icon: "/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png",
       name: "Salário iFood",
       subcategory: "Conta Corrente Itaú",
       amount: 3007.32,
@@ -37,7 +37,7 @@ const Dashboard = () => {
     },
     {
       id: 3,
-      icon: "💊",
+      icon: "/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png",
       name: "Farmácia Drogal",
       subcategory: "Cuidados com saúde • Personalite",
       amount: -267.32,
@@ -45,7 +45,7 @@ const Dashboard = () => {
     },
     {
       id: 4,
-      icon: "🎮",
+      icon: "/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png",
       name: "Strem XBox",
       subcategory: "Lazer e Bem estar • Personalite",
       amount: -32.98,
@@ -53,7 +53,7 @@ const Dashboard = () => {
     },
     {
       id: 5,
-      icon: "🏠",
+      icon: "/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png",
       name: "Aluguel Apartamento",
       subcategory: "Moradia • Transferência",
       amount: -1200.00,
@@ -135,8 +135,12 @@ const Dashboard = () => {
             <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4">
               {/* Left side - Icon and Details */}
               <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center text-lg sm:text-xl border border-gray-700">
-                  {transaction.icon}
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
+                  <img 
+                    src={transaction.icon} 
+                    alt={transaction.name}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-medium text-sm sm:text-base truncate">
