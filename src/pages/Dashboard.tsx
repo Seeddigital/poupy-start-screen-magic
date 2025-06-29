@@ -4,6 +4,7 @@ import BottomNavigation from '../components/BottomNavigation';
 import CategoryChart from '../components/CategoryChart';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
+
 const Dashboard = () => {
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
@@ -153,7 +154,7 @@ const Dashboard = () => {
           
           <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide">
             {categories.map((category, index) => <div key={index} className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{
+                <div className="w-4 h-2 rounded-sm flex-shrink-0" style={{
               backgroundColor: category.color
             }}></div>
                 <span className="text-gray-300 text-sm whitespace-nowrap">{category.name}</span>
@@ -210,4 +211,5 @@ const Dashboard = () => {
       <CategoryTransactionsModal category={selectedCategory} transactions={transactions} isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onTransactionClick={handleCategoryTransactionClick} />
     </div>;
 };
+
 export default Dashboard;
