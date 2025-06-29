@@ -21,35 +21,35 @@ const Dashboard = () => {
   const transactions = [
     {
       id: 1,
-      icon: "🍽️",
-      name: "Restaurante Japonês",
+      icon: "🍔",
+      name: "Restaurante Madero",
       subcategory: "Alimentação • Nubank",
       amount: -120.45,
       date: "12 Jun 2025"
     },
     {
       id: 2,
-      icon: "💳",
-      name: "Salário",
-      subcategory: "Receita • Banco Inter",
+      icon: "💰",
+      name: "Salário iFood",
+      subcategory: "Conta Corrente Itaú",
       amount: 3007.32,
       date: "10 Jun 2025"
     },
     {
       id: 3,
-      icon: "❤️",
-      name: "Farmácia",
-      subcategory: "Saúde • Cartão Crédito",
-      amount: -85.20,
-      date: "09 Jun 2025"
+      icon: "💊",
+      name: "Farmácia Drogal",
+      subcategory: "Cuidados com saúde • Personalite",
+      amount: -267.32,
+      date: "10 Jun 2025"
     },
     {
       id: 4,
       icon: "🎮",
-      name: "Steam Store",
-      subcategory: "Games • PayPal",
-      amount: -59.99,
-      date: "08 Jun 2025"
+      name: "Strem XBox",
+      subcategory: "Lazer e Bem estar • Personalite",
+      amount: -32.98,
+      date: "06 Jun 2025"
     },
     {
       id: 5,
@@ -72,10 +72,9 @@ const Dashboard = () => {
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
-        {/* Logo Poupy */}
+        {/* Logo Poupy - Simplified circular design */}
         <div className="flex items-center">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#D1FF00] rounded-full flex items-center justify-center relative">
-            <div className="w-2 h-2 bg-[#D1FF00] absolute -bottom-1 -right-1 rotate-45"></div>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#D1FF00] rounded-full flex items-center justify-center">
             <span className="text-black font-bold text-lg sm:text-xl">P</span>
           </div>
         </div>
@@ -134,7 +133,7 @@ const Dashboard = () => {
             <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4">
               {/* Left side - Icon and Details */}
               <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center text-lg sm:text-xl">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center text-lg sm:text-xl border border-gray-700">
                   {transaction.icon}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -154,8 +153,8 @@ const Dashboard = () => {
                 }`}>
                   {showValues ? (
                     transaction.amount > 0 ? 
-                    `+${formatCurrency(transaction.amount)}` : 
-                    `-${formatCurrency(transaction.amount)}`
+                    `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}` : 
+                    `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}`
                   ) : '••••••'}
                 </p>
                 <p className="text-gray-400 text-xs sm:text-sm">
