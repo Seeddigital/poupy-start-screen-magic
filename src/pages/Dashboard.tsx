@@ -116,7 +116,7 @@ const Dashboard = () => {
           {categories.map((category, index) => (
             <div key={index} className="flex items-center gap-2">
               <div 
-                className="w-4 h-3 rounded-sm"
+                className="w-4 h-2 rounded-sm"
                 style={{ backgroundColor: category.color }}
               ></div>
               <span className="text-gray-300 text-sm">{category.name}</span>
