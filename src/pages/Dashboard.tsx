@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
-import { Eye, EyeOff, Bell, Plus } from 'lucide-react';
+import { Eye, EyeOff, Bell } from 'lucide-react';
+import BottomNavigation from '../components/BottomNavigation';
 
 const Dashboard = () => {
   const [showValues, setShowValues] = useState(true);
@@ -172,64 +172,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation Menu - Glassmorphism Style */}
-      <nav className="fixed bottom-4 left-4 right-4 mx-auto max-w-sm">
-        <div 
-          className="bg-black/40 backdrop-blur-md rounded-3xl px-6 py-4"
-          style={{ 
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)'
-          }}
-        >
-          <div className="flex items-center justify-between">
-            {/* Home - Active */}
-            <button className="p-3 transition-colors">
-              <img 
-                src="/lovable-uploads/a67da8b5-f0b3-40ef-b607-f9f4b63b92ef.png" 
-                alt="Home" 
-                className="w-6 h-6"
-              />
-            </button>
-            
-            {/* Transactions - Inactive */}
-            <button className="p-3 transition-colors opacity-60">
-              <img 
-                src="/lovable-uploads/61b0f927-79ec-4370-989a-00a94c406874.png" 
-                alt="Transactions" 
-                className="w-6 h-6"
-              />
-            </button>
-            
-            {/* Add Button - Central */}
-            <button className="p-4 bg-[#D1FF00] rounded-full text-black hover:bg-[#B8E600] transition-all transform hover:scale-105">
-              <img 
-                src="/lovable-uploads/6995c97d-5e23-40a7-bc6f-34dee745330b.png" 
-                alt="Add" 
-                className="w-7 h-7"
-              />
-            </button>
-            
-            {/* Categories - Inactive */}
-            <button className="p-3 transition-colors opacity-60">
-              <img 
-                src="/lovable-uploads/8d5f4719-9c26-44b4-9b3a-7073a35f8ce7.png" 
-                alt="Categories" 
-                className="w-6 h-6"
-              />
-            </button>
-            
-            {/* Learning - Inactive */}
-            <button className="p-3 transition-colors opacity-60">
-              <img 
-                src="/lovable-uploads/cd861024-bba0-4c8d-ada9-dbc07070e800.png" 
-                alt="Learning" 
-                className="w-6 h-6"
-              />
-            </button>
-          </div>
-        </div>
-      </nav>
+      {/* Bottom Navigation Menu - Replace with component */}
+      <BottomNavigation />
     </div>
   );
 };
