@@ -7,12 +7,12 @@ const Categories = () => {
   const navigate = useNavigate();
 
   const categories = [
-    { name: "Alimentação", color: "#FF6B35", amount: 2543.21, percentage: 20 },
-    { name: "Saúde", color: "#F7DC6F", amount: 1876.45, percentage: 15 },
-    { name: "Aluguel", color: "#E74C3C", amount: 1200.00, percentage: 10 },
-    { name: "Supermercado", color: "#3498DB", amount: 3456.78, percentage: 27 },
-    { name: "Transporte", color: "#9B59B6", amount: 987.65, percentage: 8 },
-    { name: "Lazer", color: "#1ABC9C", amount: 2510.25, percentage: 20 }
+    { id: 1, name: "Alimentação", color: "#FF6B35", amount: 2543.21, percentage: 20 }, // Added id as number
+    { id: 2, name: "Saúde", color: "#F7DC6F", amount: 1876.45, percentage: 15 },
+    { id: 3, name: "Aluguel", color: "#E74C3C", amount: 1200.00, percentage: 10 },
+    { id: 4, name: "Supermercado", color: "#3498DB", amount: 3456.78, percentage: 27 },
+    { id: 5, name: "Transporte", color: "#9B59B6", amount: 987.65, percentage: 8 },
+    { id: 6, name: "Lazer", color: "#1ABC9C", amount: 2510.25, percentage: 20 }
   ];
 
   const formatCurrency = (value: number) => {
@@ -39,8 +39,8 @@ const Categories = () => {
       {/* Categories List */}
       <div className="px-4 sm:px-6">
         <div className="space-y-4">
-          {categories.map((category, index) => (
-            <div key={index} className="bg-gray-900 rounded-2xl p-4">
+          {categories.map((category) => (
+            <div key={category.id} className="bg-gray-900 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div 

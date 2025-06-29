@@ -52,7 +52,7 @@ export type Database = {
           color: string
           created_at: string | null
           icon: string | null
-          id: string
+          id: number
           name: string
           user_id: string | null
         }
@@ -60,7 +60,7 @@ export type Database = {
           color: string
           created_at?: string | null
           icon?: string | null
-          id?: string
+          id?: number
           name: string
           user_id?: string | null
         }
@@ -68,7 +68,7 @@ export type Database = {
           color?: string
           created_at?: string | null
           icon?: string | null
-          id?: string
+          id?: number
           name?: string
           user_id?: string | null
         }
@@ -118,7 +118,7 @@ export type Database = {
         Row: {
           account_id: string
           amount: number
-          category_id: string | null
+          category_id: number | null
           created_at: string | null
           description: string
           id: string
@@ -131,7 +131,7 @@ export type Database = {
         Insert: {
           account_id: string
           amount: number
-          category_id?: string | null
+          category_id?: number | null
           created_at?: string | null
           description: string
           id?: string
@@ -144,7 +144,7 @@ export type Database = {
         Update: {
           account_id?: string
           amount?: number
-          category_id?: string | null
+          category_id?: number | null
           created_at?: string | null
           description?: string
           id?: string
