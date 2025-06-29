@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, Bell } from 'lucide-react';
+import { Eye, EyeOff, Bell, Home, MessageSquare, Plus, Calendar, Bookmark } from 'lucide-react';
 
 const Dashboard = () => {
   const [showValues, setShowValues] = useState(true);
@@ -69,7 +69,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden pb-20">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         {/* Logo Poupy - Using the actual logo image */}
@@ -172,8 +172,28 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Bottom spacing for mobile */}
-      <div className="h-8"></div>
+      {/* Bottom Navigation Menu */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 px-4 py-3">
+        <div className="flex items-center justify-center max-w-sm mx-auto">
+          <div className="flex items-center justify-between w-full bg-gray-900 rounded-full px-6 py-2">
+            <button className="p-2 text-gray-400 hover:text-white transition-colors">
+              <Home size={24} />
+            </button>
+            <button className="p-2 text-gray-400 hover:text-white transition-colors">
+              <MessageSquare size={24} />
+            </button>
+            <button className="p-3 bg-[#A8E202] rounded-full text-black hover:bg-[#96CC02] transition-colors">
+              <Plus size={24} />
+            </button>
+            <button className="p-2 text-gray-400 hover:text-white transition-colors">
+              <Calendar size={24} />
+            </button>
+            <button className="p-2 text-gray-400 hover:text-white transition-colors">
+              <Bookmark size={24} />
+            </button>
+          </div>
+        </div>
+      </nav>
     </div>
   );
 };
