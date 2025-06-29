@@ -8,6 +8,7 @@ import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 
 const Dashboard = () => {
   const [showValues, setShowValues] = useState(true);
+  const [showChart, setShowChart] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -98,6 +99,10 @@ const Dashboard = () => {
     setIsTransactionModalOpen(true);
   };
 
+  const handleExpenseCardClick = () => {
+    setShowChart(!showChart);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">
       {/* Header */}
@@ -134,35 +139,44 @@ const Dashboard = () => {
 
       {/* Financial Summary Card */}
       <div className="px-4 sm:px-6 mb-6">
-        <div className="bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8">
+        <div 
+          className="bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8 cursor-pointer hover:bg-[#96D000] transition-colors"
+          onClick={handleExpenseCardClick}
+        >
           <p className="text-gray-700 text-sm sm:text-base mb-2">Gastos do mês</p>
           <p className="text-black text-3xl sm:text-4xl md:text-5xl font-bold">
             {showValues ? formatCurrency(monthlyExpenses) : '••••••'}
           </p>
+          <p className="text-gray-600 text-xs sm:text-sm mt-2">
+            {showChart ? 'Toque para ocultar gráfico' : 'Toque para ver gráfico'}
+          </p>
         </div>
 
-        {/* Categories Chart */}
+        {/* Categories Legend - Always visible */}
         <div className="mt-6">
-          <h3 className="text-white font-medium mb-4">Gastos por Categoria</h3>
-          <CategoryChart 
-            data={categories} 
-            onCategoryClick={handleCategoryClick}
-          />
+          <h3 className="text-white font-medium mb-4">Categorias</h3>
+          <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide">
+            {categories.map((category, index) => (
+              <div key={index} className="flex items-center gap-2 flex-shrink-0">
+                <div 
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: category.color }}
+                ></div>
+                <span className="text-gray-300 text-sm whitespace-nowrap">{category.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Categories Legend */}
-        <div className="mt-4 flex flex-wrap gap-3 sm:gap-4">
-          {categories.map((category, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div 
-                className="w-4 h-2 rounded-sm"
-                style={{ backgroundColor: category.color }}
-              ></div>
-              <span className="text-gray-300 text-sm">{category.name}</span>
-            </div>
-          ))}
-          <span className="text-gray-500 text-sm">...</span>
-        </div>
+        {/* Categories Chart - Only shown when showChart is true */}
+        {showChart && (
+          <div className="mt-6 animate-fade-in">
+            <CategoryChart 
+              data={categories} 
+              onCategoryClick={handleCategoryClick}
+            />
+          </div>
+        )}
       </div>
 
       {/* Transactions Section */}
