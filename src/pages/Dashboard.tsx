@@ -111,7 +111,8 @@ const Dashboard = () => {
   const handleExpenseCardClick = () => {
     setShowChart(!showChart);
   };
-  return <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">
+  return (
+    <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         {/* Logo Poupy - Using the actual logo image */}
@@ -137,9 +138,15 @@ const Dashboard = () => {
         </h1>
       </div>
 
-      {/* Financial Summary Card */}
-      <div className="px-4 sm:px-6 mb-6">
-        <div className="bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8 cursor-pointer hover:bg-[#96D000] transition-colors" onClick={handleExpenseCardClick}>
+      {/* Financial Summary Card with Chart Container */}
+      <div className="px-4 sm:px-6 mb-6 relative">
+        {/* Main Card with Shadow and Depth Effect */}
+        <div 
+          className={`bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8 cursor-pointer hover:bg-[#96D000] transition-all duration-300 relative z-10 ${
+            showChart ? 'shadow-2xl shadow-black/50' : 'shadow-lg shadow-black/25'
+          }`}
+          onClick={handleExpenseCardClick}
+        >
           <p className="text-gray-700 text-sm sm:text-base mb-2">Gastos do mês</p>
           <p className="text-black text-3xl sm:text-4xl md:text-5xl font-bold">
             {showValues ? formatCurrency(monthlyExpenses) : '••••••'}
@@ -149,23 +156,37 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Categories Legend - Always visible */}
-        <div className="mt-6">
-          
-          <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide">
-            {categories.map((category, index) => <div key={index} className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-4 h-2 rounded-sm flex-shrink-0" style={{
-              backgroundColor: category.color
-            }}></div>
-                <span className="text-gray-300 text-sm whitespace-nowrap">{category.name}</span>
-              </div>)}
+        {/* Chart Container with Slide Animation */}
+        <div 
+          className={`relative bg-black rounded-b-2xl sm:rounded-b-3xl transition-all duration-500 ease-out overflow-hidden ${
+            showChart 
+              ? 'max-h-96 opacity-100 translate-y-0' 
+              : 'max-h-0 opacity-0 translate-y-[-20px]'
+          }`}
+          style={{
+            transformOrigin: 'top',
+            marginTop: showChart ? '-8px' : '0',
+          }}
+        >
+          <div className="pt-8 pb-4 px-6 sm:px-8">
+            <CategoryChart data={categories} onCategoryClick={handleCategoryClick} />
           </div>
         </div>
 
-        {/* Categories Chart - Only shown when showChart is true */}
-        {showChart && <div className="mt-6 animate-fade-in">
-            <CategoryChart data={categories} onCategoryClick={handleCategoryClick} />
-          </div>}
+        {/* Categories Legend - Always visible */}
+        <div className="mt-6">
+          <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide">
+            {categories.map((category, index) => (
+              <div key={index} className="flex items-center gap-2 flex-shrink-0">
+                <div 
+                  className="w-4 h-2 rounded-sm flex-shrink-0" 
+                  style={{ backgroundColor: category.color }}
+                ></div>
+                <span className="text-gray-300 text-sm whitespace-nowrap">{category.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Transactions Section */}
@@ -173,7 +194,12 @@ const Dashboard = () => {
         <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Transações</h2>
         
         <div className="space-y-4">
-          {transactions.map(transaction => <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4 cursor-pointer hover:bg-gray-900 rounded-lg px-2 transition-colors" onClick={() => handleTransactionClick(transaction)}>
+          {transactions.map(transaction => (
+            <div 
+              key={transaction.id} 
+              className="flex items-center justify-between py-3 sm:py-4 cursor-pointer hover:bg-gray-900 rounded-lg px-2 transition-colors" 
+              onClick={() => handleTransactionClick(transaction)}
+            >
               {/* Left side - Icon and Details */}
               <div className="flex items-center gap-3 sm:gap-4 flex-1">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
@@ -192,13 +218,18 @@ const Dashboard = () => {
               {/* Right side - Amount and Date */}
               <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                 <p className={`font-bold text-sm sm:text-base ${transaction.amount > 0 ? 'text-[#A8E202]' : 'text-red-500'}`}>
-                  {showValues ? transaction.amount > 0 ? `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}` : `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}` : '••••••'}
+                  {showValues ? (
+                    transaction.amount > 0 
+                      ? `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}` 
+                      : `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}`
+                  ) : '••••••'}
                 </p>
                 <p className="text-gray-400 text-xs sm:text-sm">
                   {transaction.date}
                 </p>
               </div>
-            </div>)}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -206,10 +237,21 @@ const Dashboard = () => {
       <BottomNavigation />
 
       {/* Modals */}
-      <TransactionDetailModal transaction={selectedTransaction} isOpen={isTransactionModalOpen} onClose={() => setIsTransactionModalOpen(false)} />
+      <TransactionDetailModal 
+        transaction={selectedTransaction} 
+        isOpen={isTransactionModalOpen} 
+        onClose={() => setIsTransactionModalOpen(false)} 
+      />
 
-      <CategoryTransactionsModal category={selectedCategory} transactions={transactions} isOpen={isCategoryModalOpen} onClose={() => setIsCategoryModalOpen(false)} onTransactionClick={handleCategoryTransactionClick} />
-    </div>;
+      <CategoryTransactionsModal 
+        category={selectedCategory} 
+        transactions={transactions} 
+        isOpen={isCategoryModalOpen} 
+        onClose={() => setIsCategoryModalOpen(false)} 
+        onTransactionClick={handleCategoryTransactionClick} 
+      />
+    </div>
+  );
 };
 
 export default Dashboard;
