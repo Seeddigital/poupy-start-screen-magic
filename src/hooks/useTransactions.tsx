@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
 interface Transaction {
@@ -32,66 +33,6 @@ interface Category {
   percentage: number;
 }
 
-// Dados mockados para demonstração
-const mockTransactions: Transaction[] = [
-  {
-    id: '1',
-    description: 'Supermercado Extra',
-    amount: 150.00,
-    type: 'expense',
-    category_id: 'cat1',
-    account_id: 'acc1',
-    transaction_date: '2024-12-28',
-    created_at: '2024-12-28T10:00:00Z',
-    categories: { name: 'Supermercado', color: '#3498DB', icon: 'shopping-cart' },
-    accounts: { name: 'Conta Corrente', type: 'checking' }
-  },
-  {
-    id: '2',
-    description: 'Restaurante',
-    amount: 80.00,
-    type: 'expense',
-    category_id: 'cat2',
-    account_id: 'acc1',
-    transaction_date: '2024-12-27',
-    created_at: '2024-12-27T19:30:00Z',
-    categories: { name: 'Alimentação', color: '#FF6B35', icon: 'utensils' },
-    accounts: { name: 'Conta Corrente', type: 'checking' }
-  },
-  {
-    id: '3',
-    description: 'Salário',
-    amount: 3500.00,
-    type: 'income',
-    category_id: 'cat3',
-    account_id: 'acc1',
-    transaction_date: '2024-12-25',
-    created_at: '2024-12-25T08:00:00Z',
-    categories: { name: 'Salário', color: '#1ABC9C', icon: 'dollar-sign' },
-    accounts: { name: 'Conta Corrente', type: 'checking' }
-  },
-  {
-    id: '4',
-    description: 'Uber',
-    amount: 25.50,
-    type: 'expense',
-    category_id: 'cat4',
-    account_id: 'acc1',
-    transaction_date: '2024-12-26',
-    created_at: '2024-12-26T14:15:00Z',
-    categories: { name: 'Transporte', color: '#9B59B6', icon: 'car' },
-    accounts: { name: 'Conta Corrente', type: 'checking' }
-  }
-];
-
-const mockCategories: Category[] = [
-  { id: 'cat1', name: 'Supermercado', color: '#3498DB', icon: 'shopping-cart', amount: 150.00, percentage: 30 },
-  { id: 'cat2', name: 'Alimentação', color: '#FF6B35', icon: 'utensils', amount: 80.00, percentage: 16 },
-  { id: 'cat4', name: 'Transporte', color: '#9B59B6', icon: 'car', amount: 25.50, percentage: 5 },
-  { id: 'cat5', name: 'Lazer', color: '#1ABC9C', icon: 'gamepad-2', amount: 120.00, percentage: 24 },
-  { id: 'cat6', name: 'Saúde', color: '#F7DC6F', icon: 'heart', amount: 200.00, percentage: 25 }
-];
-
 export const useTransactions = () => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -101,33 +42,106 @@ export const useTransactions = () => {
 
   useEffect(() => {
     if (user) {
-      // Simular carregamento de dados
-      setTimeout(() => {
-        setTransactions(mockTransactions);
-        setCategories(mockCategories);
-        
-        // Calcular gastos mensais
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const monthlyTotal = mockTransactions
-          .filter(t => {
-            const transactionDate = new Date(t.transaction_date);
-            return transactionDate.getMonth() === currentMonth && 
-                   transactionDate.getFullYear() === currentYear &&
-                   t.type === 'expense';
-          })
-          .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
-        
-        setMonthlyExpenses(monthlyTotal);
-        setLoading(false);
-      }, 1000);
-    } else {
-      setTransactions([]);
-      setCategories([]);
-      setMonthlyExpenses(0);
-      setLoading(false);
+      fetchTransactions();
+      fetchCategories();
     }
   }, [user]);
+
+  const fetchTransactions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select(`
+          *,
+          categories:category_id (name, color, icon),
+          accounts:account_id (name, type)
+        `)
+        .order('transaction_date', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        return;
+      }
+
+      console.log('Fetched transactions:', data);
+      
+      // Type assertion to ensure proper typing
+      const typedTransactions = (data || []).map(transaction => ({
+        ...transaction,
+        type: transaction.type as 'income' | 'expense' | 'transfer'
+      }));
+      
+      setTransactions(typedTransactions);
+      
+      // Calculate monthly expenses
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const monthlyTotal = typedTransactions
+        .filter(t => {
+          const transactionDate = new Date(t.transaction_date);
+          return transactionDate.getMonth() === currentMonth && 
+                 transactionDate.getFullYear() === currentYear &&
+                 t.type === 'expense';
+        })
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+      
+      setMonthlyExpenses(monthlyTotal);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+        return;
+      }
+
+      console.log('Fetched categories:', data);
+      
+      // Calculate category totals from transactions
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      const { data: transactionData } = await supabase
+        .from('transactions')
+        .select('amount, category_id, transaction_date, type')
+        .eq('type', 'expense');
+
+      const categoryTotals = (transactionData || [])
+        .filter(t => {
+          const transactionDate = new Date(t.transaction_date);
+          return transactionDate.getMonth() === currentMonth && 
+                 transactionDate.getFullYear() === currentYear;
+        })
+        .reduce((acc, t) => {
+          if (t.category_id) {
+            acc[t.category_id] = (acc[t.category_id] || 0) + Math.abs(Number(t.amount));
+          }
+          return acc;
+        }, {} as Record<string, number>);
+
+      const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
+
+      const categoriesWithAmounts = (data || []).map(cat => ({
+        ...cat,
+        amount: categoryTotals[cat.id] || 0,
+        percentage: totalExpenses > 0 ? Math.round((categoryTotals[cat.id] || 0) / totalExpenses * 100) : 0
+      }));
+
+      setCategories(categoriesWithAmounts);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return {
     transactions,
@@ -135,12 +149,8 @@ export const useTransactions = () => {
     monthlyExpenses,
     loading,
     refetch: () => {
-      setLoading(true);
-      setTimeout(() => {
-        setTransactions(mockTransactions);
-        setCategories(mockCategories);
-        setLoading(false);
-      }, 500);
+      fetchTransactions();
+      fetchCategories();
     }
   };
 };
