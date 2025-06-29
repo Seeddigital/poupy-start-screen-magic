@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Eye, EyeOff, Bell } from 'lucide-react';
 
@@ -103,7 +104,7 @@ const Dashboard = () => {
 
       {/* Financial Summary Card */}
       <div className="px-4 sm:px-6 mb-6">
-        <div className="bg-[#D1FF00] rounded-2xl sm:rounded-3xl p-6 sm:p-8">
+        <div className="bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8">
           <p className="text-gray-700 text-sm sm:text-base mb-2">Gastos do mês</p>
           <p className="text-black text-3xl sm:text-4xl md:text-5xl font-bold">
             {showValues ? formatCurrency(monthlyExpenses) : '••••••'}
@@ -150,7 +151,7 @@ const Dashboard = () => {
               {/* Right side - Amount and Date */}
               <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                 <p className={`font-bold text-sm sm:text-base ${
-                  transaction.amount > 0 ? 'text-[#D1FF00]' : 'text-red-500'
+                  transaction.amount > 0 ? 'text-[#A8E202]' : 'text-red-500'
                 }`}>
                   {showValues ? (
                     transaction.amount > 0 ? 
