@@ -2,7 +2,11 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const BottomNavigation = () => {
+interface BottomNavigationProps {
+  onAddTransaction?: () => void;
+}
+
+const BottomNavigation = ({ onAddTransaction }: BottomNavigationProps) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -37,8 +41,9 @@ const BottomNavigation = () => {
 
   const handleNavigation = (path: string) => {
     if (path === '/add') {
-      // TODO: Implementar modal de adicionar transação
-      console.log('Abrir modal de adicionar transação');
+      if (onAddTransaction) {
+        onAddTransaction();
+      }
       return;
     }
     navigate(path);

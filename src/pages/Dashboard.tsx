@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Bell, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,19 +6,21 @@ import BottomNavigation from '../components/BottomNavigation';
 import CategoryChart from '../components/CategoryChart';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
+import AddTransactionModal from '../components/AddTransactionModal';
 import AuthModal from '../components/AuthModal';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
-  const { transactions, categories, monthlyExpenses, loading } = useTransactions();
+  const { transactions, categories, monthlyExpenses, loading, refetch } = useTransactions();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -67,6 +68,14 @@ const Dashboard = () => {
     } catch (error) {
       toast.error('Erro ao fazer logout');
     }
+  };
+
+  const handleAddTransaction = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleTransactionAdded = () => {
+    refetch();
   };
 
   // Show loading or redirect if no user
@@ -221,7 +230,7 @@ const Dashboard = () => {
       </div>
 
       {/* Bottom Navigation Menu */}
-      <BottomNavigation />
+      <BottomNavigation onAddTransaction={handleAddTransaction} />
 
       {/* Modals */}
       <TransactionDetailModal 
@@ -236,6 +245,12 @@ const Dashboard = () => {
         isOpen={isCategoryModalOpen} 
         onClose={() => setIsCategoryModalOpen(false)} 
         onTransactionClick={handleCategoryTransactionClick} 
+      />
+
+      <AddTransactionModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onTransactionAdded={handleTransactionAdded}
       />
     </div>
   );
