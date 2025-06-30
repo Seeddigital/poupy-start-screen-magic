@@ -2,18 +2,11 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTransactions } from '@/hooks/useTransactions';
 
 const Categories = () => {
   const navigate = useNavigate();
-
-  const categories = [
-    { cat_id: 1, name: "Alimentação", color: "#FF6B35", amount: 2543.21, percentage: 20 },
-    { cat_id: 2, name: "Saúde", color: "#F7DC6F", amount: 1876.45, percentage: 15 },
-    { cat_id: 3, name: "Aluguel", color: "#E74C3C", amount: 1200.00, percentage: 10 },
-    { cat_id: 4, name: "Supermercado", color: "#3498DB", amount: 3456.78, percentage: 27 },
-    { cat_id: 5, name: "Transporte", color: "#9B59B6", amount: 987.65, percentage: 8 },
-    { cat_id: 6, name: "Lazer", color: "#1ABC9C", amount: 2510.25, percentage: 20 }
-  ];
+  const { categories, loading } = useTransactions();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -38,37 +31,56 @@ const Categories = () => {
 
       {/* Categories List */}
       <div className="px-4 sm:px-6">
-        <div className="space-y-4">
-          {categories.map((category) => (
-            <div key={category.cat_id} className="bg-gray-900 rounded-2xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-6 h-6 rounded-full"
-                    style={{ backgroundColor: category.color }}
-                  ></div>
-                  <h3 className="text-white font-medium">{category.name}</h3>
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400">Carregando categorias...</p>
+          </div>
+        ) : categories.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-400">Nenhuma categoria encontrada</p>
+            <p className="text-gray-500 text-sm mt-2">Suas categorias aparecerão aqui</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {categories.map((category) => (
+              <div key={category.cat_id} className="bg-gray-900 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    {category.icon ? (
+                      <img 
+                        src={category.icon} 
+                        alt={category.name}
+                        className="w-6 h-6 object-contain"
+                      />
+                    ) : (
+                      <div 
+                        className="w-6 h-6 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                      ></div>
+                    )}
+                    <h3 className="text-white font-medium">{category.name}</h3>
+                  </div>
+                  <span className="text-gray-400 text-sm">{category.percentage}%</span>
                 </div>
-                <span className="text-gray-400 text-sm">{category.percentage}%</span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-white font-bold text-lg">
-                  {formatCurrency(category.amount)}
-                </span>
-                <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full rounded-full transition-all duration-300"
-                    style={{ 
-                      backgroundColor: category.color,
-                      width: `${category.percentage * 5}%`
-                    }}
-                  ></div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-bold text-lg">
+                    {formatCurrency(category.amount)}
+                  </span>
+                  <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{ 
+                        backgroundColor: category.color,
+                        width: `${Math.min(category.percentage * 5, 100)}%`
+                      }}
+                    ></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

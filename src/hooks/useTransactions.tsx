@@ -119,18 +119,20 @@ export const useTransactions = () => {
 
   const fetchCategories = async () => {
     try {
-      console.log('Fetching categories...');
+      console.log('Fetching categories for user:', user?.id);
       
+      // Fetch only categories that belong to the current user
       const { data, error } = await supabase
         .from('categories')
-        .select('*');
+        .select('*')
+        .eq('user_id', user?.id);
 
       if (error) {
         console.error('Error fetching categories:', error);
         return;
       }
 
-      console.log('Fetched categories:', data);
+      console.log('Fetched user categories:', data);
       
       // Calculate category totals from transactions
       const currentMonth = new Date().getMonth();
