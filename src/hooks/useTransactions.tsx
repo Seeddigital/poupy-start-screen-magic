@@ -33,6 +33,23 @@ interface Category {
   percentage: number;
 }
 
+// Icon mapping for categories
+const categoryIcons: { [key: string]: string } = {
+  'Alimentação': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
+  'Família e Crianças': '/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png',
+  'Cuidados com saúde': '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
+  'Lazer e Bem estar': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
+  'Moradia': '/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png',
+  'Transporte': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
+  'Pet': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
+  'Outros': '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
+  'Mercado': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
+  'Gasolina': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
+  'Cinema': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
+  'Material de escritório': '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
+  'Ração para o gato': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png'
+};
+
 export const useTransactions = () => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -73,7 +90,11 @@ export const useTransactions = () => {
         ...transaction,
         type: transaction.type as 'income' | 'expense' | 'transfer',
         category_id: transaction.category_id as number,
-        account_id: transaction.account_id as number
+        account_id: transaction.account_id as number,
+        categories: transaction.categories ? {
+          ...transaction.categories,
+          icon: categoryIcons[transaction.categories.name] || transaction.categories.icon
+        } : undefined
       }));
       
       setTransactions(typedTransactions);
@@ -146,7 +167,7 @@ export const useTransactions = () => {
         cat_id: Number(cat.category_id), // Use category_id from database
         name: cat.name,
         color: cat.color,
-        icon: cat.icon,
+        icon: categoryIcons[cat.name] || cat.icon,
         amount: categoryTotals[Number(cat.category_id)] || 0,
         percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
       }));

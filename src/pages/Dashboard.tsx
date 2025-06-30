@@ -181,7 +181,15 @@ const Dashboard = () => {
                 {/* Left side - Icon and Details */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
-                    <div className="w-6 h-6 rounded-full" style={{ backgroundColor: transaction.categories?.color || '#gray' }}></div>
+                    {transaction.categories?.icon ? (
+                      <img 
+                        src={transaction.categories.icon} 
+                        alt={transaction.categories.name}
+                        className="w-6 h-6 object-contain"
+                      />
+                    ) : (
+                      <div className="w-6 h-6 rounded-full" style={{ backgroundColor: transaction.categories?.color || '#gray' }}></div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-medium text-sm sm:text-base truncate">
