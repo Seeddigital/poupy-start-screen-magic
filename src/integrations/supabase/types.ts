@@ -49,7 +49,7 @@ export type Database = {
       }
       categories: {
         Row: {
-          cat_id: number
+          category_id: number
           color: string
           created_at: string | null
           icon: string | null
@@ -57,7 +57,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
-          cat_id: number
+          category_id: number
           color: string
           created_at?: string | null
           icon?: string | null
@@ -65,7 +65,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
-          cat_id?: number
+          category_id?: number
           color?: string
           created_at?: string | null
           icon?: string | null
@@ -167,7 +167,7 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
-            referencedColumns: ["cat_id"]
+            referencedColumns: ["category_id"]
           },
           {
             foreignKeyName: "transactions_user_id_fkey"

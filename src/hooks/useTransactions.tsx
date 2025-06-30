@@ -131,13 +131,14 @@ export const useTransactions = () => {
 
       const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
 
+      // Use category_id as the key field since that's what's in your database
       const categoriesWithAmounts = (data || []).map(cat => ({
-        cat_id: Number(cat.cat_id),
+        cat_id: Number(cat.category_id), // Use category_id from database
         name: cat.name,
         color: cat.color,
         icon: cat.icon,
-        amount: categoryTotals[Number(cat.cat_id)] || 0,
-        percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.cat_id)] || 0) / totalExpenses * 100) : 0
+        amount: categoryTotals[Number(cat.category_id)] || 0,
+        percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
       }));
 
       setCategories(categoriesWithAmounts);
