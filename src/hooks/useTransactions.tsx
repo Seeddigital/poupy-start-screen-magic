@@ -8,8 +8,8 @@ interface Transaction {
   description: string;
   amount: number;
   type: 'income' | 'expense' | 'transfer';
-  category_id: number; // Changed from string to number
-  account_id: number; // Changed from string to number
+  category_id: number;
+  account_id: number;
   transaction_date: string;
   notes?: string;
   created_at: string;
@@ -25,7 +25,7 @@ interface Transaction {
 }
 
 interface Category {
-  id: number; // Changed from string to number
+  cat_id: number;
   name: string;
   color: string;
   icon?: string;
@@ -66,12 +66,11 @@ export const useTransactions = () => {
 
       console.log('Fetched transactions:', data);
       
-      // Type assertion to ensure proper typing
       const typedTransactions = (data || []).map(transaction => ({
         ...transaction,
         type: transaction.type as 'income' | 'expense' | 'transfer',
-        category_id: transaction.category_id as number, // Ensure it's typed as number
-        account_id: transaction.account_id as number // Ensure it's typed as number
+        category_id: transaction.category_id as number,
+        account_id: transaction.account_id as number
       }));
       
       setTransactions(typedTransactions);
@@ -124,20 +123,21 @@ export const useTransactions = () => {
         })
         .reduce((acc, t) => {
           if (t.category_id) {
-            // Ensure category_id is treated as number for accumulator key
             const categoryId = Number(t.category_id);
             acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
           }
           return acc;
-        }, {} as Record<number, number>); // Changed from Record<string, number> to Record<number, number>
+        }, {} as Record<number, number>);
 
       const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
 
       const categoriesWithAmounts = (data || []).map(cat => ({
-        ...cat,
-        id: Number(cat.id), // Ensure id is number type
-        amount: categoryTotals[Number(cat.id)] || 0,
-        percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.id)] || 0) / totalExpenses * 100) : 0
+        cat_id: Number(cat.cat_id),
+        name: cat.name,
+        color: cat.color,
+        icon: cat.icon,
+        amount: categoryTotals[Number(cat.cat_id)] || 0,
+        percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.cat_id)] || 0) / totalExpenses * 100) : 0
       }));
 
       setCategories(categoriesWithAmounts);

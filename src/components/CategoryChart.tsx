@@ -3,7 +3,7 @@ import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 
 interface CategoryData {
-  id: number; // Changed from string to number
+  cat_id: number;
   name: string;
   amount: number;
   color: string;
