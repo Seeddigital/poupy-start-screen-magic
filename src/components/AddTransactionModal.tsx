@@ -138,9 +138,9 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div className="bg-black rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-gray-800">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-800">
           <h2 className="text-xl font-semibold text-white">Nova Transação</h2>
           <button
             onClick={onClose}
@@ -161,7 +161,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
               type="text"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="Ex: Supermercado"
               required
             />
@@ -177,7 +177,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
               step="0.01"
               value={formData.amount}
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               placeholder="0,00"
               required
             />
@@ -191,7 +191,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
             <select
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
               required
             >
               <option value="expense">Despesa</option>
@@ -208,7 +208,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
             <select
               value={formData.category_id}
               onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
               required
             >
               <option value="">Selecione uma categoria</option>
@@ -228,7 +228,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
             <select
               value={formData.account_id}
               onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
               required
             >
               <option value="">Selecione uma conta</option>
@@ -249,7 +249,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
               type="date"
               value={formData.transaction_date}
               onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })}
-              className="bg-gray-800 border-gray-700 text-white"
+              className="bg-gray-900 border-gray-700 text-white"
               required
             />
           </div>
@@ -262,7 +262,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
             <textarea
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 py-2 resize-none"
+              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 resize-none"
               rows={3}
               placeholder="Observações adicionais..."
             />
