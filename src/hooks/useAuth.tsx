@@ -7,39 +7,11 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Mock user data for demonstration
-const MOCK_USERS = [
-  {
-    phone: '11999999999',
-    password: 'poupy123',
-    userData: {
-      id: 'mock-user-1',
-      email: 'mock@poupy.com',
-      aud: 'authenticated',
-      role: 'authenticated',
-      email_confirmed_at: new Date().toISOString(),
-      phone: '11999999999',
-      confirmed_at: new Date().toISOString(),
-      last_sign_in_at: new Date().toISOString(),
-      app_metadata: {
-        provider: 'phone',
-        providers: ['phone']
-      },
-      user_metadata: { 
-        full_name: 'Usuário Teste' 
-      },
-      identities: [],
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-  }
-];
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -47,67 +19,61 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in (localStorage)
-    const savedUser = localStorage.getItem('poupy-user');
-    if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
-      setSession({ 
-        user: userData,
-        access_token: 'mock-access-token',
-        refresh_token: 'mock-refresh-token',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        token_type: 'bearer'
-      } as Session);
-    }
-    setLoading(false);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email);
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (phone: string, password: string) => {
-    console.log('Attempting login with:', phone);
+  const signIn = async (email: string, password: string) => {
+    console.log('Attempting login with:', email);
     
-    // Remove formatting from phone
-    const cleanPhone = phone.replace(/\D/g, '');
-    
-    // Check mock users
-    const mockUser = MOCK_USERS.find(u => 
-      u.phone === cleanPhone && u.password === password
-    );
-    
-    if (mockUser) {
-      console.log('Mock user found, logging in...');
-      const userData = mockUser.userData as User;
-      
-      // Save to localStorage
-      localStorage.setItem('poupy-user', JSON.stringify(userData));
-      
-      // Create mock session
-      const mockSession = {
-        user: userData,
-        access_token: 'mock-access-token',
-        refresh_token: 'mock-refresh-token',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        token_type: 'bearer'
-      } as Session;
-      
-      // Update state
-      setUser(userData);
-      setSession(mockSession);
-      
-      console.log('Login successful, user set:', userData);
-      return { success: true };
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.log('Login error:', error.message);
+        return { success: false, error: error.message };
+      }
+
+      if (data.user) {
+        console.log('Login successful:', data.user.email);
+        return { success: true };
+      }
+
+      return { success: false, error: 'Erro desconhecido ao fazer login' };
+    } catch (error: any) {
+      console.error('Login exception:', error);
+      return { success: false, error: 'Erro ao conectar com o servidor' };
     }
-    
-    console.log('Invalid credentials');
-    return { success: false, error: 'Telefone ou senha inválidos' };
   };
 
   const signOut = async () => {
-    localStorage.removeItem('poupy-user');
-    setUser(null);
-    setSession(null);
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setSession(null);
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   return (
