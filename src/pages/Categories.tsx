@@ -37,11 +37,16 @@ const Categories = () => {
           </div>
         ) : categories.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-400">Nenhuma categoria encontrada</p>
-            <p className="text-gray-500 text-sm mt-2">Suas categorias aparecerão aqui</p>
+            <p className="text-gray-400">Nenhuma categoria com transações encontrada</p>
+            <p className="text-gray-500 text-sm mt-2">Faça algumas transações para ver suas categorias aqui</p>
           </div>
         ) : (
           <div className="space-y-4">
+            <div className="mb-4">
+              <p className="text-gray-400 text-sm">
+                Mostrando apenas categorias com transações neste mês
+              </p>
+            </div>
             {categories.map((category) => (
               <div key={category.cat_id} className="bg-gray-900 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-3">

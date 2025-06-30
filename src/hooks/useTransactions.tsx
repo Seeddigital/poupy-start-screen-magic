@@ -172,9 +172,11 @@ export const useTransactions = () => {
         icon: categoryIcons[cat.name] || cat.icon,
         amount: categoryTotals[Number(cat.category_id)] || 0,
         percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
-      }));
+      }))
+      .filter(cat => cat.amount > 0) // Only show categories with transactions
+      .sort((a, b) => b.amount - a.amount); // Sort by amount descending
 
-      console.log('Categories with amounts:', categoriesWithAmounts);
+      console.log('Categories with amounts (filtered):', categoriesWithAmounts);
       setCategories(categoriesWithAmounts);
     } catch (error) {
       console.error('Error fetching categories:', error);
