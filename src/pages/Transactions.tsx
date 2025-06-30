@@ -2,52 +2,11 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTransactions } from '@/hooks/useTransactions';
 
 const Transactions = () => {
   const navigate = useNavigate();
-
-  const transactions = [
-    {
-      id: 1,
-      icon: "/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png",
-      name: "Restaurante Madero",
-      subcategory: "Alimentação • Nubank",
-      amount: -120.45,
-      date: "12 Jun 2025"
-    },
-    {
-      id: 2,
-      icon: "/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png",
-      name: "Salário iFood",
-      subcategory: "Conta Corrente Itaú",
-      amount: 3007.32,
-      date: "10 Jun 2025"
-    },
-    {
-      id: 3,
-      icon: "/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png",
-      name: "Farmácia Drogal",
-      subcategory: "Cuidados com saúde • Personalite",
-      amount: -267.32,
-      date: "10 Jun 2025"
-    },
-    {
-      id: 4,
-      icon: "/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png",
-      name: "Strem XBox",
-      subcategory: "Lazer e Bem estar • Personalite",
-      amount: -32.98,
-      date: "06 Jun 2025"
-    },
-    {
-      id: 5,
-      icon: "/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png",
-      name: "Aluguel Apartamento",
-      subcategory: "Moradia • Transferência",
-      amount: -1200.00,
-      date: "05 Jun 2025"
-    }
-  ];
+  const { transactions, loading } = useTransactions();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -55,6 +14,26 @@ const Transactions = () => {
       currency: 'BRL'
     }).format(Math.abs(value));
   };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black text-white pb-24 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A8E202] mx-auto mb-4"></div>
+          <p className="text-gray-400">Carregando transações...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white pb-24">
@@ -72,45 +51,53 @@ const Transactions = () => {
 
       {/* Transactions List */}
       <div className="px-4 sm:px-6">
-        <div className="space-y-4">
-          {transactions.map((transaction) => (
-            <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800">
-              {/* Left side - Icon and Details */}
-              <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
-                  <img 
-                    src={transaction.icon} 
-                    alt={transaction.name}
-                    className="w-full h-full object-contain"
-                  />
+        {transactions.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-400 text-lg mb-2">Nenhuma transação encontrada</p>
+            <p className="text-gray-500 text-sm">Adicione sua primeira transação usando o botão + no menu</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {transactions.map((transaction) => (
+              <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800">
+                {/* Left side - Icon and Details */}
+                <div className="flex items-center gap-3 sm:gap-4 flex-1">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
+                    {transaction.categories?.icon ? (
+                      <img 
+                        src={transaction.categories.icon} 
+                        alt={transaction.categories.name}
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <div className="w-6 h-6 bg-gray-600 rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium text-sm sm:text-base truncate">
+                      {transaction.description}
+                    </p>
+                    <p className="text-gray-400 text-xs sm:text-sm truncate">
+                      {transaction.categories?.name || 'Sem categoria'} • {transaction.accounts?.name || 'Conta não especificada'}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium text-sm sm:text-base truncate">
-                    {transaction.name}
-                  </p>
-                  <p className="text-gray-400 text-xs sm:text-sm truncate">
-                    {transaction.subcategory}
-                  </p>
-                </div>
-              </div>
 
-              {/* Right side - Amount and Date */}
-              <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
-                <p className={`font-bold text-sm sm:text-base ${
-                  transaction.amount > 0 ? 'text-[#A8E202]' : 'text-red-500'
-                }`}>
-                  {transaction.amount > 0 ? 
-                    `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}` : 
-                    `R$ ${formatCurrency(transaction.amount).replace('R$', '').trim()}`
-                  }
-                </p>
-                <p className="text-gray-400 text-xs sm:text-sm">
-                  {transaction.date}
-                </p>
+                {/* Right side - Amount and Date */}
+                <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
+                  <p className={`font-bold text-sm sm:text-base ${
+                    transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'
+                  }`}>
+                    {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
+                  </p>
+                  <p className="text-gray-400 text-xs sm:text-sm">
+                    {formatDate(transaction.transaction_date)}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
