@@ -49,6 +49,8 @@ export const useTransactions = () => {
 
   const fetchTransactions = async () => {
     try {
+      console.log('Fetching transactions for user:', user?.id);
+      
       const { data, error } = await supabase
         .from('transactions')
         .select(`
@@ -56,6 +58,7 @@ export const useTransactions = () => {
           categories:category_id (name, color, icon),
           accounts:account_id (name, type)
         `)
+        .eq('user_id', user?.id)
         .order('transaction_date', { ascending: false })
         .limit(10);
 
@@ -95,6 +98,8 @@ export const useTransactions = () => {
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories...');
+      
       const { data, error } = await supabase
         .from('categories')
         .select('*');
@@ -113,7 +118,10 @@ export const useTransactions = () => {
       const { data: transactionData } = await supabase
         .from('transactions')
         .select('amount, category_id, transaction_date, type')
-        .eq('type', 'expense');
+        .eq('type', 'expense')
+        .eq('user_id', user?.id);
+
+      console.log('Transaction data for categories:', transactionData);
 
       const categoryTotals = (transactionData || [])
         .filter(t => {
@@ -129,6 +137,8 @@ export const useTransactions = () => {
           return acc;
         }, {} as Record<number, number>);
 
+      console.log('Category totals:', categoryTotals);
+
       const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
 
       // Use category_id as the key field since that's what's in your database
@@ -141,6 +151,7 @@ export const useTransactions = () => {
         percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
       }));
 
+      console.log('Categories with amounts:', categoriesWithAmounts);
       setCategories(categoriesWithAmounts);
     } catch (error) {
       console.error('Error fetching categories:', error);
