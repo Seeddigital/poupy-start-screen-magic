@@ -68,6 +68,16 @@ export const useTransactions = () => {
     try {
       console.log('Fetching transactions for user:', user?.id);
       
+      // First, let's check if there are any transactions at all
+      const { data: allTransactions, error: allError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user?.id);
+
+      console.log('All transactions for user:', allTransactions);
+      console.log('Error (if any):', allError);
+
+      // Now let's fetch with the full query
       const { data, error } = await supabase
         .from('transactions')
         .select(`
@@ -76,15 +86,14 @@ export const useTransactions = () => {
           accounts:account_id (name, type)
         `)
         .eq('user_id', user?.id)
-        .order('transaction_date', { ascending: false })
-        .limit(10);
+        .order('transaction_date', { ascending: false });
 
       if (error) {
         console.error('Error fetching transactions:', error);
         return;
       }
 
-      console.log('Fetched transactions:', data);
+      console.log('Fetched transactions with relations:', data);
       
       const typedTransactions = (data || []).map(transaction => ({
         ...transaction,
@@ -111,6 +120,7 @@ export const useTransactions = () => {
         })
         .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
       
+      console.log('Monthly expenses calculated:', monthlyTotal);
       setMonthlyExpenses(monthlyTotal);
     } catch (error) {
       console.error('Error fetching transactions:', error);
