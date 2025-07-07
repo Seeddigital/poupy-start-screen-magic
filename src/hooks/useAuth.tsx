@@ -1,11 +1,11 @@
 
 import { useState, useEffect, createContext, useContext } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import { mockAuth } from '@/services/mockAuth';
+import { MockUser } from '@/data/mockData';
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: MockUser | null;
+  session: any | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ success: boolean; error?: string }>;
@@ -15,52 +15,35 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<MockUser | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
+    const unsubscribe = mockAuth.onAuthStateChange((user) => {
+      console.log('Auth state changed:', user?.email);
+      setUser(user);
+      setSession(user ? mockAuth.getSession() : null);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return unsubscribe;
   }, []);
 
   const signIn = async (email: string, password: string) => {
     console.log('Attempting login with:', email);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.log('Login error:', error.message);
-        return { success: false, error: error.message };
-      }
-
-      if (data.user) {
-        console.log('Login successful:', data.user.email);
+      const result = await mockAuth.signIn(email, password);
+      
+      if (result.success) {
+        console.log('Login successful:', result.user?.email);
         return { success: true };
+      } else {
+        console.log('Login error:', result.error);
+        return { success: false, error: result.error };
       }
-
-      return { success: false, error: 'Erro desconhecido ao fazer login' };
     } catch (error: any) {
       console.error('Login exception:', error);
       return { success: false, error: 'Erro ao conectar com o servidor' };
@@ -71,30 +54,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log('Attempting signup with:', email);
     
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const result = await mockAuth.signUp(email, password, fullName);
       
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            full_name: fullName
-          }
-        }
-      });
-
-      if (error) {
-        console.log('Signup error:', error.message);
-        return { success: false, error: error.message };
-      }
-
-      if (data.user) {
-        console.log('Signup successful:', data.user.email);
+      if (result.success) {
+        console.log('Signup successful:', result.user?.email);
         return { success: true };
+      } else {
+        console.log('Signup error:', result.error);
+        return { success: false, error: result.error };
       }
-
-      return { success: false, error: 'Erro desconhecido ao criar conta' };
     } catch (error: any) {
       console.error('Signup exception:', error);
       return { success: false, error: 'Erro ao conectar com o servidor' };
@@ -103,9 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
-      setUser(null);
-      setSession(null);
+      await mockAuth.signOut();
     } catch (error) {
       console.error('Sign out error:', error);
     }

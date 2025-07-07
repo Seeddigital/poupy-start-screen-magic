@@ -83,7 +83,7 @@ const Dashboard = () => {
     return null; // Will redirect in useEffect
   }
 
-  const userName = user.user_metadata?.full_name || "Usuário";
+  const userName = user.full_name || "Usuário";
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">

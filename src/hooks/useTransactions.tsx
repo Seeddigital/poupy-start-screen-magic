@@ -1,18 +1,16 @@
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { 
+  MOCK_TRANSACTIONS, 
+  MOCK_CATEGORIES, 
+  MOCK_ACCOUNTS, 
+  MockTransaction, 
+  MockCategory, 
+  MockAccount 
+} from '@/data/mockData';
 
-interface Transaction {
-  id: string;
-  description: string;
-  amount: number;
-  type: 'income' | 'expense' | 'transfer';
-  category_id: number;
-  account_id: number;
-  transaction_date: string;
-  notes?: string;
-  created_at: string;
+interface Transaction extends MockTransaction {
   categories?: {
     name: string;
     color: string;
@@ -24,11 +22,8 @@ interface Transaction {
   };
 }
 
-interface Category {
+interface Category extends MockCategory {
   cat_id: number;
-  name: string;
-  color: string;
-  icon?: string;
   amount: number;
   percentage: number;
 }
@@ -66,52 +61,37 @@ export const useTransactions = () => {
 
   const fetchTransactions = async () => {
     try {
-      console.log('Fetching transactions for user:', user?.id);
+      console.log('Fetching mock transactions for user:', user?.id);
       
-      // First, let's check if there are any transactions at all
-      const { data: allTransactions, error: allError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      console.log('All transactions for user:', allTransactions);
-      console.log('Error (if any):', allError);
-
-      // Now let's fetch with the full query
-      const { data, error } = await supabase
-        .from('transactions')
-        .select(`
-          *,
-          categories:category_id (name, color, icon),
-          accounts:account_id (name, type)
-        `)
-        .eq('user_id', user?.id)
-        .order('transaction_date', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching transactions:', error);
-        return;
-      }
-
-      console.log('Fetched transactions with relations:', data);
+      // Filter transactions for current user
+      const userTransactions = MOCK_TRANSACTIONS.filter(t => t.user_id === user?.id);
       
-      const typedTransactions = (data || []).map(transaction => ({
-        ...transaction,
-        type: transaction.type as 'income' | 'expense' | 'transfer',
-        category_id: transaction.category_id as number,
-        account_id: transaction.account_id as number,
-        categories: transaction.categories ? {
-          ...transaction.categories,
-          icon: categoryIcons[transaction.categories.name] || transaction.categories.icon
-        } : undefined
-      }));
+      // Add category and account data to transactions
+      const enrichedTransactions = userTransactions.map(transaction => {
+        const category = MOCK_CATEGORIES.find(c => c.category_id === transaction.category_id);
+        const account = MOCK_ACCOUNTS.find(a => a.id === transaction.account_id);
+        
+        return {
+          ...transaction,
+          categories: category ? {
+            name: category.name,
+            color: category.color,
+            icon: categoryIcons[category.name] || category.icon
+          } : undefined,
+          accounts: account ? {
+            name: account.name,
+            type: account.type
+          } : undefined
+        };
+      }).sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
       
-      setTransactions(typedTransactions);
+      console.log('Mock transactions loaded:', enrichedTransactions);
+      setTransactions(enrichedTransactions);
       
       // Calculate monthly expenses
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
-      const monthlyTotal = typedTransactions
+      const monthlyTotal = enrichedTransactions
         .filter(t => {
           const transactionDate = new Date(t.transaction_date);
           return transactionDate.getMonth() === currentMonth && 
@@ -123,62 +103,44 @@ export const useTransactions = () => {
       console.log('Monthly expenses calculated:', monthlyTotal);
       setMonthlyExpenses(monthlyTotal);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error('Error fetching mock transactions:', error);
     }
   };
 
   const fetchCategories = async () => {
     try {
-      console.log('Fetching categories for user:', user?.id);
+      console.log('Fetching mock categories for user:', user?.id);
       
-      // Fetch only categories that belong to the current user
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (error) {
-        console.error('Error fetching categories:', error);
-        return;
-      }
-
-      console.log('Fetched user categories:', data);
+      // Filter categories for current user
+      const userCategories = MOCK_CATEGORIES.filter(c => c.user_id === user?.id);
       
       // Calculate category totals from transactions
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       
-      const { data: transactionData } = await supabase
-        .from('transactions')
-        .select('amount, category_id, transaction_date, type')
-        .eq('type', 'expense')
-        .eq('user_id', user?.id);
+      const userTransactions = MOCK_TRANSACTIONS.filter(t => 
+        t.user_id === user?.id && t.type === 'expense'
+      );
 
-      console.log('Transaction data for categories:', transactionData);
-
-      const categoryTotals = (transactionData || [])
+      const categoryTotals = userTransactions
         .filter(t => {
           const transactionDate = new Date(t.transaction_date);
           return transactionDate.getMonth() === currentMonth && 
                  transactionDate.getFullYear() === currentYear;
         })
         .reduce((acc, t) => {
-          if (t.category_id) {
-            const categoryId = Number(t.category_id);
-            acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
-          }
+          const categoryId = Number(t.category_id);
+          acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
           return acc;
         }, {} as Record<number, number>);
 
-      console.log('Category totals:', categoryTotals);
+      console.log('Mock category totals:', categoryTotals);
 
       const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
 
-      // Use category_id as the key field since that's what's in your database
-      const categoriesWithAmounts = (data || []).map(cat => ({
-        cat_id: Number(cat.category_id), // Use category_id from database
-        name: cat.name,
-        color: cat.color,
+      const categoriesWithAmounts = userCategories.map(cat => ({
+        ...cat,
+        cat_id: Number(cat.category_id),
         icon: categoryIcons[cat.name] || cat.icon,
         amount: categoryTotals[Number(cat.category_id)] || 0,
         percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
@@ -186,10 +148,10 @@ export const useTransactions = () => {
       .filter(cat => cat.amount > 0) // Only show categories with transactions
       .sort((a, b) => b.amount - a.amount); // Sort by amount descending
 
-      console.log('Categories with amounts (filtered):', categoriesWithAmounts);
+      console.log('Mock categories with amounts:', categoriesWithAmounts);
       setCategories(categoriesWithAmounts);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching mock categories:', error);
     } finally {
       setLoading(false);
     }

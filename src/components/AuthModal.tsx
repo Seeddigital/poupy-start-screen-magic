@@ -17,7 +17,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,27 +46,16 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         }
 
         console.log('Submitting signup form...');
-        const { supabase } = await import('@/integrations/supabase/client');
-        const redirectUrl = `${window.location.origin}/`;
         
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl,
-            data: {
-              full_name: fullName
-            }
-          }
-        });
-
-        if (error) {
-          console.log('Signup error:', error.message);
-          toast.error(error.message);
-        } else if (data.user) {
-          console.log('Signup successful:', data.user.email);
-          toast.success('Cadastro realizado com sucesso! Verifique seu email para confirmar a conta.');
+        const result = await signUp(email, password, fullName);
+        
+        if (result.success) {
+          console.log('Signup successful');
+          toast.success('Conta criada com sucesso!');
           onClose();
+        } else {
+          console.log('Signup failed:', result.error);
+          toast.error(result.error || 'Erro ao criar conta');
         }
       }
     } catch (error: any) {
@@ -199,8 +188,9 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
         {isLogin && (
           <div className="mt-6 text-center text-sm text-gray-400">
-            <p>Use suas credenciais do Supabase para fazer login</p>
-            <p>Email: gustavo.dinizd@gmail.com</p>
+            <p>Dados para teste:</p>
+            <p>Email: teste@email.com</p>
+            <p>Senha: 123456</p>
           </div>
         )}
       </div>
