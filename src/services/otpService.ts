@@ -29,12 +29,22 @@ class OTPService {
     }
   }
 
-  async verifyOTP(phoneNumber: string, code: string): Promise<OTPResponse> {
+  async verifyOTP(phoneNumber: string, code: string): Promise<OTPResponse & { token?: string }> {
     try {
-      // Aqui você pode adicionar a verificação do código
-      // Por enquanto, vamos simular que qualquer código de 6 dígitos é válido
-      if (code.length === 6 && /^\d+$/.test(code)) {
-        return { success: true };
+      const response = await fetch('https://api.poupy.ai/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: phoneNumber,
+          otp: code
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, token: data.access_token };
       } else {
         return { success: false, error: 'Código inválido' };
       }
