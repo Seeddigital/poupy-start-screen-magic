@@ -4,15 +4,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
 const AuthModal = ({
   isOpen,
   onClose
 }: AuthModalProps) => {
   const [isLogin, setIsLogin] = useState(true);
+  const [countryCode, setCountryCode] = useState('+55');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -28,17 +31,22 @@ const AuthModal = ({
     sendOTP
   } = useAuth();
   const navigate = useNavigate();
+
   const handleSendOTP = async () => {
     if (!phoneNumber) {
       toast.error('Digite um número de telefone');
       return;
     }
+    
+    // Formato para API: código do país sem '+' + número do telefone
+    const apiPhoneNumber = countryCode.replace('+', '') + phoneNumber;
+    
     setLoading(true);
     try {
-      const result = await sendOTP(phoneNumber);
+      const result = await sendOTP(apiPhoneNumber);
       if (result.success) {
         setOtpSent(true);
-        toast.success('Código enviado via WhatsApp!');
+        toast.success('Código enviado via SMS!');
       } else {
         toast.error(result.error || 'Erro ao enviar código');
       }
@@ -48,14 +56,19 @@ const AuthModal = ({
       setLoading(false);
     }
   };
+
   const handleVerifyOTP = async () => {
     if (!otpCode || otpCode.length !== 6) {
       toast.error('Digite o código de 6 dígitos');
       return;
     }
+    
+    // Formato para API: código do país sem '+' + número do telefone
+    const apiPhoneNumber = countryCode.replace('+', '') + phoneNumber;
+    
     setLoading(true);
     try {
-      const result = await signInWithOTP(phoneNumber, otpCode);
+      const result = await signInWithOTP(apiPhoneNumber, otpCode);
       if (result.success) {
         toast.success('Login realizado com sucesso!');
         onClose();
@@ -69,6 +82,7 @@ const AuthModal = ({
       setLoading(false);
     }
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpSent) {
@@ -77,6 +91,7 @@ const AuthModal = ({
       await handleVerifyOTP();
     }
   };
+
   const resetForm = () => {
     setEmail('');
     setPassword('');
@@ -86,12 +101,16 @@ const AuthModal = ({
     setOtpCode('');
     setOtpSent(false);
   };
+
   const toggleMode = () => {
     setIsLogin(!isLogin);
     resetForm();
   };
+
   if (!isOpen) return null;
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-black rounded-2xl p-8 w-full max-w-md mx-4 border border-gray-800">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-white">
@@ -102,7 +121,6 @@ const AuthModal = ({
           </button>
         </div>
 
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -110,7 +128,11 @@ const AuthModal = ({
             </label>
             <div className="flex gap-2">
               <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202]">
-                <select className="bg-transparent text-white px-3 py-3 focus:outline-none">
+                <select 
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="bg-transparent text-white px-3 py-3 focus:outline-none"
+                >
                   <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
                   <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
                   <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
@@ -119,9 +141,21 @@ const AuthModal = ({
                 </select>
               </div>
               <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202] flex-1">
-                <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-3 focus:outline-none" placeholder="11 91234 5678" disabled={otpSent} required />
+                <input 
+                  type="tel" 
+                  value={phoneNumber} 
+                  onChange={(e) => setPhoneNumber(e.target.value)} 
+                  className="flex-1 bg-transparent text-white px-2 py-3 focus:outline-none" 
+                  placeholder="11 91234 5678" 
+                  disabled={otpSent} 
+                  required 
+                />
               </div>
-              <button type="submit" disabled={loading || otpSent} className="bg-[#A8E202] text-black px-4 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
+              <button 
+                type="submit" 
+                disabled={loading || otpSent} 
+                className="bg-[#A8E202] text-black px-4 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
                 <span className="text-lg">→</span>
               </button>
             </div>
@@ -130,12 +164,13 @@ const AuthModal = ({
             </p>
           </div>
 
-          {otpSent && <div>
+          {otpSent && (
+            <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Código de Verificação
               </label>
               <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otpCode} onChange={value => setOtpCode(value)}>
+                <InputOTP maxLength={6} value={otpCode} onChange={(value) => setOtpCode(value)}>
                   <InputOTPGroup>
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
@@ -149,27 +184,37 @@ const AuthModal = ({
               <p className="text-xs text-gray-400 mt-2 text-center">
                 Digite o código de 6 dígitos enviado por SMS
               </p>
-            </div>}
+            </div>
+          )}
 
-          {!otpSent}
-
-          {otpSent && <>
-              <button type="submit" disabled={loading} className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          {otpSent && (
+            <>
+              <button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {loading ? 'Verificando...' : 'Verificar Código'}
               </button>
               
               <div className="text-center">
-                <button type="button" onClick={() => {
-              setOtpSent(false);
-              setOtpCode('');
-            }} className="text-[#A8E202] hover:text-[#96CC02] transition-colors text-sm">
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setOtpSent(false);
+                    setOtpCode('');
+                  }} 
+                  className="text-[#A8E202] hover:text-[#96CC02] transition-colors text-sm"
+                >
                   Alterar número
                 </button>
               </div>
-            </>}
+            </>
+          )}
         </form>
-
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default AuthModal;
