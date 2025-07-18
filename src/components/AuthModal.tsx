@@ -46,7 +46,7 @@ const AuthModal = ({
       const result = await sendOTP(apiPhoneNumber);
       if (result.success) {
         setOtpSent(true);
-        toast.success('Código enviado via SMS!');
+        toast.success('Código enviado via WhatsApp!');
       } else {
         toast.error(result.error || 'Erro ao enviar código');
       }
@@ -182,7 +182,7 @@ const AuthModal = ({
                 </InputOTP>
               </div>
               <p className="text-xs text-gray-400 mt-2 text-center">
-                Digite o código de 6 dígitos enviado por SMS
+                Digite o código de 6 dígitos enviado por WhatsApp
               </p>
             </div>
           )}
