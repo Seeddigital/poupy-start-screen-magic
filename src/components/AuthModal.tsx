@@ -131,7 +131,6 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 </select>
               </div>
               <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202] flex-1">
-                <span className="text-white text-sm px-3">({phoneNumber.slice(0, 2)})</span>
                 <input
                   type="tel"
                   value={phoneNumber}
