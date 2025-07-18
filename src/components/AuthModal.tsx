@@ -200,20 +200,32 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 <label className="block text-sm font-medium text-gray-300 mb-2">
                   Número do WhatsApp
                 </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full bg-gray-900 text-white pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                    placeholder="5511999999999"
-                    disabled={otpSent}
-                    required
-                  />
+                <div className="flex gap-2">
+                  <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202] flex-1">
+                    <div className="flex items-center px-3 py-3">
+                      <span className="text-lg mr-2">🇧🇷</span>
+                      <span className="text-white text-sm">(11)</span>
+                    </div>
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="flex-1 bg-transparent text-white px-2 py-3 focus:outline-none"
+                      placeholder="91234 5678"
+                      disabled={otpSent}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading || otpSent}
+                    className="bg-[#A8E202] text-black px-4 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  >
+                    <span className="text-lg">→</span>
+                  </button>
                 </div>
                 <p className="text-xs text-gray-400 mt-1">
-                  Digite apenas números (ex: 5511999999999)
+                  Digite apenas números (ex: 91234 5678)
                 </p>
               </div>
 
