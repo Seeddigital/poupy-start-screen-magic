@@ -5,6 +5,7 @@ interface OTPResponse {
 
 class OTPService {
   private baseUrl = 'https://api.poupy.ai/api/otp';
+  private apiBaseUrl = 'https://api.poupy.ai/api';
 
   async sendOTP(phoneNumber: string): Promise<OTPResponse> {
     try {
@@ -50,6 +51,28 @@ class OTPService {
       }
     } catch (error) {
       console.error('Error verifying OTP:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
+
+  async getUserInfo(token: string): Promise<OTPResponse & { user?: any }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/user`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const user = await response.json();
+        return { success: true, user };
+      } else {
+        return { success: false, error: 'Erro ao buscar dados do usuário' };
+      }
+    } catch (error) {
+      console.error('Error fetching user info:', error);
       return { success: false, error: 'Erro de conexão' };
     }
   }
