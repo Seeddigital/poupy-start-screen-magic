@@ -13,7 +13,6 @@ interface AuthModalProps {
 
 const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [isOTPMethod, setIsOTPMethod] = useState(true); // Default to OTP
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -75,58 +74,13 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (isOTPMethod) {
-      if (!otpSent) {
-        await handleSendOTP();
-      } else {
-        await handleVerifyOTP();
-      }
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      if (isLogin) {
-        console.log('Submitting login form...');
-        const result = await signIn(email, password);
-        
-        if (result.success) {
-          console.log('Login successful, closing modal and navigating...');
-          toast.success('Login realizado com sucesso!');
-          onClose();
-          navigate('/dashboard');
-        } else {
-          console.log('Login failed:', result.error);
-          toast.error(result.error || 'Erro ao fazer login');
-        }
-      } else {
-        // Signup flow
-        if (password !== confirmPassword) {
-          toast.error('As senhas não coincidem');
-          return;
-        }
-
-        console.log('Submitting signup form...');
-        
-        const result = await signUp(email, password, fullName);
-        
-        if (result.success) {
-          console.log('Signup successful');
-          toast.success('Conta criada com sucesso!');
-          onClose();
-        } else {
-          console.log('Signup failed:', result.error);
-          toast.error(result.error || 'Erro ao criar conta');
-        }
-      }
-    } catch (error: any) {
-      console.error('Auth error:', error);
-      toast.error('Erro ao processar solicitação');
-    } finally {
-      setLoading(false);
+    if (!otpSent) {
+      await handleSendOTP();
+    } else {
+      await handleVerifyOTP();
     }
   };
+
 
   const resetForm = () => {
     setEmail('');
@@ -150,7 +104,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       <div className="bg-black rounded-2xl p-8 w-full max-w-md mx-4 border border-gray-800">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-white">
-            {isLogin ? 'Entrar' : 'Criar Conta'}
+            Entrar com Telefone
           </h2>
           <button
             onClick={onClose}
@@ -160,229 +114,110 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
           </button>
         </div>
 
-        {/* Botões para alternar método de autenticação */}
-        <div className="flex rounded-lg bg-gray-900 p-1 mb-6">
-          <button
-            type="button"
-            onClick={() => {
-              setIsOTPMethod(true);
-              resetForm();
-            }}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              isOTPMethod
-                ? 'bg-[#A8E202] text-black'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            WhatsApp
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setIsOTPMethod(false);
-              resetForm();
-            }}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              !isOTPMethod
-                ? 'bg-[#A8E202] text-black'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Email
-          </button>
-        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {isOTPMethod ? (
-            <>
-              {/* Login via WhatsApp OTP */}
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Número do WhatsApp
-                </label>
-                <div className="flex gap-2">
-                  <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202] flex-1">
-                    <div className="flex items-center px-3 py-3">
-                      <span className="text-lg mr-2">🇧🇷</span>
-                      <span className="text-white text-sm">(11)</span>
-                    </div>
-                    <input
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="flex-1 bg-transparent text-white px-2 py-3 focus:outline-none"
-                      placeholder="91234 5678"
-                      disabled={otpSent}
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={loading || otpSent}
-                    className="bg-[#A8E202] text-black px-4 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                  >
-                    <span className="text-lg">→</span>
-                  </button>
-                </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  Digite apenas números (ex: 91234 5678)
-                </p>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Número do Telefone
+            </label>
+            <div className="flex gap-2">
+              <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202]">
+                <select className="bg-transparent text-white px-3 py-3 focus:outline-none">
+                  <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
+                  <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
+                  <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
+                  <option value="+33" className="bg-gray-900">🇫🇷 +33</option>
+                  <option value="+49" className="bg-gray-900">🇩🇪 +49</option>
+                </select>
               </div>
+              <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202] flex-1">
+                <span className="text-white text-sm px-3">({phoneNumber.slice(0, 2)})</span>
+                <input
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="flex-1 bg-transparent text-white px-2 py-3 focus:outline-none"
+                  placeholder="11 91234 5678"
+                  disabled={otpSent}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading || otpSent}
+                className="bg-[#A8E202] text-black px-4 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                <span className="text-lg">→</span>
+              </button>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              Digite o DDD e número (ex: 11 91234 5678)
+            </p>
+          </div>
 
-              {otpSent && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Código de Verificação
-                  </label>
-                  <div className="flex justify-center">
-                    <InputOTP
-                      maxLength={6}
-                      value={otpCode}
-                      onChange={(value) => setOtpCode(value)}
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2 text-center">
-                    Digite o código de 6 dígitos enviado via WhatsApp
-                  </p>
-                </div>
-              )}
+          {otpSent && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Código de Verificação
+              </label>
+              <div className="flex justify-center">
+                <InputOTP
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(value) => setOtpCode(value)}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
+              <p className="text-xs text-gray-400 mt-2 text-center">
+                Digite o código de 6 dígitos enviado por SMS
+              </p>
+            </div>
+          )}
 
+          {!otpSent && (
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Enviando...' : 'Enviar Código'}
+            </button>
+          )}
+
+          {otpSent && (
+            <>
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Processando...' : otpSent ? 'Verificar Código' : 'Enviar Código'}
+                {loading ? 'Verificando...' : 'Verificar Código'}
               </button>
-
-              {otpSent && (
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpSent(false);
-                      setOtpCode('');
-                    }}
-                    className="text-[#A8E202] hover:text-[#96CC02] transition-colors text-sm"
-                  >
-                    Alterar número
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              {/* Login via Email/Senha */}
-              {!isLogin && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Nome Completo
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="w-full bg-gray-900 text-white pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                      placeholder="Seu nome completo"
-                      required={!isLogin}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-gray-900 text-white pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                    placeholder="seu@email.com"
-                    required
-                  />
-                </div>
+              
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtpSent(false);
+                    setOtpCode('');
+                  }}
+                  className="text-[#A8E202] hover:text-[#96CC02] transition-colors text-sm"
+                >
+                  Alterar número
+                </button>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Senha
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-gray-900 text-white pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                    placeholder="Sua senha"
-                    required
-                  />
-                </div>
-              </div>
-
-              {!isLogin && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Confirmar Senha
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full bg-gray-900 text-white pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:border-[#A8E202] focus:outline-none"
-                      placeholder="Confirme sua senha"
-                      required={!isLogin}
-                    />
-                  </div>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (isLogin ? 'Entrando...' : 'Criando conta...') : (isLogin ? 'Entrar' : 'Criar Conta')}
-              </button>
             </>
           )}
         </form>
 
-        {!isOTPMethod && (
-          <div className="mt-6 text-center">
-            <button
-              onClick={toggleMode}
-              className="text-[#A8E202] hover:text-[#96CC02] transition-colors text-sm"
-            >
-              {isLogin ? 'Não tem uma conta? Criar conta' : 'Já tem uma conta? Fazer login'}
-            </button>
-          </div>
-        )}
-
-        {isLogin && !isOTPMethod && (
-          <div className="mt-6 text-center text-sm text-gray-400">
-            <p>Dados para teste:</p>
-            <p>Email: teste@email.com</p>
-            <p>Senha: 123456</p>
-          </div>
-        )}
       </div>
     </div>
   );
