@@ -97,22 +97,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const result = await otpService.verifyOTP(phoneNumber, code);
       
-      if (result.success) {
-        // Criar um usuário mock para o número de telefone
-        const mockUser: MockUser = {
-          id: phoneNumber,
-          email: `${phoneNumber}@phone.user`,
-          password: '', // Não usado no OTP
-          full_name: phoneNumber,
-          created_at: new Date().toISOString()
-        };
+      if (result.success && result.token) {
+        console.log('OTP verification successful, fetching user info...');
         
-        // Simular login bem-sucedido
-        setUser(mockUser);
-        setSession({ user: mockUser, access_token: `otp_${Date.now()}` });
+        // Buscar informações do usuário usando o token
+        const userResult = await otpService.getUserInfo(result.token);
         
-        console.log('OTP login successful:', phoneNumber);
-        return { success: true };
+        if (userResult.success && userResult.user) {
+          const mockUser: MockUser = {
+            id: userResult.user.user_id?.toString() || phoneNumber,
+            email: userResult.user.email || `${phoneNumber}@phone.user`,
+            password: '', // Não usado no OTP
+            full_name: userResult.user.name || phoneNumber,
+            created_at: userResult.user.created_at || new Date().toISOString()
+          };
+          
+          // Login bem-sucedido com dados reais do usuário
+          setUser(mockUser);
+          setSession({ user: mockUser, access_token: result.token });
+          
+          console.log('OTP login successful with user:', mockUser.full_name);
+          return { success: true };
+        } else {
+          console.log('Failed to fetch user info:', userResult.error);
+          return { success: false, error: 'Erro ao buscar informações do usuário' };
+        }
       } else {
         console.log('OTP verification error:', result.error);
         return { success: false, error: result.error };
