@@ -76,6 +76,28 @@ class OTPService {
       return { success: false, error: 'Erro de conexão' };
     }
   }
+
+  async getExpenses(token: string): Promise<OTPResponse & { expenses?: any[] }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/expenses`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, expenses: data.data };
+      } else {
+        return { success: false, error: 'Erro ao buscar despesas' };
+      }
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
 }
 
 export const otpService = new OTPService();
