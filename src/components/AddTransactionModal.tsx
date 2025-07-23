@@ -99,20 +99,25 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
     
     try {
       const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
+      const amount = parseFloat(formData.amount);
       
       const transactionData = {
         description: formData.description,
-        amount: formData.type === 'expense' ? -Math.abs(parseFloat(formData.amount)) : Math.abs(parseFloat(formData.amount)),
+        amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
         due_at: formData.transaction_date,
         expense_category_id: parseInt(formData.category_id),
         expenseable_type: selectedAccount?.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
         expenseable_id: parseInt(formData.account_id)
       };
 
+      console.log('Sending transaction data:', transactionData);
+      console.log('Transaction type:', formData.type);
+
       const result = await otpService.createExpense(session.access_token, transactionData);
 
       if (result.success) {
-        toast.success('Despesa criada com sucesso!');
+        const messageType = formData.type === 'income' ? 'receita' : 'despesa';
+        toast.success(`${messageType.charAt(0).toUpperCase() + messageType.slice(1)} criada com sucesso!`);
         onTransactionAdded();
         onClose();
         
@@ -127,11 +132,11 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
           notes: ''
         });
       } else {
-        toast.error(result.error || 'Erro ao criar despesa');
+        toast.error(result.error || 'Erro ao criar transação');
       }
     } catch (error) {
-      console.error('Error creating expense:', error);
-      toast.error('Erro ao criar despesa');
+      console.error('Error creating transaction:', error);
+      toast.error('Erro ao criar transação');
     } finally {
       setLoading(false);
     }
