@@ -100,16 +100,16 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
     try {
       const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
       
-      const expenseData = {
+      const transactionData = {
         description: formData.description,
-        amount: -Math.abs(parseFloat(formData.amount)), // Negative for expenses
+        amount: formData.type === 'expense' ? -Math.abs(parseFloat(formData.amount)) : Math.abs(parseFloat(formData.amount)),
         due_at: formData.transaction_date,
         expense_category_id: parseInt(formData.category_id),
         expenseable_type: selectedAccount?.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
         expenseable_id: parseInt(formData.account_id)
       };
 
-      const result = await otpService.createExpense(session.access_token, expenseData);
+      const result = await otpService.createExpense(session.access_token, transactionData);
 
       if (result.success) {
         toast.success('Despesa criada com sucesso!');
