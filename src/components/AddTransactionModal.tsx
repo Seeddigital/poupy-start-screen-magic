@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { otpService } from '@/services/otpService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,20 +14,21 @@ interface AddTransactionModalProps {
 }
 
 interface Category {
-  category_id: number;
+  id: number;
   name: string;
-  color: string;
+  color?: string;
   icon?: string;
 }
 
 interface Account {
   id: number;
   name: string;
+  brand?: string;
   type: string;
 }
 
 const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransactionModalProps) => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -51,17 +52,13 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (error) {
-        console.error('Error fetching categories:', error);
-        return;
+      if (!session?.access_token) return;
+      
+      const result = await otpService.getCategories(session.access_token);
+      
+      if (result.success && result.categories) {
+        setCategories(result.categories.filter((cat: any) => cat.name)); // Filter out empty names
       }
-
-      setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -69,17 +66,25 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
 
   const fetchAccounts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('accounts')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (error) {
-        console.error('Error fetching accounts:', error);
-        return;
+      if (!session?.access_token) return;
+      
+      const userResult = await otpService.getUserInfo(session.access_token);
+      
+      if (userResult.success && userResult.user) {
+        const userAccounts = [
+          ...userResult.user.accounts.map((acc: any) => ({
+            id: acc.id,
+            name: acc.name,
+            type: 'account'
+          })),
+          ...userResult.user.credit_cards.map((card: any) => ({
+            id: card.id,
+            name: card.name,
+            type: 'credit_card'
+          }))
+        ];
+        setAccounts(userAccounts);
       }
-
-      setAccounts(data || []);
     } catch (error) {
       console.error('Error fetching accounts:', error);
     }
@@ -88,47 +93,45 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) return;
+    if (!user || !session?.access_token) return;
     
     setLoading(true);
     
     try {
-      const { error } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user.id,
-          description: formData.description,
-          amount: parseFloat(formData.amount),
-          type: formData.type,
-          category_id: parseInt(formData.category_id),
-          account_id: parseInt(formData.account_id),
-          transaction_date: formData.transaction_date,
-          notes: formData.notes || null
-        });
-
-      if (error) {
-        console.error('Error creating transaction:', error);
-        toast.error('Erro ao criar transação');
-        return;
-      }
-
-      toast.success('Transação criada com sucesso!');
-      onTransactionAdded();
-      onClose();
+      const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
       
-      // Reset form
-      setFormData({
-        description: '',
-        amount: '',
-        type: 'expense',
-        category_id: '',
-        account_id: '',
-        transaction_date: new Date().toISOString().split('T')[0],
-        notes: ''
-      });
+      const expenseData = {
+        description: formData.description,
+        amount: -Math.abs(parseFloat(formData.amount)), // Negative for expenses
+        due_at: formData.transaction_date,
+        expense_category_id: parseInt(formData.category_id),
+        expenseable_type: selectedAccount?.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
+        expenseable_id: parseInt(formData.account_id)
+      };
+
+      const result = await otpService.createExpense(session.access_token, expenseData);
+
+      if (result.success) {
+        toast.success('Despesa criada com sucesso!');
+        onTransactionAdded();
+        onClose();
+        
+        // Reset form
+        setFormData({
+          description: '',
+          amount: '',
+          type: 'expense',
+          category_id: '',
+          account_id: '',
+          transaction_date: new Date().toISOString().split('T')[0],
+          notes: ''
+        });
+      } else {
+        toast.error(result.error || 'Erro ao criar despesa');
+      }
     } catch (error) {
-      console.error('Error creating transaction:', error);
-      toast.error('Erro ao criar transação');
+      console.error('Error creating expense:', error);
+      toast.error('Erro ao criar despesa');
     } finally {
       setLoading(false);
     }
@@ -213,7 +216,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
             >
               <option value="">Selecione uma categoria</option>
               {categories.map((category) => (
-                <option key={category.category_id} value={category.category_id}>
+                <option key={category.id} value={category.id}>
                   {category.name}
                 </option>
               ))}
