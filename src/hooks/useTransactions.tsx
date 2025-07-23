@@ -78,9 +78,14 @@ export const useTransactions = () => {
   useEffect(() => {
     if (user) {
       fetchTransactions();
-      fetchCategories();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && transactions.length > 0) {
+      fetchCategories();
+    }
+  }, [user, transactions]);
 
   const fetchTransactions = async () => {
     try {
@@ -180,6 +185,7 @@ export const useTransactions = () => {
       }
 
       console.log('Fetching categories from API for user:', user?.full_name);
+      console.log('Current transactions for calculation:', transactions);
       
       const result = await otpService.getCategories(session.access_token);
       
@@ -190,6 +196,7 @@ export const useTransactions = () => {
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
         
+        // Use the transactions that are already loaded
         const categoryTotals = transactions
           .filter(t => {
             const transactionDate = new Date(t.transaction_date);
@@ -198,14 +205,16 @@ export const useTransactions = () => {
                    t.type === 'expense';
           })
           .reduce((acc, t) => {
+            // Match by category_id from transaction with id from categories
             const categoryId = Number(t.category_id);
             acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
             return acc;
           }, {} as Record<number, number>);
 
-        console.log('API category totals:', categoryTotals);
+        console.log('Category totals calculated:', categoryTotals);
 
         const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
+        console.log('Total expenses:', totalExpenses);
 
         const categoriesWithAmounts = result.categories.map((cat: any) => ({
           ...cat,
@@ -219,7 +228,7 @@ export const useTransactions = () => {
         .filter((cat: any) => cat.amount > 0) // Only show categories with transactions
         .sort((a: any, b: any) => b.amount - a.amount); // Sort by amount descending
 
-        console.log('API categories with amounts:', categoriesWithAmounts);
+        console.log('Categories with amounts:', categoriesWithAmounts);
         setCategories(categoriesWithAmounts);
       } else {
         console.error('Failed to fetch categories:', result.error);
