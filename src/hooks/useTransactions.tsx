@@ -106,8 +106,8 @@ export const useTransactions = () => {
           id: expense.id,
           user_id: user?.id || '',
           description: expense.description,
-          amount: Math.abs(Number(expense.amount)),
-          type: 'expense' as const,
+          amount: Number(expense.amount),
+          type: (Number(expense.amount) > 0 ? 'income' : 'expense') as 'expense' | 'income' | 'transfer',
           transaction_date: expense.due_at || expense.created_at,
           category_id: expense.expense_category_id,
           account_id: expense.expenseable?.id || 1,
@@ -134,7 +134,7 @@ export const useTransactions = () => {
             const transactionDate = new Date(t.transaction_date);
             return transactionDate.getMonth() === currentMonth && 
                    transactionDate.getFullYear() === currentYear &&
-                   t.type === 'expense';
+                   Number(t.amount) < 0; // Only count negative amounts (expenses)
           })
           .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
         
@@ -202,7 +202,7 @@ export const useTransactions = () => {
             const transactionDate = new Date(t.transaction_date);
             return transactionDate.getMonth() === currentMonth && 
                    transactionDate.getFullYear() === currentYear &&
-                   t.type === 'expense';
+                   Number(t.amount) < 0; // Only count negative amounts (expenses)
           })
           .reduce((acc, t) => {
             // Match by category_id from transaction with id from categories
