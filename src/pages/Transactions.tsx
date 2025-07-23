@@ -1,12 +1,29 @@
 
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Edit3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTransactions } from '@/hooks/useTransactions';
+import EditTransactionModal from '@/components/EditTransactionModal';
 
 const Transactions = () => {
   const navigate = useNavigate();
-  const { transactions, loading } = useTransactions();
+  const { transactions, loading, refetch } = useTransactions();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedTransactionId, setSelectedTransactionId] = useState<number | null>(null);
+
+  const handleEditTransaction = (transactionId: number) => {
+    setSelectedTransactionId(transactionId);
+    setEditModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setEditModalOpen(false);
+    setSelectedTransactionId(null);
+  };
+
+  const handleTransactionUpdated = () => {
+    refetch();
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -59,7 +76,7 @@ const Transactions = () => {
         ) : (
           <div className="space-y-4">
             {transactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800">
+              <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800 group">
                 {/* Left side - Icon and Details */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
@@ -83,7 +100,7 @@ const Transactions = () => {
                   </div>
                 </div>
 
-                {/* Right side - Amount and Date */}
+                {/* Middle - Amount and Date */}
                 <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                   <p className={`font-bold text-sm sm:text-base ${
                     transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'
@@ -94,11 +111,31 @@ const Transactions = () => {
                     {formatDate(transaction.transaction_date)}
                   </p>
                 </div>
+
+                {/* Right side - Edit Button */}
+                <div className="flex items-center ml-3">
+                  <button
+                    onClick={() => handleEditTransaction(Number(transaction.id))}
+                    className="w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
+                  >
+                    <Edit3 size={14} className="text-gray-400 hover:text-white" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Edit Transaction Modal */}
+      {selectedTransactionId && (
+        <EditTransactionModal
+          isOpen={editModalOpen}
+          onClose={handleModalClose}
+          onTransactionUpdated={handleTransactionUpdated}
+          transactionId={selectedTransactionId}
+        />
+      )}
     </div>
   );
 };
