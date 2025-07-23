@@ -23,7 +23,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
+    // Verificar se há sessão OTP salva
+    const otpSession = localStorage.getItem('otp_session');
+    if (otpSession) {
+      try {
+        const sessionData = JSON.parse(otpSession);
+        if (sessionData.expires_at > Date.now()) {
+          setUser(sessionData.user);
+          setSession(sessionData);
+          setLoading(false);
+          return;
+        } else {
+          localStorage.removeItem('otp_session');
+        }
+      } catch (error) {
+        localStorage.removeItem('otp_session');
+      }
+    }
+
+    // Set up auth state listener para mockAuth
     const unsubscribe = mockAuth.onAuthStateChange((user) => {
       console.log('Auth state changed:', user?.email);
       setUser(user);
@@ -112,9 +130,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             created_at: userResult.user.created_at || new Date().toISOString()
           };
           
+          // Criar sessão OTP com expiração de 7 dias
+          const otpSession = {
+            user: mockUser,
+            access_token: result.token,
+            expires_at: Date.now() + (7 * 24 * 60 * 60 * 1000)
+          };
+          
+          // Salvar no localStorage
+          localStorage.setItem('otp_session', JSON.stringify(otpSession));
+          
           // Login bem-sucedido com dados reais do usuário
           setUser(mockUser);
-          setSession({ user: mockUser, access_token: result.token });
+          setSession(otpSession);
           
           console.log('OTP login successful with user:', mockUser.full_name);
           return { success: true };
@@ -135,6 +163,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       await mockAuth.signOut();
+      localStorage.removeItem('otp_session'); // Limpar sessão OTP também
       setUser(null);
       setSession(null);
     } catch (error) {
