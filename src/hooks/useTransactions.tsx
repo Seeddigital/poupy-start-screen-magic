@@ -174,49 +174,104 @@ export const useTransactions = () => {
 
   const fetchCategories = async () => {
     try {
-      console.log('Fetching mock categories for user:', user?.id);
+      if (!session?.access_token) {
+        console.log('No access token available for categories');
+        return;
+      }
+
+      console.log('Fetching categories from API for user:', user?.full_name);
       
-      // Filter categories for current user
+      const result = await otpService.getCategories(session.access_token);
+      
+      if (result.success && result.categories) {
+        console.log('API categories loaded:', result.categories);
+        
+        // Calculate category totals from current transactions
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        const categoryTotals = transactions
+          .filter(t => {
+            const transactionDate = new Date(t.transaction_date);
+            return transactionDate.getMonth() === currentMonth && 
+                   transactionDate.getFullYear() === currentYear &&
+                   t.type === 'expense';
+          })
+          .reduce((acc, t) => {
+            const categoryId = Number(t.category_id);
+            acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
+            return acc;
+          }, {} as Record<number, number>);
+
+        console.log('API category totals:', categoryTotals);
+
+        const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
+
+        const categoriesWithAmounts = result.categories.map((cat: any) => ({
+          ...cat,
+          cat_id: Number(cat.id),
+          name: cat.name,
+          color: cat.color || '#8B5CF6',
+          icon: categoryIcons[cat.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
+          amount: categoryTotals[Number(cat.id)] || 0,
+          percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.id)] || 0) / totalExpenses * 100) : 0
+        }))
+        .filter((cat: any) => cat.amount > 0) // Only show categories with transactions
+        .sort((a: any, b: any) => b.amount - a.amount); // Sort by amount descending
+
+        console.log('API categories with amounts:', categoriesWithAmounts);
+        setCategories(categoriesWithAmounts);
+      } else {
+        console.error('Failed to fetch categories:', result.error);
+        // Fallback to mock categories
+        console.log('Falling back to mock categories');
+        const userCategories = MOCK_CATEGORIES.filter(c => c.user_id === user?.id);
+        
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        const userTransactions = MOCK_TRANSACTIONS.filter(t => 
+          t.user_id === user?.id && t.type === 'expense'
+        );
+
+        const categoryTotals = userTransactions
+          .filter(t => {
+            const transactionDate = new Date(t.transaction_date);
+            return transactionDate.getMonth() === currentMonth && 
+                   transactionDate.getFullYear() === currentYear;
+          })
+          .reduce((acc, t) => {
+            const categoryId = Number(t.category_id);
+            acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
+            return acc;
+          }, {} as Record<number, number>);
+
+        const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
+
+        const categoriesWithAmounts = userCategories.map(cat => ({
+          ...cat,
+          cat_id: Number(cat.category_id),
+          icon: categoryIcons[cat.name] || cat.icon,
+          amount: categoryTotals[Number(cat.category_id)] || 0,
+          percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
+        }))
+        .filter(cat => cat.amount > 0)
+        .sort((a, b) => b.amount - a.amount);
+
+        setCategories(categoriesWithAmounts);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      // Fallback to mock data on error
+      console.log('Falling back to mock categories due to error');
       const userCategories = MOCK_CATEGORIES.filter(c => c.user_id === user?.id);
-      
-      // Calculate category totals from transactions
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      
-      const userTransactions = MOCK_TRANSACTIONS.filter(t => 
-        t.user_id === user?.id && t.type === 'expense'
-      );
-
-      const categoryTotals = userTransactions
-        .filter(t => {
-          const transactionDate = new Date(t.transaction_date);
-          return transactionDate.getMonth() === currentMonth && 
-                 transactionDate.getFullYear() === currentYear;
-        })
-        .reduce((acc, t) => {
-          const categoryId = Number(t.category_id);
-          acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
-          return acc;
-        }, {} as Record<number, number>);
-
-      console.log('Mock category totals:', categoryTotals);
-
-      const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
-
-      const categoriesWithAmounts = userCategories.map(cat => ({
+      setCategories(userCategories.map(cat => ({
         ...cat,
         cat_id: Number(cat.category_id),
         icon: categoryIcons[cat.name] || cat.icon,
-        amount: categoryTotals[Number(cat.category_id)] || 0,
-        percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
-      }))
-      .filter(cat => cat.amount > 0) // Only show categories with transactions
-      .sort((a, b) => b.amount - a.amount); // Sort by amount descending
-
-      console.log('Mock categories with amounts:', categoriesWithAmounts);
-      setCategories(categoriesWithAmounts);
-    } catch (error) {
-      console.error('Error fetching mock categories:', error);
+        amount: 0,
+        percentage: 0
+      })));
     } finally {
       setLoading(false);
     }

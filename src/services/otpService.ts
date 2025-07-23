@@ -98,6 +98,28 @@ class OTPService {
       return { success: false, error: 'Erro de conexão' };
     }
   }
+
+  async getCategories(token: string): Promise<OTPResponse & { categories?: any[] }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/categories`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, categories: data.data };
+      } else {
+        return { success: false, error: 'Erro ao buscar categorias' };
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
 }
 
 export const otpService = new OTPService();
