@@ -193,11 +193,35 @@ class OTPService {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        // Check if there's a response body
+        const text = await response.text();
+        let data = null;
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            // Response was successful but no JSON content
+            data = { message: 'Despesa atualizada com sucesso' };
+          }
+        }
         return { success: true, expense: data };
       } else {
-        const errorData = await response.json();
-        return { success: false, error: errorData.message || 'Erro ao atualizar despesa' };
+        // Handle error responses
+        let errorMessage = 'Erro ao atualizar despesa';
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorMessage;
+          }
+        } catch (e) {
+          if (response.status === 404) {
+            errorMessage = 'Transação não encontrada ou endpoint não disponível';
+          } else {
+            errorMessage = `Erro ${response.status}: ${response.statusText}`;
+          }
+        }
+        return { success: false, error: errorMessage };
       }
     } catch (error) {
       console.error('Error updating expense:', error);
