@@ -170,6 +170,12 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
         expenseable_id: parseInt(formData.account_id)
       };
 
+      console.log('=== EDIT TRANSACTION DEBUG ===');
+      console.log('Selected Account:', selectedAccount);
+      console.log('Original Transaction:', transaction);
+      console.log('Form Data:', formData);
+      console.log('Final Transaction Data:', transactionData);
+
       const result = await otpService.updateExpense(session.access_token, transactionId, transactionData);
 
       if (result.success) {
