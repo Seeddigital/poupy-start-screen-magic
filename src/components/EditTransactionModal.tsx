@@ -180,6 +180,10 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
         expenseable_id: parseInt(formData.account_id)
       };
 
+      console.log('Dados sendo enviados para a API:', transactionData);
+      console.log('Tipo de conta detectado:', selectedAccount.type);
+      console.log('expenseable_type calculado:', transactionData.expenseable_type);
+
       const result = await otpService.updateExpense(session.access_token, transactionId, transactionData);
 
       if (result.success) {
