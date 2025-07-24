@@ -138,10 +138,26 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
     
     if (!user || !session?.access_token || !transaction) return;
     
+    // Validações antes de enviar
+    if (!formData.account_id) {
+      toast.error('Selecione uma conta válida');
+      return;
+    }
+    
+    if (!formData.category_id) {
+      toast.error('Selecione uma categoria válida');
+      return;
+    }
+    
+    const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
+    if (!selectedAccount) {
+      toast.error('Conta ou cartão de crédito inválido');
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
       const amount = parseFloat(formData.amount);
       
       const transactionData = {
@@ -149,7 +165,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
         amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
         due_at: formData.transaction_date,
         expense_category_id: parseInt(formData.category_id),
-        expenseable_type: selectedAccount?.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
+        expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
         expenseable_id: parseInt(formData.account_id)
       };
 
