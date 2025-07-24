@@ -150,20 +150,10 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
     }
     
     const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
-    const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
     
     if (!selectedAccount) {
       toast.error(`Conta não encontrada. ID: ${formData.account_id}`);
       return;
-    }
-
-    // Validação específica para VR (Vale Refeição)
-    if (selectedAccount.name === 'VR' && selectedCategory) {
-      const allowedVRCategories = ['Alimentação', 'Mercado'];
-      if (!allowedVRCategories.includes(selectedCategory.name)) {
-        toast.error(`A conta VR só pode ser usada com as categorias: ${allowedVRCategories.join(', ')}`);
-        return;
-      }
     }
     
     setLoading(true);
@@ -180,6 +170,20 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
         expenseable_id: parseInt(formData.account_id)
       };
 
+      console.log('=== DEBUGGING TRANSACTION UPDATE ===');
+      console.log('Original transaction data from API:', transaction);
+      console.log('Current form data:', formData);
+      console.log('Selected account:', selectedAccount);
+      console.log('Data being sent to API:', transactionData);
+      console.log('Are we changing ONLY the category?', {
+        originalCategory: transaction.expense_category_id,
+        newCategory: parseInt(formData.category_id),
+        originalAccount: transaction.expenseable_id,
+        newAccount: parseInt(formData.account_id),
+        categoryChanged: transaction.expense_category_id !== parseInt(formData.category_id),
+        accountChanged: transaction.expenseable_id !== parseInt(formData.account_id)
+      });
+
       const result = await otpService.updateExpense(session.access_token, transactionId, transactionData);
 
       if (result.success) {
@@ -188,12 +192,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
         onTransactionUpdated();
         onClose();
       } else {
-        // Se o erro for sobre conta inválida, dar uma explicação mais clara
-        if (result.error?.includes('Conta ou cartão de crédito inválido')) {
-          toast.error('Esta combinação de conta e categoria não é permitida. Ex: VR só pode ser usado com categorias de alimentação.');
-        } else {
-          toast.error(result.error || 'Erro ao atualizar transação');
-        }
+        toast.error(result.error || 'Erro ao atualizar transação');
       }
     } catch (error) {
       console.error('Error updating transaction:', error);
