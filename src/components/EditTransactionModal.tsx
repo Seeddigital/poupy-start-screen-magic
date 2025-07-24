@@ -149,9 +149,20 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
       return;
     }
     
-    const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
+    // Debug logs
+    console.log('Contas disponíveis:', accounts);
+    console.log('Account ID selecionado:', formData.account_id);
+    console.log('Account ID como número:', parseInt(formData.account_id));
+    
+    const selectedAccount = accounts.find(acc => {
+      console.log('Comparando:', acc.id, 'com', parseInt(formData.account_id));
+      return acc.id === parseInt(formData.account_id);
+    });
+    
+    console.log('Conta encontrada:', selectedAccount);
+    
     if (!selectedAccount) {
-      toast.error('Conta ou cartão de crédito inválido');
+      toast.error(`Conta não encontrada. ID: ${formData.account_id}`);
       return;
     }
     
