@@ -149,17 +149,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
       return;
     }
     
-    // Debug logs
-    console.log('Contas disponíveis:', accounts);
-    console.log('Account ID selecionado:', formData.account_id);
-    console.log('Account ID como número:', parseInt(formData.account_id));
-    
-    const selectedAccount = accounts.find(acc => {
-      console.log('Comparando:', acc.id, 'com', parseInt(formData.account_id));
-      return acc.id === parseInt(formData.account_id);
-    });
-    
-    console.log('Conta encontrada:', selectedAccount);
+    const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
     
     if (!selectedAccount) {
       toast.error(`Conta não encontrada. ID: ${formData.account_id}`);
@@ -179,10 +169,6 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
         expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
         expenseable_id: parseInt(formData.account_id)
       };
-
-      console.log('Dados sendo enviados para a API:', transactionData);
-      console.log('Tipo de conta detectado:', selectedAccount.type);
-      console.log('expenseable_type calculado:', transactionData.expenseable_type);
 
       const result = await otpService.updateExpense(session.access_token, transactionId, transactionData);
 
