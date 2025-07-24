@@ -192,6 +192,10 @@ class OTPService {
         body: JSON.stringify(expenseData),
       });
 
+      console.log('URL da requisição:', `${this.apiBaseUrl}/expenses/${id}`);
+      console.log('Dados JSON enviados:', JSON.stringify(expenseData, null, 2));
+      console.log('Status da resposta:', response.status);
+
       if (response.ok) {
         // Check if there's a response body
         const text = await response.text();
