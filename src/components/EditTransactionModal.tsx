@@ -150,10 +150,32 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
     }
     
     const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
+    const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
     
     if (!selectedAccount) {
       toast.error(`Conta não encontrada. ID: ${formData.account_id}`);
       return;
+    }
+
+    // Validações de compatibilidade conta/categoria
+    if (selectedAccount.name === 'VR' && selectedCategory) {
+      const allowedVRCategories = ['Alimentação', 'Mercado'];
+      if (!allowedVRCategories.includes(selectedCategory.name)) {
+        // Se mudou só a categoria para uma incompatível com VR, sugerir trocar para Nubank
+        const categoryChanged = transaction.expense_category_id !== parseInt(formData.category_id);
+        const accountNotChanged = transaction.expenseable_id === parseInt(formData.account_id);
+        
+        if (categoryChanged && accountNotChanged) {
+          const nubankCard = accounts.find(acc => acc.name === 'Nubank');
+          if (nubankCard) {
+            setFormData({ ...formData, account_id: nubankCard.id.toString() });
+            toast.error(`Categoria "${selectedCategory.name}" não é compatível com VR. Alteramos para Nubank automaticamente.`);
+            return;
+          }
+        }
+        toast.error(`A conta VR só pode ser usada com: ${allowedVRCategories.join(', ')}`);
+        return;
+      }
     }
     
     setLoading(true);
