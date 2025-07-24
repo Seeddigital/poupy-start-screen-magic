@@ -150,32 +150,10 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
     }
     
     const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
-    const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
     
     if (!selectedAccount) {
       toast.error(`Conta não encontrada. ID: ${formData.account_id}`);
       return;
-    }
-
-    // Validações de compatibilidade conta/categoria
-    if (selectedAccount.name === 'VR' && selectedCategory) {
-      const allowedVRCategories = ['Alimentação', 'Mercado'];
-      if (!allowedVRCategories.includes(selectedCategory.name)) {
-        // Se mudou só a categoria para uma incompatível com VR, sugerir trocar para Nubank
-        const categoryChanged = transaction.expense_category_id !== parseInt(formData.category_id);
-        const accountNotChanged = transaction.expenseable_id === parseInt(formData.account_id);
-        
-        if (categoryChanged && accountNotChanged) {
-          const nubankCard = accounts.find(acc => acc.name === 'Nubank');
-          if (nubankCard) {
-            setFormData({ ...formData, account_id: nubankCard.id.toString() });
-            toast.error(`Categoria "${selectedCategory.name}" não é compatível com VR. Alteramos para Nubank automaticamente.`);
-            return;
-          }
-        }
-        toast.error(`A conta VR só pode ser usada com: ${allowedVRCategories.join(', ')}`);
-        return;
-      }
     }
     
     setLoading(true);
@@ -193,17 +171,25 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
       };
 
       console.log('=== DEBUGGING TRANSACTION UPDATE ===');
-      console.log('Original transaction data from API:', transaction);
-      console.log('Current form data:', formData);
-      console.log('Selected account:', selectedAccount);
-      console.log('Data being sent to API:', transactionData);
-      console.log('Are we changing ONLY the category?', {
-        originalCategory: transaction.expense_category_id,
-        newCategory: parseInt(formData.category_id),
-        originalAccount: transaction.expenseable_id,
-        newAccount: parseInt(formData.account_id),
+      console.log('Transaction ID:', transactionId);
+      console.log('Original Transaction:', {
+        id: transaction.id,
+        description: transaction.description,
+        amount: transaction.amount,
+        category_id: transaction.expense_category_id,
+        account_id: transaction.expenseable_id,
+        account_type: transaction.expenseable_type,
+        due_at: transaction.due_at
+      });
+      console.log('Form Data:', formData);
+      console.log('Selected Account:', selectedAccount);
+      console.log('Final Transaction Data being sent:', transactionData);
+      console.log('Changes:', {
+        descriptionChanged: transaction.description !== formData.description,
+        amountChanged: parseFloat(transaction.amount.toString()) !== transactionData.amount,
         categoryChanged: transaction.expense_category_id !== parseInt(formData.category_id),
-        accountChanged: transaction.expenseable_id !== parseInt(formData.account_id)
+        accountChanged: transaction.expenseable_id !== parseInt(formData.account_id),
+        dateChanged: transaction.due_at !== transactionData.due_at
       });
 
       const result = await otpService.updateExpense(session.access_token, transactionId, transactionData);
