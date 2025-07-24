@@ -183,6 +183,10 @@ class OTPService {
     expenseable_id: number;
   }): Promise<OTPResponse & { expense?: any }> {
     try {
+      console.log('=== UPDATE EXPENSE DEBUG ===');
+      console.log('Transaction ID:', id);
+      console.log('Request body:', JSON.stringify(expenseData, null, 2));
+      
       const response = await fetch(`${this.apiBaseUrl}/expenses/${id}`, {
         method: 'PUT',
         headers: {
@@ -191,6 +195,9 @@ class OTPService {
         },
         body: JSON.stringify(expenseData),
       });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
         // Check if there's a response body
