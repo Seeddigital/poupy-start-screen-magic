@@ -68,6 +68,40 @@ const categoryIcons: { [key: string]: string } = {
   'Ração para o gato': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png'
 };
 
+// Color mapping for categories
+const categoryColors: { [key: string]: string } = {
+  'Alimentação': '#A8E202',
+  'Mercado': '#8B5CF6',  
+  'Pet': '#F59E0B',
+  'Transporte': '#EF4444',
+  'Lazer e Entretenimento': '#10B981',
+  'Moradia': '#3B82F6',
+  'Saúde e Bem-Estar': '#EC4899',
+  'Outros': '#6B7280',
+  'Eventuais': '#84CC16',
+  'Compras e Vestuário': '#F97316',
+  'Educação': '#8B5CF6',
+  'Família e Crianças': '#06B6D4',
+  'Finanças e Investimentos': '#10B981',
+  'Equipamentos para Casa': '#64748B'
+};
+
+// Function to generate consistent color for category
+const getCategoryColor = (categoryName: string, categoryId: number): string => {
+  if (categoryColors[categoryName]) {
+    return categoryColors[categoryName];
+  }
+  
+  // Generate consistent color based on category ID
+  const colors = [
+    '#A8E202', '#8B5CF6', '#F59E0B', '#EF4444', '#10B981', 
+    '#3B82F6', '#EC4899', '#6B7280', '#84CC16', '#F97316',
+    '#06B6D4', '#64748B', '#F472B6', '#22D3EE', '#FDE047'
+  ];
+  
+  return colors[categoryId % colors.length];
+};
+
 export const useTransactions = () => {
   const { user, session } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -113,7 +147,7 @@ export const useTransactions = () => {
           account_id: expense.expenseable?.id || 1,
           categories: expense.category ? {
             name: expense.category.name,
-            color: '#8B5CF6',
+            color: getCategoryColor(expense.category.name, expense.expense_category_id),
             icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
           } : undefined,
           accounts: expense.expenseable ? {
@@ -220,7 +254,7 @@ export const useTransactions = () => {
           ...cat,
           cat_id: Number(cat.id),
           name: cat.name,
-          color: cat.color || '#8B5CF6',
+          color: cat.color || getCategoryColor(cat.name, Number(cat.id)),
           icon: categoryIcons[cat.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
           amount: categoryTotals[Number(cat.id)] || 0,
           percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.id)] || 0) / totalExpenses * 100) : 0
