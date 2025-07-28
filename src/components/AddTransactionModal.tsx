@@ -32,6 +32,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [suggestingCategory, setSuggestingCategory] = useState(false);
   
   const [formData, setFormData] = useState({
     description: '',
@@ -88,6 +89,47 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
     } catch (error) {
       console.error('Error fetching accounts:', error);
     }
+  };
+
+  const suggestCategory = async (description: string) => {
+    if (!description.trim() || !session?.access_token) return;
+    
+    setSuggestingCategory(true);
+    try {
+      const response = await fetch('https://api.poupy.ai/api/categories/guess', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({ description })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.id) {
+          setFormData(prev => ({ ...prev, category_id: data.id.toString() }));
+        }
+      }
+    } catch (error) {
+      console.error('Error suggesting category:', error);
+    } finally {
+      setSuggestingCategory(false);
+    }
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const description = e.target.value;
+    setFormData({ ...formData, description });
+    
+    // Suggest category after user stops typing (debounce)
+    const timeoutId = setTimeout(() => {
+      if (description.length > 3) { // Only suggest if description has more than 3 characters
+        suggestCategory(description);
+      }
+    }, 1000);
+    
+    return () => clearTimeout(timeoutId);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -168,7 +210,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
             <Input
               type="text"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={handleDescriptionChange}
               className="bg-gray-900 border-gray-700 text-white"
               placeholder="Ex: Supermercado"
               required
@@ -211,7 +253,7 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
           {/* Category */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Categoria
+              Categoria {suggestingCategory && <span className="text-sm text-gray-500">(sugerindo...)</span>}
             </label>
             <select
               value={formData.category_id}
