@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Edit3 } from 'lucide-react';
+import { ArrowLeft, Edit3, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTransactions } from '@/hooks/useTransactions';
 import EditTransactionModal from '@/components/EditTransactionModal';
@@ -10,6 +10,7 @@ const Transactions = () => {
   const { transactions, loading, refetch } = useTransactions();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState<number | null>(null);
+  const [activeTransactionId, setActiveTransactionId] = useState<number | null>(null);
 
   const handleEditTransaction = (transactionId: number) => {
     setSelectedTransactionId(transactionId);
@@ -23,6 +24,16 @@ const Transactions = () => {
 
   const handleTransactionUpdated = () => {
     refetch();
+  };
+
+  const handleTransactionClick = (transactionId: number) => {
+    setActiveTransactionId(activeTransactionId === transactionId ? null : transactionId);
+  };
+
+  const handleDeleteTransaction = (transactionId: number) => {
+    // TODO: Implementar lógica de delete
+    console.log('Delete transaction:', transactionId);
+    setActiveTransactionId(null);
   };
 
   const formatCurrency = (value: number) => {
@@ -76,8 +87,38 @@ const Transactions = () => {
         ) : (
           <div className="space-y-4">
             {transactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800 group">
-                {/* Left side - Icon and Details */}
+              <div 
+                key={transaction.id} 
+                className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800 group cursor-pointer hover:bg-gray-900/50 transition-colors"
+                onClick={() => handleTransactionClick(Number(transaction.id))}
+              >
+                {/* Left side - Action Icons (visible when active) */}
+                <div className="flex items-center gap-2 mr-3">
+                  {activeTransactionId === Number(transaction.id) && (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTransaction(Number(transaction.id));
+                        }}
+                        className="w-8 h-8 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors"
+                      >
+                        <Trash2 size={14} className="text-white" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditTransaction(Number(transaction.id));
+                        }}
+                        className="w-8 h-8 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center transition-colors"
+                      >
+                        <Edit3 size={14} className="text-white" />
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                {/* Center - Icon and Details */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
                     {transaction.categories?.icon ? (
@@ -100,7 +141,7 @@ const Transactions = () => {
                   </div>
                 </div>
 
-                {/* Middle - Amount and Date */}
+                {/* Right side - Amount and Date */}
                 <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                   <p className={`font-bold text-sm sm:text-base ${
                     transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'
@@ -110,16 +151,6 @@ const Transactions = () => {
                   <p className="text-gray-400 text-xs sm:text-sm">
                     {formatDate(transaction.transaction_date)}
                   </p>
-                </div>
-
-                {/* Right side - Edit Button */}
-                <div className="flex items-center ml-3">
-                  <button
-                    onClick={() => handleEditTransaction(Number(transaction.id))}
-                    className="w-8 h-8 bg-gray-800 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100"
-                  >
-                    <Edit3 size={14} className="text-gray-400 hover:text-white" />
-                  </button>
                 </div>
               </div>
             ))}
