@@ -92,33 +92,7 @@ const Transactions = () => {
                 className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800 group cursor-pointer hover:bg-gray-900/50 transition-colors"
                 onClick={() => handleTransactionClick(Number(transaction.id))}
               >
-                {/* Left side - Action Icons (visible when active) */}
-                <div className="flex items-center gap-2 mr-3">
-                  {activeTransactionId === Number(transaction.id) && (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteTransaction(Number(transaction.id));
-                        }}
-                        className="w-8 h-8 bg-red-600 hover:bg-red-500 rounded-full flex items-center justify-center transition-colors"
-                      >
-                        <Trash2 size={14} className="text-white" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditTransaction(Number(transaction.id));
-                        }}
-                        className="w-8 h-8 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center transition-colors"
-                      >
-                        <Edit3 size={14} className="text-white" />
-                      </button>
-                    </>
-                  )}
-                </div>
-
-                {/* Center - Icon and Details */}
+                {/* Left side - Icon and Details */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
                     {transaction.categories?.icon ? (
@@ -141,7 +115,7 @@ const Transactions = () => {
                   </div>
                 </div>
 
-                {/* Right side - Amount and Date */}
+                {/* Center - Amount and Date */}
                 <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
                   <p className={`font-bold text-sm sm:text-base ${
                     transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'
@@ -151,6 +125,34 @@ const Transactions = () => {
                   <p className="text-gray-400 text-xs sm:text-sm">
                     {formatDate(transaction.transaction_date)}
                   </p>
+                </div>
+
+                {/* Right side - Action Icons (visible when active) */}
+                <div className="flex items-center gap-2 ml-3">
+                  {activeTransactionId === Number(transaction.id) ? (
+                    <>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditTransaction(Number(transaction.id));
+                        }}
+                        className="w-8 h-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200"
+                      >
+                        <Edit3 size={14} className="text-white" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTransaction(Number(transaction.id));
+                        }}
+                        className="w-8 h-8 bg-red-500/20 backdrop-blur-sm border border-red-500/30 hover:bg-red-500/30 rounded-full flex items-center justify-center transition-all duration-200"
+                      >
+                        <Trash2 size={14} className="text-red-400" />
+                      </button>
+                    </>
+                  ) : (
+                    <div className="w-16 h-8"></div>
+                  )}
                 </div>
               </div>
             ))}
