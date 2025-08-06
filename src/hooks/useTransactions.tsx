@@ -108,12 +108,85 @@ export const useTransactions = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Cache keys
+  const TRANSACTIONS_CACHE_KEY = `transactions_${user?.id}`;
+  const CATEGORIES_CACHE_KEY = `categories_${user?.id}`;
+  const CACHE_TIMESTAMP_KEY = `cache_timestamp_${user?.id}`;
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   useEffect(() => {
     if (user) {
-      fetchTransactions();
+      loadFromCacheOrFetch();
     }
   }, [user]);
+
+  // Load data from cache first, then fetch if needed
+  const loadFromCacheOrFetch = async () => {
+    try {
+      const cachedTransactions = localStorage.getItem(TRANSACTIONS_CACHE_KEY);
+      const cachedCategories = localStorage.getItem(CATEGORIES_CACHE_KEY);
+      const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      
+      const now = Date.now();
+      const isExpired = !cacheTimestamp || (now - parseInt(cacheTimestamp)) > CACHE_DURATION;
+
+      if (cachedTransactions && cachedCategories && !isExpired) {
+        // Load from cache
+        console.log('Loading data from cache');
+        const transactionsData = JSON.parse(cachedTransactions);
+        const categoriesData = JSON.parse(cachedCategories);
+        
+        setTransactions(transactionsData);
+        setCategories(categoriesData);
+        
+        // Calculate monthly expenses from cached data
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const monthlyTotal = transactionsData
+          .filter((t: any) => {
+            const transactionDate = new Date(t.transaction_date);
+            return transactionDate.getMonth() === currentMonth && 
+                   transactionDate.getFullYear() === currentYear &&
+                   Number(t.amount) < 0;
+          })
+          .reduce((sum: number, t: any) => sum + Math.abs(Number(t.amount)), 0);
+        
+        setMonthlyExpenses(monthlyTotal);
+        setLoading(false);
+      } else {
+        // Cache expired or doesn't exist, fetch from API
+        console.log('Cache expired or missing, fetching from API');
+        await fetchDataFromAPI();
+      }
+    } catch (error) {
+      console.error('Error loading from cache:', error);
+      await fetchDataFromAPI();
+    }
+  };
+
+  // Fetch data from API and update cache
+  const fetchDataFromAPI = async () => {
+    setLoading(true);
+    await fetchTransactions();
+    // Categories will be fetched in the useEffect when transactions change
+  };
+
+  // Pull to refresh function
+  const pullToRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Clear cache to force fresh data
+      localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
+      localStorage.removeItem(CATEGORIES_CACHE_KEY);
+      localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+      
+      await fetchDataFromAPI();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (user && transactions.length > 0) {
@@ -142,7 +215,7 @@ export const useTransactions = () => {
           description: expense.description,
           amount: Number(expense.amount),
           type: (Number(expense.amount) > 0 ? 'income' : 'expense') as 'expense' | 'income' | 'transfer',
-          transaction_date: expense.due_at || expense.created_at,
+          transaction_date: expense.due_at || expense.created_at, // Usar due_at como data principal
           category_id: expense.expense_category_id,
           account_id: expense.expenseable?.id || 1,
           categories: expense.category ? {
@@ -159,6 +232,10 @@ export const useTransactions = () => {
         })).sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
         
         setTransactions(enrichedTransactions as Transaction[]);
+        
+        // Cache the transactions
+        localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(enrichedTransactions));
+        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
         
         // Calculate monthly expenses
         const currentMonth = new Date().getMonth();
@@ -264,6 +341,9 @@ export const useTransactions = () => {
 
         console.log('Categories with amounts:', categoriesWithAmounts);
         setCategories(categoriesWithAmounts);
+        
+        // Cache the categories
+        localStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify(categoriesWithAmounts));
       } else {
         console.error('Failed to fetch categories:', result.error);
         // Fallback to mock categories
@@ -325,6 +405,8 @@ export const useTransactions = () => {
     categories,
     monthlyExpenses,
     loading,
+    refreshing,
+    pullToRefresh,
     refetch: () => {
       fetchTransactions();
       fetchCategories();

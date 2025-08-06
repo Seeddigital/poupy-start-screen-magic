@@ -7,12 +7,15 @@ import EditTransactionModal from '@/components/EditTransactionModal';
 
 const Transactions = () => {
   const navigate = useNavigate();
-  const { transactions, loading, refetch } = useTransactions();
+  const { transactions, loading, refetch, refreshing, pullToRefresh } = useTransactions();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState<number | null>(null);
   const [activeTransactionId, setActiveTransactionId] = useState<number | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [pullStart, setPullStart] = useState<number | null>(null);
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
 
   const handleEditTransaction = (transactionId: number) => {
     setSelectedTransactionId(transactionId);
@@ -78,6 +81,38 @@ const Transactions = () => {
     setTouchEnd(null);
   };
 
+  // Pull to refresh handlers
+  const handlePullStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setPullStart(e.touches[0].clientY);
+      setIsPulling(true);
+    }
+  };
+
+  const handlePullMove = (e: React.TouchEvent) => {
+    if (isPulling && pullStart) {
+      const currentY = e.touches[0].clientY;
+      const distance = Math.max(0, currentY - pullStart);
+      setPullDistance(Math.min(distance, 120)); // Max pull distance
+      
+      if (distance > 80) {
+        // Prevent default scroll behavior when pulling
+        e.preventDefault();
+      }
+    }
+  };
+
+  const handlePullEnd = async () => {
+    if (isPulling) {
+      if (pullDistance > 80) {
+        await pullToRefresh();
+      }
+      setIsPulling(false);
+      setPullStart(null);
+      setPullDistance(0);
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -106,7 +141,39 @@ const Transactions = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div 
+      className="min-h-screen bg-black text-white pb-24"
+      onTouchStart={handlePullStart}
+      onTouchMove={handlePullMove}
+      onTouchEnd={handlePullEnd}
+    >
+      {/* Pull to refresh indicator */}
+      {isPulling && (
+        <div 
+          className="fixed top-0 left-0 right-0 flex items-center justify-center bg-black/90 text-white transition-all duration-200 z-50"
+          style={{ height: `${Math.min(pullDistance, 80)}px` }}
+        >
+          {pullDistance > 80 ? (
+            <div className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-[#A8E202]"></div>
+              <span className="text-sm">Solte para atualizar</span>
+            </div>
+          ) : (
+            <span className="text-sm">Puxe para atualizar</span>
+          )}
+        </div>
+      )}
+      
+      {/* Refreshing indicator */}
+      {refreshing && (
+        <div className="fixed top-0 left-0 right-0 flex items-center justify-center bg-[#A8E202] text-black py-2 z-50">
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+            <span className="text-sm font-medium">Atualizando...</span>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         <button 

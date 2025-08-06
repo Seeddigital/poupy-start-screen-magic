@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
-  const { transactions, categories, monthlyExpenses, loading, refetch } = useTransactions();
+  const { transactions, categories, monthlyExpenses, loading, refetch, refreshing, pullToRefresh } = useTransactions();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
