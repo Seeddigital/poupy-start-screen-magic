@@ -11,10 +11,13 @@ const Transactions = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState<number | null>(null);
   const [activeTransactionId, setActiveTransactionId] = useState<number | null>(null);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const handleEditTransaction = (transactionId: number) => {
     setSelectedTransactionId(transactionId);
     setEditModalOpen(true);
+    setActiveTransactionId(null);
   };
 
   const handleModalClose = () => {
@@ -26,14 +29,53 @@ const Transactions = () => {
     refetch();
   };
 
-  const handleTransactionClick = (transactionId: number) => {
-    setActiveTransactionId(activeTransactionId === transactionId ? null : transactionId);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
   };
 
-  const handleDeleteTransaction = (transactionId: number) => {
-    // TODO: Implementar lógica de delete
-    console.log('Delete transaction:', transactionId);
-    setActiveTransactionId(null);
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (transactionId: number) => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    
+    if (isLeftSwipe) {
+      setActiveTransactionId(activeTransactionId === transactionId ? null : transactionId);
+    } else {
+      setActiveTransactionId(null);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.clientX);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (touchStart) {
+      setTouchEnd(e.clientX);
+    }
+  };
+
+  const handleMouseUp = (transactionId: number) => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    
+    if (isLeftSwipe) {
+      setActiveTransactionId(activeTransactionId === transactionId ? null : transactionId);
+    } else {
+      setActiveTransactionId(null);
+    }
+    
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   const formatCurrency = (value: number) => {
@@ -89,8 +131,13 @@ const Transactions = () => {
             {transactions.map((transaction) => (
               <div 
                 key={transaction.id} 
-                className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800 group cursor-pointer hover:bg-gray-900/50 transition-colors"
-                onClick={() => handleTransactionClick(Number(transaction.id))}
+                className="flex items-center justify-between py-3 sm:py-4 border-b border-gray-800 group cursor-pointer hover:bg-gray-900/50 transition-colors select-none"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={() => handleTouchEnd(Number(transaction.id))}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={() => handleMouseUp(Number(transaction.id))}
               >
                 {/* Left side - Icon and Details */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1">
@@ -127,31 +174,20 @@ const Transactions = () => {
                   </p>
                 </div>
 
-                {/* Right side - Action Icons (visible when active) */}
+                {/* Right side - Edit Icon (visible when active) */}
                 <div className="flex items-center gap-2 ml-3">
                   {activeTransactionId === Number(transaction.id) ? (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditTransaction(Number(transaction.id));
-                        }}
-                        className="w-8 h-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200"
-                      >
-                        <Edit3 size={14} className="text-white" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteTransaction(Number(transaction.id));
-                        }}
-                        className="w-8 h-8 bg-red-500/20 backdrop-blur-sm border border-red-500/30 hover:bg-red-500/30 rounded-full flex items-center justify-center transition-all duration-200"
-                      >
-                        <Trash2 size={14} className="text-red-400" />
-                      </button>
-                    </>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditTransaction(Number(transaction.id));
+                      }}
+                      className="w-8 h-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 rounded-full flex items-center justify-center transition-all duration-200"
+                    >
+                      <Edit3 size={14} className="text-white" />
+                    </button>
                   ) : (
-                    <div className="w-16 h-8"></div>
+                    <div className="w-8 h-8"></div>
                   )}
                 </div>
               </div>
