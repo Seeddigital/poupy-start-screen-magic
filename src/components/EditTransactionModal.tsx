@@ -164,7 +164,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
       const transactionData = {
         description: formData.description,
         amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
-        due_at: formData.transaction_date + 'T00:00:00.000000Z',
+        due_at: formData.transaction_date,
         expense_category_id: parseInt(formData.category_id),
         expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
         expenseable_id: parseInt(formData.account_id)
