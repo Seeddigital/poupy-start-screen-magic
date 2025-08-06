@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from './useAuth';
 
 interface Goal {
   id: number;
@@ -21,37 +22,70 @@ interface UpdateGoalData {
   period: 'monthly' | 'yearly';
 }
 
-const API_BASE_URL = 'https://api.poupy.ai';
-
 export const useGoals = () => {
+  const { user } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const getAuthToken = () => {
-    return localStorage.getItem('auth_token');
+  // Cache keys
+  const GOALS_CACHE_KEY = `goals_${user?.id}`;
+  const CACHE_TIMESTAMP_KEY = `goals_cache_timestamp_${user?.id}`;
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+  // Helper to save goals to localStorage
+  const saveToCache = (goalsData: Goal[]) => {
+    if (user?.id) {
+      localStorage.setItem(GOALS_CACHE_KEY, JSON.stringify(goalsData));
+      localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+    }
+  };
+
+  // Helper to load goals from localStorage
+  const loadFromCache = (): Goal[] | null => {
+    if (!user?.id) return null;
+    
+    try {
+      const cachedGoals = localStorage.getItem(GOALS_CACHE_KEY);
+      const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+      
+      if (!cachedGoals || !cacheTimestamp) return null;
+      
+      const now = Date.now();
+      const isExpired = (now - parseInt(cacheTimestamp)) > CACHE_DURATION;
+      
+      if (isExpired) return null;
+      
+      return JSON.parse(cachedGoals);
+    } catch (error) {
+      console.error('Error loading goals from cache:', error);
+      return null;
+    }
   };
 
   const fetchGoals = useCallback(async () => {
     setLoading(true);
     try {
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error('No auth token found');
+      if (!user?.id) {
+        setGoals([]);
+        setLoading(false);
+        return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/goals`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch goals');
+      // First try to load from cache
+      const cachedGoals = loadFromCache();
+      if (cachedGoals) {
+        console.log('Loading goals from cache');
+        setGoals(cachedGoals);
+        setLoading(false);
+        return;
       }
 
-      const data = await response.json();
-      setGoals(data.data || data);
+      // In a real app, this would be an API call
+      // For now, we'll use localStorage to persist goals
+      console.log('Loading goals from localStorage');
+      const storedGoals = localStorage.getItem(GOALS_CACHE_KEY) || '[]';
+      const goals = JSON.parse(storedGoals);
+      setGoals(goals);
     } catch (error) {
       console.error('Error fetching goals:', error);
       toast.error('Erro ao carregar metas');
@@ -59,30 +93,28 @@ export const useGoals = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.id]);
 
   const createGoal = useCallback(async (goalData: CreateGoalData) => {
     try {
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error('No auth token found');
+      if (!user?.id) {
+        throw new Error('Usuário não logado');
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/goals`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(goalData),
-      });
+      // Create new goal with mock data
+      const newGoal: Goal = {
+        id: Date.now(), // Use timestamp as ID for simplicity
+        category_id: goalData.category_id,
+        amount: goalData.amount,
+        period: goalData.period,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-      if (!response.ok) {
-        throw new Error('Failed to create goal');
-      }
-
-      const newGoal = await response.json();
-      setGoals(prev => [...prev, newGoal]);
+      const updatedGoals = [...goals, newGoal];
+      setGoals(updatedGoals);
+      saveToCache(updatedGoals);
+      
       toast.success('Meta criada com sucesso!');
       return newGoal;
     } catch (error) {
@@ -90,66 +122,56 @@ export const useGoals = () => {
       toast.error('Erro ao criar meta');
       throw error;
     }
-  }, []);
+  }, [goals, user?.id]);
 
   const updateGoal = useCallback(async (goalId: number, goalData: UpdateGoalData) => {
     try {
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error('No auth token found');
+      if (!user?.id) {
+        throw new Error('Usuário não logado');
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/goals/${goalId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(goalData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update goal');
-      }
-
-      const updatedGoal = await response.json();
-      setGoals(prev => prev.map(goal => goal.id === goalId ? updatedGoal : goal));
+      const updatedGoals = goals.map(goal => 
+        goal.id === goalId 
+          ? { 
+              ...goal, 
+              amount: goalData.amount,
+              period: goalData.period,
+              updated_at: new Date().toISOString()
+            }
+          : goal
+      );
+      
+      setGoals(updatedGoals);
+      saveToCache(updatedGoals);
+      
       toast.success('Meta atualizada com sucesso!');
+      
+      const updatedGoal = updatedGoals.find(goal => goal.id === goalId);
       return updatedGoal;
     } catch (error) {
       console.error('Error updating goal:', error);
       toast.error('Erro ao atualizar meta');
       throw error;
     }
-  }, []);
+  }, [goals, user?.id]);
 
   const deleteGoal = useCallback(async (goalId: number) => {
     try {
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error('No auth token found');
+      if (!user?.id) {
+        throw new Error('Usuário não logado');
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/goals/${goalId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete goal');
-      }
-
-      setGoals(prev => prev.filter(goal => goal.id !== goalId));
+      const updatedGoals = goals.filter(goal => goal.id !== goalId);
+      setGoals(updatedGoals);
+      saveToCache(updatedGoals);
+      
       toast.success('Meta excluída com sucesso!');
     } catch (error) {
       console.error('Error deleting goal:', error);
       toast.error('Erro ao excluir meta');
       throw error;
     }
-  }, []);
+  }, [goals, user?.id]);
 
   const getGoalByCategory = useCallback((categoryId: number) => {
     return goals.find(goal => goal.category_id === categoryId);
