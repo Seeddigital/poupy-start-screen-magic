@@ -407,9 +407,15 @@ export const useTransactions = () => {
     loading,
     refreshing,
     pullToRefresh,
-    refetch: () => {
-      fetchTransactions();
-      fetchCategories();
+    refetch: async () => {
+      console.log('Refetching data - clearing cache first');
+      // Clear cache to ensure fresh data
+      localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
+      localStorage.removeItem(CATEGORIES_CACHE_KEY);
+      localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+      
+      // Fetch fresh data
+      await fetchDataFromAPI();
     }
   };
 };
