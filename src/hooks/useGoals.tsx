@@ -48,6 +48,27 @@ const assertJsonOrThrow = async (response: Response) => {
   }
 };
 
+const tryParseJson = async (response: Response) => {
+  const contentType = response.headers.get('content-type') || '';
+  const isJson = contentType.toLowerCase().includes('application/json');
+  if (!isJson) {
+    let text = '';
+    try { text = await response.text(); } catch {}
+    console.warn('Goals API success with non-JSON', {
+      status: response.status,
+      contentType,
+      snippet: text.slice(0, 500),
+    });
+    return null;
+  }
+  try {
+    return await response.json();
+  } catch (e) {
+    console.error('Goals API JSON parse error on success', e);
+    return null;
+  }
+};
+
 export const useGoals = () => {
   const { user, session } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -135,9 +156,17 @@ export const useGoals = () => {
         throw new Error(`Failed to create goal (${response.status})`);
       }
 
-      const data = await assertJsonOrThrow(response);
-      const created = data?.data || data?.goal || data;
-      setGoals((prev) => [...prev, created]);
+      // Tolerate 200/204 without JSON and refetch as fallback
+      const data = await tryParseJson(response);
+      const created = data?.data || data?.goal || data || null;
+
+      if (created) {
+        setGoals((prev) => [...prev, created]);
+      } else {
+        console.info('Goals: POST no JSON body, refetching goals');
+        await fetchGoals();
+      }
+
       toast.success('Meta criada com sucesso!');
       return created;
     } catch (error) {
@@ -145,7 +174,7 @@ export const useGoals = () => {
       toast.error('Erro ao criar meta');
       throw error;
     }
-  }, [session?.access_token]);
+  }, [session?.access_token, fetchGoals]);
 
   const updateGoal = useCallback(async (goalId: number, goalData: UpdateGoalData) => {
     try {
@@ -178,9 +207,16 @@ export const useGoals = () => {
         throw new Error(`Failed to update goal (${response.status})`);
       }
 
-      const data = await assertJsonOrThrow(response);
-      const updated = data?.data || data?.goal || data;
-      setGoals((prev) => prev.map((goal) => (goal.id === goalId ? updated : goal)));
+      const data = await tryParseJson(response);
+      const updated = data?.data || data?.goal || data || null;
+
+      if (updated) {
+        setGoals((prev) => prev.map((goal) => (goal.id === goalId ? updated : goal)));
+      } else {
+        console.info('Goals: PUT no JSON body, refetching goals');
+        await fetchGoals();
+      }
+
       toast.success('Meta atualizada com sucesso!');
       return updated;
     } catch (error) {
@@ -188,7 +224,7 @@ export const useGoals = () => {
       toast.error('Erro ao atualizar meta');
       throw error;
     }
-  }, [session?.access_token]);
+  }, [session?.access_token, fetchGoals]);
 
   const deleteGoal = useCallback(async (goalId: number) => {
     try {
