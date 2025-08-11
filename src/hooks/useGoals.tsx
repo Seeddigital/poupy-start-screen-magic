@@ -91,6 +91,7 @@ export const useGoals = () => {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       });
 
@@ -134,13 +135,22 @@ export const useGoals = () => {
         body: goalData,
       });
 
+      const payload = {
+        measurable_type: 'App\\Models\\ExpenseCategory',
+        measurable_id: goalData.category_id,
+        type: 'fixed',
+        value: goalData.amount,
+      };
+      console.info('Goals: POST payload', payload);
+
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
-        body: JSON.stringify(goalData),
+        body: JSON.stringify(payload),
       });
 
       console.info('Goals: POST response', {
@@ -185,13 +195,20 @@ export const useGoals = () => {
       const url = `${API_BASE_URL}/api/goals/${goalId}`;
       console.info('Goals: PUT', { url, token: maskToken(session.access_token), body: goalData });
 
+      const payload = {
+        type: 'fixed',
+        value: goalData.amount,
+      };
+      console.info('Goals: PUT payload', payload);
+
       const response = await fetch(url, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
-        body: JSON.stringify(goalData),
+        body: JSON.stringify(payload),
       });
 
       console.info('Goals: PUT response', {
@@ -240,6 +257,7 @@ export const useGoals = () => {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
+          Accept: 'application/json',
         },
       });
 
