@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from './useAuth';
@@ -69,6 +70,18 @@ const tryParseJson = async (response: Response) => {
   }
 };
 
+// Função para mapear a resposta da API para o formato esperado pelo frontend
+const mapApiGoalToFrontend = (apiGoal: any): Goal => {
+  return {
+    id: apiGoal.id,
+    category_id: apiGoal.measurable_id,
+    amount: apiGoal.value,
+    period: 'monthly', // A API não retorna período, assumindo monthly por padrão
+    created_at: apiGoal.created_at,
+    updated_at: apiGoal.updated_at
+  };
+};
+
 export const useGoals = () => {
   const { user, session } = useAuth();
   const [goals, setGoals] = useState<Goal[]>([]);
@@ -112,7 +125,9 @@ export const useGoals = () => {
       const items = (data && (data.data || data.goals || data)) ?? [];
       console.info('Goals: parsed items', { count: Array.isArray(items) ? items.length : 1 });
 
-      setGoals(Array.isArray(items) ? items : []);
+      // Mapear os dados da API para o formato esperado pelo frontend
+      const mappedGoals = Array.isArray(items) ? items.map(mapApiGoalToFrontend) : [];
+      setGoals(mappedGoals);
     } catch (error) {
       console.error('Error fetching goals:', error);
       toast.error('Erro ao carregar metas');
@@ -166,19 +181,22 @@ export const useGoals = () => {
         throw new Error(`Failed to create goal (${response.status})`);
       }
 
-      // Tolerate 200/204 without JSON and refetch as fallback
       const data = await tryParseJson(response);
-      const created = data?.data || data?.goal || data || null;
+      console.info('Goals: POST response data', data);
 
-      if (created) {
+      if (data) {
+        // Mapear a resposta da API para o formato esperado
+        const created = mapApiGoalToFrontend(data);
         setGoals((prev) => [...prev, created]);
+        toast.success('Meta criada com sucesso!');
+        return created;
       } else {
+        // Se não temos dados, recarregar as metas
         console.info('Goals: POST no JSON body, refetching goals');
         await fetchGoals();
+        toast.success('Meta criada com sucesso!');
+        return null;
       }
-
-      toast.success('Meta criada com sucesso!');
-      return created;
     } catch (error) {
       console.error('Error creating goal:', error);
       toast.error('Erro ao criar meta');
@@ -225,17 +243,18 @@ export const useGoals = () => {
       }
 
       const data = await tryParseJson(response);
-      const updated = data?.data || data?.goal || data || null;
 
-      if (updated) {
+      if (data) {
+        const updated = mapApiGoalToFrontend(data);
         setGoals((prev) => prev.map((goal) => (goal.id === goalId ? updated : goal)));
+        toast.success('Meta atualizada com sucesso!');
+        return updated;
       } else {
         console.info('Goals: PUT no JSON body, refetching goals');
         await fetchGoals();
+        toast.success('Meta atualizada com sucesso!');
+        return null;
       }
-
-      toast.success('Meta atualizada com sucesso!');
-      return updated;
     } catch (error) {
       console.error('Error updating goal:', error);
       toast.error('Erro ao atualizar meta');
