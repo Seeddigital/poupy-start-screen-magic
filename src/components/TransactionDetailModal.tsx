@@ -85,24 +85,24 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-0 rounded-2xl sm:rounded-3xl overflow-visible relative">
-        <div className="p-8 pt-12">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto rounded-2xl sm:rounded-3xl relative p-0 overflow-visible">
+        {/* Category Icon positioned to be half outside */}
+        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
+          <div 
+            className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
+            style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
+          >
+            <Utensils className="w-8 h-8 text-white" />
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-8 pt-16 pb-20">
           <DialogDescription className="sr-only">
             Detalhes da transação {transaction.description}
           </DialogDescription>
 
-          {/* Category Icon positioned to be half outside */}
-          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
-            <div 
-              className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
-              style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
-            >
-              <Utensils className="w-8 h-8 text-white" />
-            </div>
-          </div>
-
-          {/* Content with top padding for the icon */}
-          <div className="space-y-6 pb-16">
+          <div className="space-y-6">
             {/* Transaction Name */}
             <DialogTitle className="text-2xl font-semibold text-center text-black">
               {transaction.description}
