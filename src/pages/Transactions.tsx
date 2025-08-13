@@ -131,7 +131,7 @@ const Transactions = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white pb-24 flex items-center justify-center">
+      <div className="min-h-screen bg-[#151515] text-white pb-24 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#A8E202] mx-auto mb-4"></div>
           <p className="text-gray-400">Carregando transações...</p>
@@ -142,7 +142,7 @@ const Transactions = () => {
 
   return (
     <div 
-      className="min-h-screen bg-black text-white pb-24"
+      className="min-h-screen bg-[#151515] text-white pb-24"
       onTouchStart={handlePullStart}
       onTouchMove={handlePullMove}
       onTouchEnd={handlePullEnd}
@@ -150,7 +150,7 @@ const Transactions = () => {
       {/* Pull to refresh indicator */}
       {isPulling && (
         <div 
-          className="fixed top-0 left-0 right-0 flex items-center justify-center bg-black/90 text-white transition-all duration-200 z-50"
+          className="fixed top-0 left-0 right-0 flex items-center justify-center bg-[#151515]/90 text-white transition-all duration-200 z-50"
           style={{ height: `${Math.min(pullDistance, 80)}px` }}
         >
           {pullDistance > 80 ? (
