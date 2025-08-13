@@ -187,8 +187,8 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-black rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-gray-800">
+    <div className="fixed inset-0 bg-[#151515]/80 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#151515] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-gray-800">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-800">
           <h2 className="text-xl font-semibold text-white">Nova Transação</h2>
