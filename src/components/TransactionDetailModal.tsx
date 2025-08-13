@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 interface Transaction {
@@ -84,19 +85,22 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-0 rounded-[3rem] overflow-hidden relative z-50">
-        {/* Background with padding */}
-        <div className="p-8 pt-16">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-[3rem] overflow-visible">
+        <DialogHeader className="relative">
+          <DialogDescription className="sr-only">
+            Detalhes da transação {transaction.description}
+          </DialogDescription>
+          
           {/* Close button */}
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center z-20"
+            className="absolute -top-2 -right-2 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center z-20"
           >
             <X className="w-4 h-4" />
           </button>
 
           {/* Category Icon positioned to be half outside */}
-          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-10">
             <div 
               className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
               style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
@@ -105,7 +109,8 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
             </div>
           </div>
 
-          <DialogHeader className="space-y-6 pt-8">
+          {/* Content with top padding for the icon */}
+          <div className="pt-12 space-y-6">
             {/* Transaction Name */}
             <DialogTitle className="text-2xl font-semibold text-center text-black">
               {transaction.description}
@@ -143,8 +148,8 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
                 Alterar
               </button>
             </div>
-          </DialogHeader>
-        </div>
+          </div>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );
