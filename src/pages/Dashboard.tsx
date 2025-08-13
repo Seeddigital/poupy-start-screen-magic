@@ -44,8 +44,10 @@ const Dashboard = () => {
   };
 
   const handleTransactionClick = transaction => {
+    console.log('Clicou na transação:', transaction);
     setSelectedTransaction(transaction);
     setIsTransactionModalOpen(true);
+    console.log('Modal state:', { selectedTransaction: transaction, isOpen: true });
   };
 
   const handleCategoryClick = category => {

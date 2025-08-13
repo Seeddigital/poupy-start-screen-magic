@@ -37,6 +37,8 @@ interface TransactionDetailModalProps {
 }
 
 const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: TransactionDetailModalProps) => {
+  console.log('TransactionDetailModal render:', { transaction: !!transaction, isOpen });
+  
   if (!transaction) return null;
 
   const formatCurrency = (value: number) => {
@@ -82,7 +84,7 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-0 rounded-[3rem] overflow-hidden relative">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-0 rounded-[3rem] overflow-hidden relative z-50">
         {/* Background with padding */}
         <div className="p-8 pt-16">
           {/* Close button */}
@@ -99,10 +101,7 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
               className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
               style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
             >
-              {(() => {
-                const IconComponent = getCategoryIcon(transaction.categories?.name || '');
-                return <IconComponent className="w-8 h-8 text-white" />;
-              })()}
+              <Utensils className="w-8 h-8 text-white" />
             </div>
           </div>
 
