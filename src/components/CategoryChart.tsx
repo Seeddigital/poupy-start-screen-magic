@@ -17,32 +17,54 @@ interface CategoryChartProps {
 
 const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
   return (
-    <div className="w-full h-48 mb-4">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-          <XAxis 
-            dataKey="name" 
-            axisLine={false}
-            tickLine={false}
-            tick={{ fontSize: 12, fill: '#9CA3AF' }}
-            interval={0}
-            angle={-45}
-            textAnchor="end"
-            height={60}
-          />
-          <YAxis hide />
-          <Bar 
-            dataKey="amount" 
-            radius={[4, 4, 0, 0]}
-            cursor="pointer"
-            onClick={(data) => onCategoryClick(data)}
+    <div className="w-full bg-black p-6 rounded-lg">
+      {/* Chart Area */}
+      <div className="h-64 mb-6">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart 
+            data={data} 
+            margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
+            barCategoryGap="20%"
           >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <XAxis hide />
+            <YAxis 
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: '#666666' }}
+              domain={[0, 'dataMax']}
+            />
+            <Bar 
+              dataKey="amount" 
+              radius={[20, 20, 20, 20]}
+              cursor="pointer"
+              onClick={(data) => onCategoryClick(data)}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap justify-center gap-4">
+        {data.map((category, index) => (
+          <div 
+            key={category.cat_id}
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => onCategoryClick(category)}
+          >
+            <div 
+              className="w-3 h-3 rounded-sm"
+              style={{ backgroundColor: category.color }}
+            />
+            <span className="text-white text-sm font-medium">
+              {category.name}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
