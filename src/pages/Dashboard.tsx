@@ -132,7 +132,7 @@ const Dashboard = () => {
       </header>
 
       {/* Welcome Message */}
-      <div className="px-4 sm:px-6 mb-6">
+      <div className="px-4 sm:px-6 mb-14">
         <h1 className="text-[20px] font-medium text-white font-inter">
           Olá, {userName}
         </h1>
