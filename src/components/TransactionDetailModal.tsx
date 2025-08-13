@@ -94,6 +94,13 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
         
         {/* Modal Content */}
         <div className="relative z-50 bg-white rounded-2xl sm:rounded-3xl max-w-md w-full mx-4 shadow-xl overflow-visible">
+          {/* Close button */}
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center z-20 transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
           {/* Category Icon positioned to be half outside */}
           <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
             <div 
