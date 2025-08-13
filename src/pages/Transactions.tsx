@@ -178,7 +178,7 @@ const Transactions = () => {
       <header className="flex items-center justify-between p-4 sm:p-6">
         <button 
           onClick={() => navigate('/dashboard')}
-          className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
+          className="w-10 h-10 bg-black/5 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
         >
           <ArrowLeft size={18} className="text-white" />
         </button>
@@ -208,7 +208,7 @@ const Transactions = () => {
               >
                 {/* Left side - Icon and Details */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 rounded-full flex items-center justify-center p-2">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black/5 rounded-full flex items-center justify-center p-2">
                     {transaction.categories?.icon ? (
                       <img 
                         src={transaction.categories.icon} 
