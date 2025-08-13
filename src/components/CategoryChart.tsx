@@ -42,7 +42,13 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
               horizontal={true}
               vertical={false}
             />
-            <XAxis hide />
+            <XAxis 
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 11, fill: '#ffffff' }}
+              interval={0}
+            />
             <YAxis 
               axisLine={false}
               tickLine={false}
