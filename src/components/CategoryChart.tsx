@@ -23,9 +23,9 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
-            margin={{ top: 20, right: 2, left: 2, bottom: 20 }}
-            barCategoryGap="0%"
-            maxBarSize={120}
+            margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+            barCategoryGap="25%"
+            maxBarSize={60}
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
