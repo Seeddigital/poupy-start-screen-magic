@@ -57,18 +57,18 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
       </div>
 
       {/* Legenda Horizontal */}
-      <div className="flex flex-wrap justify-center gap-8 px-4">
+      <div className="flex flex-wrap justify-center gap-6 px-4">
         {data.map((category, index) => (
           <div 
             key={category.cat_id}
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => onCategoryClick(category)}
           >
             <div 
-              className="w-4 h-4 rounded-sm"
+              className="w-3 h-3 rounded-sm"
               style={{ backgroundColor: category.color }}
             />
-            <span className="text-white text-sm font-medium">
+            <span className="text-white text-xs font-medium">
               {category.name}
             </span>
           </div>
