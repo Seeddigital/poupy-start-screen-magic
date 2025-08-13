@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Bell, LogOut } from 'lucide-react';
+import { Eye, EyeOff, Bell, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTransactions } from '@/hooks/useTransactions';
 import BottomNavigation from '../components/BottomNavigation';
@@ -151,9 +151,29 @@ const Dashboard = () => {
           <p className="text-black text-3xl sm:text-4xl md:text-5xl font-bold">
             {showValues ? formatCurrency(monthlyExpenses) : '••••••'}
           </p>
-          <p className="text-gray-600 text-xs sm:text-sm mt-2">
-            {showChart ? 'Toque para ocultar gráfico' : 'Toque para ver gráfico'}
-          </p>
+          
+          {/* Categories preview when collapsed */}
+          {!showChart && (
+            <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center gap-2 text-gray-600 text-xs sm:text-sm overflow-hidden">
+                {categories.slice(0, 4).map((category, index) => (
+                  <span key={category.cat_id} className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: category.color }}></span>
+                    <span className="truncate">{category.name}</span>
+                    {index < Math.min(categories.length - 1, 3) && <span>•</span>}
+                  </span>
+                ))}
+                {categories.length > 4 && <span>...</span>}
+              </div>
+              <ChevronDown className="w-4 h-4 text-gray-600 flex-shrink-0" />
+            </div>
+          )}
+          
+          {showChart && (
+            <div className="flex items-center justify-end mt-4">
+              <ChevronUp className="w-4 h-4 text-gray-600" />
+            </div>
+          )}
         </div>
 
         {/* Chart Container with Slide Animation */}
