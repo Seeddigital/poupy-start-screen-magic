@@ -56,58 +56,61 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose }: TransactionDet
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-md mx-auto">
-        <DialogHeader className="flex flex-row items-center justify-between">
-          <DialogTitle className="text-xl font-semibold">Detalhes da Transação</DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-6">
-          {/* Transaction Icon and Name */}
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700 p-2">
-              <div 
-                className="w-6 h-6 rounded-full"
-                style={{ backgroundColor: transaction.categories?.color || '#gray' }}
-              ></div>
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-white">{transaction.description}</h3>
-              <p className="text-gray-400 text-sm">{transaction.categories?.name} • {transaction.accounts?.name}</p>
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-3xl">
+        <DialogHeader className="space-y-6">
+          {/* Close button */}
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          {/* Category Icon */}
+          <div className="flex justify-center">
+            <div 
+              className="w-20 h-20 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
+            >
+              <div className="w-8 h-8 bg-white/20 rounded-lg"></div>
             </div>
           </div>
 
+          {/* Transaction Name */}
+          <DialogTitle className="text-2xl font-semibold text-center text-black">
+            {transaction.description}
+          </DialogTitle>
+
           {/* Amount */}
-          <div className="bg-gray-800 rounded-lg p-4">
-            <p className="text-gray-400 text-sm mb-1">Valor</p>
-            <p className={`text-2xl font-bold ${
-              transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'
+          <div className="text-center">
+            <p className={`text-4xl font-bold ${
+              transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
             }`}>
-              {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
+              R$ {Math.abs(transaction.amount).toFixed(2).replace('.', ',')}
             </p>
           </div>
 
-          {/* Date */}
-          <div className="bg-gray-800 rounded-lg p-4">
-            <p className="text-gray-400 text-sm mb-1">Data</p>
-            <p className="text-white font-medium">{formatDate(transaction.transaction_date)}</p>
-          </div>
-
-          {/* Payment Method */}
-          <div className="bg-gray-800 rounded-lg p-4">
-            <p className="text-gray-400 text-sm mb-1">Conta</p>
-            <p className="text-white font-medium">
-              {transaction.accounts?.name || 'Não informado'}
+          {/* Transaction Details */}
+          <div className="text-center">
+            <p className="text-gray-500 text-lg">
+              {transaction.categories?.name} • {transaction.accounts?.name} • {formatDate(transaction.transaction_date)}
             </p>
           </div>
 
           {/* Notes (if any) */}
           {transaction.notes && (
-            <div className="bg-gray-800 rounded-lg p-4">
-              <p className="text-gray-400 text-sm mb-1">Observações</p>
-              <p className="text-white font-medium">{transaction.notes}</p>
+            <div className="text-center">
+              <p className="text-gray-600 text-sm">{transaction.notes}</p>
             </div>
           )}
-        </div>
+
+          {/* Edit Button */}
+          <div className="flex justify-center pt-4">
+            <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-full font-medium">
+              Alterar
+            </button>
+          </div>
+        </DialogHeader>
       </DialogContent>
     </Dialog>
   );
