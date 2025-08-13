@@ -22,7 +22,6 @@ interface CategoryChartProps {
   /** Mostrar eixo Y (oculto por padrão para não roubar espaço) */
   showYAxis?: boolean;
 }
-}
 
 const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
   return (
