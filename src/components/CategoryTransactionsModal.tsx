@@ -68,7 +68,7 @@ const CategoryTransactionsModal = ({
           <div className="flex items-center gap-3">
             <button 
               onClick={onClose}
-              className="w-8 h-8 bg-black/5 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
+              className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
             >
               <ArrowLeft size={16} className="text-white" />
             </button>
@@ -98,7 +98,7 @@ const CategoryTransactionsModal = ({
                 >
                   {/* Left side - Icon and Details */}
                   <div className="flex items-center gap-3 flex-1">
-                    <div className="w-10 h-10 bg-black/5 rounded-full flex items-center justify-center p-2">
+                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center p-2">
                       <div 
                         className="w-6 h-6 rounded-full"
                         style={{ backgroundColor: transaction.categories?.color || '#gray' }}
