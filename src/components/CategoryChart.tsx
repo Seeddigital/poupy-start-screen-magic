@@ -34,7 +34,16 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
               horizontal={true}
               vertical={false}
             />
-            <XAxis hide />
+            <XAxis 
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 11, fill: '#ffffff', textAnchor: 'middle' }}
+              interval={0}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
             <YAxis 
               axisLine={false}
               tickLine={false}
@@ -56,21 +65,32 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
         </ResponsiveContainer>
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-6">
+      {/* Categoria Info Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {data.map((category, index) => (
           <div 
             key={category.cat_id}
-            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+            className="bg-gray-800 rounded-lg p-4 cursor-pointer hover:bg-gray-700 transition-colors border-l-4"
+            style={{ borderLeftColor: category.color }}
             onClick={() => onCategoryClick(category)}
           >
-            <div 
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: category.color }}
-            />
-            <span className="text-white text-sm font-medium">
-              {category.name}
-            </span>
+            <div className="flex items-center gap-3 mb-2">
+              <div 
+                className="w-4 h-4 rounded-full flex-shrink-0"
+                style={{ backgroundColor: category.color }}
+              />
+              <span className="text-white text-sm font-medium truncate">
+                {category.name}
+              </span>
+            </div>
+            <div className="text-right">
+              <div className="text-white font-bold text-lg">
+                R$ {category.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </div>
+              <div className="text-gray-400 text-xs">
+                {category.percentage.toFixed(1)}% do total
+              </div>
+            </div>
           </div>
         ))}
       </div>
