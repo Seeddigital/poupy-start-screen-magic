@@ -133,7 +133,7 @@ const Dashboard = () => {
 
       {/* Welcome Message */}
       <div className="px-4 sm:px-6 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-medium text-white">
+        <h1 className="text-[20px] font-medium text-white">
           Olá, {userName}
         </h1>
       </div>
