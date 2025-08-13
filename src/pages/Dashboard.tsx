@@ -142,7 +142,7 @@ const Dashboard = () => {
       <div className="px-4 sm:px-6 mb-6 relative">
         {/* Main Card with Shadow and Depth Effect */}
         <div 
-          className={`bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8 cursor-pointer hover:bg-[#96D000] transition-all duration-300 relative z-10 ${
+          className={`bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8 pt-[100px] cursor-pointer hover:bg-[#96D000] transition-all duration-300 relative z-10 ${
             showChart ? 'shadow-2xl shadow-black/50' : 'shadow-lg shadow-black/25'
           }`}
           onClick={handleExpenseCardClick}
