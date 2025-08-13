@@ -336,7 +336,7 @@ export const useTransactions = () => {
           amount: categoryTotals[Number(cat.id)] || 0,
           percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.id)] || 0) / totalExpenses * 100) : 0
         }))
-        .filter((cat: any) => cat.amount > 0) // Only show categories with transactions
+        .filter((cat: any) => cat.amount > 0 && cat.name && cat.name.trim() !== '') // Only show categories with transactions and valid names
         .sort((a: any, b: any) => b.amount - a.amount); // Sort by amount descending
 
         console.log('Categories with amounts:', categoriesWithAmounts);
