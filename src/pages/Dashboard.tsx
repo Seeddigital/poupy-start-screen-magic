@@ -152,29 +152,27 @@ const Dashboard = () => {
             {showValues ? formatCurrency(monthlyExpenses) : '••••••'}
           </p>
           
-          {/* Categories preview when collapsed */}
-          {!showChart && (
-            <div className="flex items-center justify-between mt-4">
-              <div className="flex items-center gap-2 text-gray-600 text-xs sm:text-sm overflow-hidden">
-                {categories.slice(0, 4).map((category, index) => (
-                  <span key={category.cat_id} className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: category.color }}></span>
-                    <span className="truncate">{category.name}</span>
-                    {index < Math.min(categories.length - 1, 3) && <span>•</span>}
-                  </span>
-                ))}
-                {categories.length > 4 && <span>...</span>}
-              </div>
-              <ChevronDown className="w-4 h-4 text-gray-600 flex-shrink-0" />
-            </div>
-          )}
-          
           {showChart && (
             <div className="flex items-center justify-end mt-4">
               <ChevronUp className="w-4 h-4 text-gray-600" />
             </div>
           )}
         </div>
+
+        {/* Categories preview when collapsed - Outside the green card */}
+        {!showChart && (
+          <div className="flex items-center justify-center mt-4 gap-2 text-gray-400 text-xs sm:text-sm overflow-hidden">
+            {categories.slice(0, 4).map((category, index) => (
+              <span key={category.cat_id} className="flex items-center gap-1">
+                <span>—</span>
+                <span className="truncate">{category.name}</span>
+                {index < Math.min(categories.length - 1, 3) && <span></span>}
+              </span>
+            ))}
+            {categories.length > 4 && <span>—</span>}
+            <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-2" />
+          </div>
+        )}
 
         {/* Chart Container with Slide Animation */}
         <div 
@@ -192,7 +190,6 @@ const Dashboard = () => {
             <CategoryChart data={categories} onCategoryClick={handleCategoryClick} />
           </div>
         </div>
-
       </div>
 
       {/* Transactions Section */}
