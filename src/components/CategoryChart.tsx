@@ -13,6 +13,15 @@ interface CategoryData {
 interface CategoryChartProps {
   data: CategoryData[];
   onCategoryClick: (category: CategoryData) => void;
+  /** Mostra legenda abaixo do gráfico (default: true) */
+  showLegend?: boolean;
+  /** Aplica padding interno no card (default: 0) */
+  padding?: string; // ex.: "p-6"
+  /** Classe extra para o container */
+  className?: string;
+  /** Mostrar eixo Y (oculto por padrão para não roubar espaço) */
+  showYAxis?: boolean;
+}
 }
 
 const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
