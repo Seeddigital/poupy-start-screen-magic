@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 
 interface CategoryData {
   cat_id: number;
@@ -19,19 +19,28 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
   return (
     <div className="w-full bg-black p-6 rounded-lg">
       {/* Chart Area */}
-      <div className="h-64 mb-6">
+      <div className="h-80 mb-6">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
-            margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-            barCategoryGap="20%"
+            margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+            barCategoryGap="10%"
+            maxBarSize={60}
           >
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke="#333333" 
+              strokeOpacity={0.3}
+              horizontal={true}
+              vertical={false}
+            />
             <XAxis hide />
             <YAxis 
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: '#666666' }}
               domain={[0, 'dataMax']}
+              tickCount={6}
             />
             <Bar 
               dataKey="amount" 
@@ -48,7 +57,7 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-6">
         {data.map((category, index) => (
           <div 
             key={category.cat_id}
@@ -56,7 +65,7 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
             onClick={() => onCategoryClick(category)}
           >
             <div 
-              className="w-3 h-3 rounded-sm"
+              className="w-3 h-3 rounded-full"
               style={{ backgroundColor: category.color }}
             />
             <span className="text-white text-sm font-medium">
