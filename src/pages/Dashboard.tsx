@@ -161,16 +161,24 @@ const Dashboard = () => {
 
         {/* Categories preview when collapsed - Outside the green card */}
         {!showChart && (
-          <div className="flex items-center justify-center mt-4 gap-2 text-gray-400 text-xs sm:text-sm overflow-hidden">
+          <div className="flex items-center justify-center mt-4 gap-2 text-xs sm:text-sm overflow-hidden">
             {categories.slice(0, 4).map((category, index) => (
               <span key={category.cat_id} className="flex items-center gap-1">
                 <span>—</span>
-                <span className="truncate">{category.name}</span>
-                {index < Math.min(categories.length - 1, 3) && <span></span>}
+                <span className="truncate" style={{ color: category.color }}>
+                  {category.name}
+                </span>
               </span>
             ))}
-            {categories.length > 4 && <span>—</span>}
-            <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-2" />
+            {categories.length > 4 && (
+              <span className="flex items-center gap-1">
+                <span className="text-gray-400">—</span>
+                <ChevronDown className="w-4 h-4 text-red-500 flex-shrink-0" />
+              </span>
+            )}
+            {categories.length <= 4 && (
+              <ChevronDown className="w-4 h-4 text-red-500 flex-shrink-0 ml-2" />
+            )}
           </div>
         )}
 
