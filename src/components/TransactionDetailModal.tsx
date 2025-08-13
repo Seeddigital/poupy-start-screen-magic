@@ -90,6 +90,14 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
           <DialogDescription className="sr-only">
             Detalhes da transação {transaction.description}
           </DialogDescription>
+          
+          {/* Close button */}
+          <button 
+            onClick={onClose}
+            className="absolute -top-2 -right-2 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center z-20"
+          >
+            <X className="w-4 h-4" />
+          </button>
 
           {/* Category Icon positioned to be half outside */}
           <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-10">
@@ -102,7 +110,7 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
           </div>
 
           {/* Content with top padding for the icon */}
-          <div className="pt-12 space-y-6 relative">
+          <div className="pt-12 space-y-6">
             {/* Transaction Name */}
             <DialogTitle className="text-2xl font-semibold text-center text-black">
               {transaction.description}
@@ -131,13 +139,15 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
               </div>
             )}
 
-            {/* Edit Button positioned at bottom right */}
-            <button 
-              onClick={handleEdit}
-              className="absolute bottom-0 right-0 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors"
-            >
-              Alterar
-            </button>
+            {/* Edit Button */}
+            <div className="flex justify-center pt-4">
+              <button 
+                onClick={handleEdit}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-full font-medium transition-colors"
+              >
+                Alterar
+              </button>
+            </div>
           </div>
         </DialogHeader>
       </DialogContent>
