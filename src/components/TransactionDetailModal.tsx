@@ -64,64 +64,67 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-[2rem]">
-        <DialogHeader className="space-y-6">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-0 rounded-[3rem] overflow-hidden relative">
+        {/* Background with padding */}
+        <div className="p-8 pt-16">
           {/* Close button */}
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center"
+            className="absolute top-6 right-6 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center z-20"
           >
             <X className="w-4 h-4" />
           </button>
 
-          {/* Category Icon */}
-          <div className="flex justify-center">
+          {/* Category Icon positioned to be half outside */}
+          <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
             <div 
-              className="w-20 h-20 rounded-full flex items-center justify-center"
+              className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
               style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
             >
               <div className="w-8 h-8 bg-white/20 rounded-lg"></div>
             </div>
           </div>
 
-          {/* Transaction Name */}
-          <DialogTitle className="text-2xl font-semibold text-center text-black">
-            {transaction.description}
-          </DialogTitle>
+          <DialogHeader className="space-y-6 pt-8">
+            {/* Transaction Name */}
+            <DialogTitle className="text-2xl font-semibold text-center text-black">
+              {transaction.description}
+            </DialogTitle>
 
-          {/* Amount */}
-          <div className="text-center">
-            <p className={`text-4xl font-bold ${
-              transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
-            }`}>
-              R$ {Math.abs(transaction.amount).toFixed(2).replace('.', ',')}
-            </p>
-          </div>
-
-          {/* Transaction Details */}
-          <div className="text-center">
-            <p className="text-gray-500 text-lg">
-              {transaction.categories?.name} • {transaction.accounts?.name} • {formatDate(transaction.transaction_date)}
-            </p>
-          </div>
-
-          {/* Notes (if any) */}
-          {transaction.notes && (
+            {/* Amount */}
             <div className="text-center">
-              <p className="text-gray-600 text-sm">{transaction.notes}</p>
+              <p className={`text-4xl font-bold ${
+                transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
+              }`}>
+                R$ {Math.abs(transaction.amount).toFixed(2).replace('.', ',')}
+              </p>
             </div>
-          )}
 
-          {/* Edit Button */}
-          <div className="flex justify-center pt-4">
-            <button 
-              onClick={handleEdit}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-full font-medium transition-colors"
-            >
-              Alterar
-            </button>
-          </div>
-        </DialogHeader>
+            {/* Transaction Details */}
+            <div className="text-center">
+              <p className="text-gray-500 text-lg">
+                {transaction.categories?.name} • {transaction.accounts?.name} • {formatDate(transaction.transaction_date)}
+              </p>
+            </div>
+
+            {/* Notes (if any) */}
+            {transaction.notes && (
+              <div className="text-center">
+                <p className="text-gray-600 text-sm">{transaction.notes}</p>
+              </div>
+            )}
+
+            {/* Edit Button */}
+            <div className="flex justify-center pt-4">
+              <button 
+                onClick={handleEdit}
+                className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-full font-medium transition-colors"
+              >
+                Alterar
+              </button>
+            </div>
+          </DialogHeader>
+        </div>
       </DialogContent>
     </Dialog>
   );
