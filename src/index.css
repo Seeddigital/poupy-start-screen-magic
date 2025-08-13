@@ -113,4 +113,8 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .chart-preview-bg {
+    background-color: #000000;
+  }
 }

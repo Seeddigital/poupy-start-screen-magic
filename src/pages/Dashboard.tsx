@@ -179,8 +179,8 @@ const Dashboard = () => {
 
         {/* Chart Container with Slide Animation */}
         <div 
-          className={`relative bg-black rounded-b-2xl sm:rounded-b-3xl transition-all duration-500 ease-out overflow-hidden ${
-            showChart 
+          className={`relative chart-preview-bg rounded-b-2xl sm:rounded-b-3xl transition-all duration-500 ease-out overflow-hidden ${
+            showChart
               ? 'max-h-96 opacity-100 translate-y-0' 
               : 'max-h-0 opacity-0 translate-y-[-20px]'
           }`}
