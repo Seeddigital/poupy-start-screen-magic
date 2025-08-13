@@ -35,7 +35,7 @@ const Categories = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-[#1A1A1A] text-white pb-24">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         <button 
@@ -72,7 +72,12 @@ const Categories = () => {
               const isOverGoal = goal && Math.abs(category.amount) > goal.amount;
               
               return (
-                <div key={category.cat_id} className="bg-gray-900 rounded-2xl p-4">
+                <div 
+                  key={category.cat_id} 
+                  className={`rounded-2xl p-4 transition-all duration-300 relative ${
+                    goal ? 'bg-gradient-to-r from-orange-500/90 to-orange-600/90 border border-orange-400/30' : 'bg-[#2A2A2A] border border-gray-700/50'
+                  }`}
+                >
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       {category.icon ? (
@@ -93,8 +98,8 @@ const Categories = () => {
                       <div className="flex-1">
                         <h3 className="text-white font-medium">{category.name}</h3>
                         {goal && (
-                          <p className="text-gray-400 text-sm">
-                            Meta: {formatCurrency(goal.amount)} ({goal.period === 'monthly' ? 'mensal' : 'anual'})
+                          <p className="text-white/70 text-sm font-medium">
+                            {formatCurrency(goal.amount)}
                           </p>
                         )}
                       </div>
@@ -102,44 +107,47 @@ const Categories = () => {
                     
                     <div className="flex items-center gap-2">
                       {goal && (
-                        <span className={`text-sm font-medium ${isOverGoal ? 'text-red-500' : 'text-gray-400'}`}>
+                        <span className={`text-sm font-medium ${goal ? 'text-white/80' : isOverGoal ? 'text-red-500' : 'text-gray-400'}`}>
                           {Math.round(goalProgress)}%
                         </span>
                       )}
-                      <button
-                        onClick={() => handleGoalClick(category)}
-                        className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
-                      >
-                        {goal ? <Target size={14} className="text-[#A8E202]" /> : <Plus size={14} className="text-gray-400" />}
-                      </button>
+                      <span className={`font-bold text-lg ${goal ? 'text-white' : isOverGoal ? 'text-red-500' : 'text-white'}`}>
+                        {formatCurrency(category.amount)}
+                      </span>
                     </div>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className={`font-bold text-lg ${isOverGoal ? 'text-red-500' : 'text-white'}`}>
-                        {formatCurrency(category.amount)}
-                      </span>
-                      {goal && (
-                        <span className="text-gray-400 text-sm">
-                          Restam {formatCurrency(Math.max(0, goal.amount - Math.abs(category.amount)))}
-                        </span>
-                      )}
+                  {goal && (
+                    <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          isOverGoal ? 'bg-red-400' : 'bg-yellow-400'
+                        }`}
+                        style={{ 
+                          width: `${goalProgress}%`
+                        }}
+                      ></div>
                     </div>
-                    
-                    {goal && (
-                      <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full rounded-full transition-all duration-300 ${
-                            isOverGoal ? 'bg-red-500' : 'bg-gradient-to-r from-[#A8E202] to-[#96D000]'
-                          }`}
-                          style={{ 
-                            width: `${goalProgress}%`
-                          }}
-                        ></div>
-                      </div>
-                    )}
-                  </div>
+                  )}
+                  
+                  {!goal && (
+                    <button
+                      onClick={() => handleGoalClick(category)}
+                      className="w-full mt-2 py-2 bg-white/5 rounded-lg flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"
+                    >
+                      <Plus size={16} className="text-gray-400" />
+                      <span className="text-gray-400 text-sm">Definir meta</span>
+                    </button>
+                  )}
+                  
+                  {goal && (
+                    <button
+                      onClick={() => handleGoalClick(category)}
+                      className="absolute top-3 right-3 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                    >
+                      <Target size={12} className="text-white" />
+                    </button>
+                  )}
                 </div>
               );
             })}
