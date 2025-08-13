@@ -75,7 +75,7 @@ const Categories = () => {
                 <div 
                   key={category.cat_id} 
                   className={`rounded-2xl p-4 transition-all duration-300 relative ${
-                    goal ? 'bg-gradient-to-r from-orange-500/90 to-orange-600/90 border border-orange-400/30' : 'bg-[#2A2A2A] border border-gray-700/50'
+                    goal ? 'bg-[#2A2A2A] border border-[#A8E202]/30' : 'bg-[#2A2A2A] border border-gray-700/50'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
