@@ -33,9 +33,10 @@ interface TransactionDetailModalProps {
   transaction: Transaction | null;
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: (transaction: Transaction) => void;
 }
 
-const TransactionDetailModal = ({ transaction, isOpen, onClose }: TransactionDetailModalProps) => {
+const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: TransactionDetailModalProps) => {
   if (!transaction) return null;
 
   const formatCurrency = (value: number) => {
@@ -49,14 +50,21 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose }: TransactionDet
     const date = new Date(dateStr);
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
-      month: 'long',
+      month: 'short',
       year: 'numeric'
     });
   };
 
+  const handleEdit = () => {
+    if (onEdit && transaction) {
+      onEdit(transaction);
+      onClose();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-3xl">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-[2rem]">
         <DialogHeader className="space-y-6">
           {/* Close button */}
           <button 
@@ -106,7 +114,10 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose }: TransactionDet
 
           {/* Edit Button */}
           <div className="flex justify-center pt-4">
-            <button className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-full font-medium">
+            <button 
+              onClick={handleEdit}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-full font-medium transition-colors"
+            >
               Alterar
             </button>
           </div>

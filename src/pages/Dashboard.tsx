@@ -7,6 +7,7 @@ import CategoryChart from '../components/CategoryChart';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 import AddTransactionModal from '../components/AddTransactionModal';
+import EditTransactionModal from '../components/EditTransactionModal';
 import AuthModal from '../components/AuthModal';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +23,8 @@ const Dashboard = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const navigate = useNavigate();
 
   // Redirect to home if not authenticated
@@ -76,6 +79,24 @@ const Dashboard = () => {
 
   const handleTransactionAdded = () => {
     refetch();
+  };
+
+  const handleEditTransaction = (transaction) => {
+    setSelectedTransactionId(Number(transaction.id));
+    setSelectedTransaction(transaction);
+    setIsTransactionModalOpen(false);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setSelectedTransactionId(null);
+  };
+
+  const handleTransactionUpdated = () => {
+    refetch();
+    setIsEditModalOpen(false);
+    setSelectedTransactionId(null);
   };
 
   // Show loading or redirect if no user
@@ -222,7 +243,8 @@ const Dashboard = () => {
       <TransactionDetailModal 
         transaction={selectedTransaction} 
         isOpen={isTransactionModalOpen} 
-        onClose={() => setIsTransactionModalOpen(false)} 
+        onClose={() => setIsTransactionModalOpen(false)}
+        onEdit={handleEditTransaction}
       />
 
       <CategoryTransactionsModal 
@@ -238,6 +260,15 @@ const Dashboard = () => {
         onClose={() => setIsAddModalOpen(false)}
         onTransactionAdded={handleTransactionAdded}
       />
+
+      {selectedTransactionId && (
+        <EditTransactionModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          onTransactionUpdated={handleTransactionUpdated}
+          transactionId={selectedTransactionId}
+        />
+      )}
     </div>
   );
 };
