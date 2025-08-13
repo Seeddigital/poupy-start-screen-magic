@@ -85,19 +85,11 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-2xl sm:rounded-3xl overflow-visible">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-2xl sm:rounded-3xl overflow-visible relative">
         <DialogHeader className="relative">
           <DialogDescription className="sr-only">
             Detalhes da transação {transaction.description}
           </DialogDescription>
-          
-          {/* Close button */}
-          <button 
-            onClick={onClose}
-            className="absolute -top-2 -right-2 w-8 h-8 bg-black/10 rounded-full flex items-center justify-center z-20"
-          >
-            <X className="w-4 h-4" />
-          </button>
 
           {/* Category Icon positioned to be half outside */}
           <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 z-10">
@@ -138,18 +130,16 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
                 <p className="text-gray-600 text-sm">{transaction.notes}</p>
               </div>
             )}
-
-            {/* Edit Button */}
-            <div className="flex justify-center pt-4">
-              <button 
-                onClick={handleEdit}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-full font-medium transition-colors"
-              >
-                Alterar
-              </button>
-            </div>
           </div>
         </DialogHeader>
+
+        {/* Edit Button positioned at bottom right */}
+        <button 
+          onClick={handleEdit}
+          className="absolute bottom-4 right-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors"
+        >
+          Alterar
+        </button>
       </DialogContent>
     </Dialog>
   );
