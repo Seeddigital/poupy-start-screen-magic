@@ -85,7 +85,7 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-[2.5rem] overflow-visible">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-2xl sm:rounded-3xl overflow-visible">
         <DialogHeader className="relative">
           <DialogDescription className="sr-only">
             Detalhes da transação {transaction.description}
