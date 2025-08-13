@@ -83,77 +83,78 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
     return iconMap[categoryName] || Gift;
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        {/* Overlay */}
-        <div 
-          className="fixed inset-0 bg-black/50" 
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Overlay */}
+      <div 
+        className="fixed inset-0 bg-black/50" 
+        onClick={onClose}
+      />
+      
+      {/* Modal Content */}
+      <div className="relative z-50 bg-white rounded-2xl sm:rounded-3xl max-w-md w-full mx-4 shadow-xl overflow-visible">
+        {/* Close button */}
+        <button 
           onClick={onClose}
-        />
+          className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center z-20 transition-colors"
+        >
+          <X className="w-4 h-4 text-gray-600" />
+        </button>
         
-        {/* Modal Content */}
-        <div className="relative z-50 bg-white rounded-2xl sm:rounded-3xl max-w-md w-full mx-4 shadow-xl overflow-visible">
-          {/* Close button */}
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center z-20 transition-colors"
+        {/* Category Icon positioned to be half outside */}
+        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
+          <div 
+            className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
+            style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
           >
-            <X className="w-4 h-4 text-gray-600" />
-          </button>
-          {/* Category Icon positioned to be half outside */}
-          <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
-            <div 
-              className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
-              style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
-            >
-              <Utensils className="w-8 h-8 text-white" />
-            </div>
+            <Utensils className="w-8 h-8 text-white" />
           </div>
-
-          {/* Content */}
-          <div className="p-8 pt-16 pb-20">
-            <div className="space-y-6">
-              {/* Transaction Name */}
-              <h2 className="text-2xl font-semibold text-center text-black">
-                {transaction.description}
-              </h2>
-
-              {/* Amount */}
-              <div className="text-center">
-                <p className={`text-4xl font-bold ${
-                  transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
-                }`}>
-                  R$ {Math.abs(transaction.amount).toFixed(2).replace('.', ',')}
-                </p>
-              </div>
-
-              {/* Transaction Details */}
-              <div className="text-center">
-                <p className="text-gray-500 text-lg">
-                  {transaction.categories?.name} • {transaction.accounts?.name} • {formatDate(transaction.transaction_date)}
-                </p>
-              </div>
-
-              {/* Notes (if any) */}
-              {transaction.notes && (
-                <div className="text-center">
-                  <p className="text-gray-600 text-sm">{transaction.notes}</p>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Edit Button positioned in bottom right */}
-          <button 
-            onClick={handleEdit}
-            className="absolute bottom-6 right-6 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors"
-          >
-            Alterar
-          </button>
         </div>
+
+        {/* Content */}
+        <div className="p-8 pt-16 pb-20">
+          <div className="space-y-6">
+            {/* Transaction Name */}
+            <h2 className="text-2xl font-semibold text-center text-black">
+              {transaction.description}
+            </h2>
+
+            {/* Amount */}
+            <div className="text-center">
+              <p className={`text-4xl font-bold ${
+                transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
+              }`}>
+                R$ {Math.abs(transaction.amount).toFixed(2).replace('.', ',')}
+              </p>
+            </div>
+
+            {/* Transaction Details */}
+            <div className="text-center">
+              <p className="text-gray-500 text-lg">
+                {transaction.categories?.name} • {transaction.accounts?.name} • {formatDate(transaction.transaction_date)}
+              </p>
+            </div>
+
+            {/* Notes (if any) */}
+            {transaction.notes && (
+              <div className="text-center">
+                <p className="text-gray-600 text-sm">{transaction.notes}</p>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Edit Button positioned in bottom right */}
+        <button 
+          onClick={handleEdit}
+          className="absolute bottom-6 right-6 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors"
+        >
+          Alterar
+        </button>
       </div>
-    </Dialog>
+    </div>
   );
 };
 
