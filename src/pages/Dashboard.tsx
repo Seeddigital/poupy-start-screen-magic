@@ -109,7 +109,7 @@ const Dashboard = () => {
   const userName = user.full_name || "Usuário";
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden pb-24">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden pb-24">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         {/* Logo Poupy */}
