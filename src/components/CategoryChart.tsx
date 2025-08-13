@@ -24,6 +24,33 @@ interface CategoryChartProps {
 }
 
 const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
+  const CustomXAxisTick = ({ x, y, payload }: any) => {
+    const category = payload.value;
+    const categoryData = data.find(item => item.name === category);
+    
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <line 
+          x1={-8} 
+          y1={8} 
+          x2={8} 
+          y2={8} 
+          stroke={categoryData?.color || '#ffffff'} 
+          strokeWidth={3}
+          strokeLinecap="round"
+        />
+        <text 
+          x={0} 
+          y={24} 
+          textAnchor="middle" 
+          fill="#ffffff" 
+          fontSize={11}
+        >
+          {category}
+        </text>
+      </g>
+    );
+  };
   return (
     <div className="w-full bg-black p-6 rounded-lg">
       {/* Chart Area */}
@@ -46,8 +73,9 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 11, fill: '#ffffff' }}
+              tick={<CustomXAxisTick />}
               interval={0}
+              height={50}
             />
             <YAxis 
               axisLine={false}
