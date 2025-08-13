@@ -16,29 +16,13 @@ interface CategoryChartProps {
 }
 
 const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
-  // Ensure data is always an array to prevent map errors
-  const chartData = data || [];
-  
-  // Show empty state if no data
-  if (chartData.length === 0) {
-    return (
-      <div className="w-full bg-black p-6 rounded-lg">
-        <div className="h-80 flex items-center justify-center">
-          <div className="text-center text-gray-400">
-            <p>Nenhum dado disponível</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full bg-black p-6 rounded-lg">
       {/* Chart Area */}
       <div className="h-80 mb-6">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
-            data={chartData}
+            data={data} 
             margin={{ top: 20, right: 0, left: 0, bottom: 20 }}
             barCategoryGap="10%"
             maxBarSize={100}
@@ -64,7 +48,7 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
               cursor="pointer"
               onClick={(data) => onCategoryClick(data)}
             >
-              {chartData.map((entry, index) => (
+              {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Bar>
@@ -74,8 +58,8 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
 
       {/* Legend */}
       <div className="flex flex-wrap justify-center gap-6">
-        {chartData.map((category, index) => (
-          <div
+        {data.map((category, index) => (
+          <div 
             key={category.cat_id}
             className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => onCategoryClick(category)}

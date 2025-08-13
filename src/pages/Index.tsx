@@ -1,78 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useTransactions } from '@/hooks/useTransactions';
-import CategoryChart from '@/components/CategoryChart';
-import CategoryTransactionsModal from '@/components/CategoryTransactionsModal';
-import AuthModal from '@/components/AuthModal';
-import BottomNavigation from '@/components/BottomNavigation';
 
-interface CategoryData {
-  cat_id: number;
-  name: string;
-  amount: number;
-  color: string;
-  percentage: number;
-}
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import AuthModal from "@/components/AuthModal";
 
 const Index = () => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user } = useAuth();
-  const { categories, transactions, loading } = useTransactions();
-  const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
-  const [showAuth, setShowAuth] = useState(false);
+  const navigate = useNavigate();
 
-  const handleCategoryClick = (category: CategoryData) => {
-    setSelectedCategory(category);
-  };
-
-  const handleTransactionClick = (transaction: any) => {
-    // Handle transaction click if needed
-    console.log('Transaction clicked:', transaction);
-  };
-
+  // Redirect to dashboard if already logged in
   useEffect(() => {
-    console.log('Categories data:', categories);
-  }, [categories]);
-
-  if (!user) {
-    return <AuthModal isOpen={true} onClose={() => setShowAuth(false)} />;
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-foreground">Carregando...</div>
-      </div>
-    );
-  }
+    if (user) {
+      console.log('User found on index, redirecting to dashboard');
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="pb-20">
-        <div className="p-6">
-          <h1 className="text-2xl font-bold text-foreground mb-6">
-            Gastos por Categoria - Dashboard
-          </h1>
-          
-          <div className="h-96">
-            <CategoryChart 
-              data={categories || []} 
-              onCategoryClick={handleCategoryClick}
-            />
-          </div>
-        </div>
-      </main>
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{
+      backgroundImage: `url('/lovable-uploads/f3ee6670-5552-48cc-adb1-a46a742158df.png')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+      {/* Logo no canto inferior esquerdo */}
+      <div className="absolute bottom-8 left-8 z-10 mx-[29px]">
+        <img alt="Logo" className="h-28 w-auto" src="/lovable-uploads/a5f7a3ad-fd73-4d04-979c-aa6192a26233.png" />
+      </div>
 
-      <BottomNavigation />
-
-      {selectedCategory && (
-        <CategoryTransactionsModal
-          category={selectedCategory}
-          transactions={transactions || []}
-          isOpen={!!selectedCategory}
-          onClose={() => setSelectedCategory(null)}
-          onTransactionClick={handleTransactionClick}
-        />
-      )}
+      {/* Botão de login no canto inferior direito */}
+      <div className="absolute bottom-8 right-8 z-10">
+        <button 
+          onClick={() => setIsAuthModalOpen(true)}
+          className="w-16 h-16 bg-[#a8e202] rounded-full flex items-center justify-center text-black text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg"
+        >
+          →
+        </button>
+      </div>
+      
+      {/* Modal de autenticação */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+      
+      {/* Página limpa com apenas a imagem de fundo */}
     </div>
   );
 };
