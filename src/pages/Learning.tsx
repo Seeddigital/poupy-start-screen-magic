@@ -47,7 +47,7 @@ const Learning = () => {
       <header className="flex items-center justify-between p-4 sm:p-6">
         <button 
           onClick={() => navigate('/dashboard')}
-          className="w-10 h-10 bg-gray-800 border border-gray-700 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
+          className="w-10 h-10 bg-black/5 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
         >
           <ArrowLeft size={18} className="text-white" />
         </button>
