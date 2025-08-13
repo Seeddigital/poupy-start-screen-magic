@@ -39,15 +39,16 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
           strokeWidth={3}
           strokeLinecap="round"
         />
-        <text 
-          x={0} 
-          y={24} 
-          textAnchor="middle" 
-          fill="#ffffff" 
-          fontSize={11}
-        >
-          {category}
-        </text>
+            <text 
+              x={0} 
+              y={24} 
+              textAnchor="middle" 
+              fill="#9ca3af" 
+              fontSize={11}
+              className="text-gray-400"
+            >
+              {category}
+            </text>
       </g>
     );
   };
@@ -80,7 +81,7 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
             <YAxis 
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: '#666666' }}
+              tick={{ fontSize: 12, fill: '#9ca3af' }}
               domain={[0, 'dataMax']}
               tickCount={6}
             />
@@ -110,7 +111,7 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
               className="w-3 h-3 rounded-sm"
               style={{ backgroundColor: category.color }}
             />
-            <span className="text-white text-xs font-medium">
+            <span className="text-gray-400 text-xs font-medium">
               {category.name}
             </span>
           </div>
