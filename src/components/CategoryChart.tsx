@@ -24,8 +24,8 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
           <BarChart 
             data={data} 
             margin={{ top: 20, right: 2, left: 2, bottom: 20 }}
-            barCategoryGap="5%"
-            maxBarSize={80}
+            barCategoryGap="0%"
+            maxBarSize={120}
           >
             <CartesianGrid 
               strokeDasharray="3 3" 
