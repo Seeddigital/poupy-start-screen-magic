@@ -119,13 +119,13 @@ const Dashboard = () => {
 
         {/* Icons */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <button onClick={() => setShowValues(!showValues)} className="w-10 h-10 sm:w-12 sm:h-12 bg-black/5 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors">
+          <button onClick={() => setShowValues(!showValues)} className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
             {showValues ? <Eye size={18} className="text-white" /> : <EyeOff size={18} className="text-white" />}
           </button>
-          <button className="w-10 h-10 sm:w-12 sm:h-12 bg-black/5 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors">
+          <button className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
             <Bell size={18} className="text-white" />
           </button>
-          <button onClick={handleSignOut} className="w-10 h-10 sm:w-12 sm:h-12 bg-black/5 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors">
+          <button onClick={handleSignOut} className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
             <LogOut size={18} className="text-white" />
           </button>
         </div>
@@ -218,7 +218,7 @@ const Dashboard = () => {
               >
                 {/* Left side - Icon and Details */}
                 <div className="flex items-center gap-3 sm:gap-4 flex-1">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black/5 rounded-full flex items-center justify-center p-2">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 rounded-full flex items-center justify-center p-2">
                     {transaction.categories?.icon ? (
                       <img 
                         src={transaction.categories.icon} 
