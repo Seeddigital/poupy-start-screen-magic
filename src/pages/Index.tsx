@@ -50,7 +50,7 @@ const Index = () => {
       <main className="pb-20">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-foreground mb-6">
-            Gastos por Categoria
+            Gastos por Categoria - Dashboard
           </h1>
           
           <div className="h-96">
