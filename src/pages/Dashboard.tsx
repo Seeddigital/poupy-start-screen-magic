@@ -147,8 +147,8 @@ const Dashboard = () => {
           }`}
           onClick={handleExpenseCardClick}
         >
-          <p className="text-gray-700 text-sm sm:text-base mb-2">Gastos do mês</p>
-          <p className="text-black text-3xl sm:text-4xl md:text-5xl font-bold">
+          <p className="text-gray-700 text-[16px] mb-2">Gastos do mês</p>
+          <p className="text-black text-[44px] font-bold">
             {showValues ? formatCurrency(monthlyExpenses) : '••••••'}
           </p>
           
