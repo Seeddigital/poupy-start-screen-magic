@@ -23,7 +23,7 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
-            margin={{ top: 20, right: 10, left: 10, bottom: 20 }}
+            margin={{ top: 20, right: 2, left: 2, bottom: 20 }}
             barCategoryGap="5%"
             maxBarSize={80}
           >
