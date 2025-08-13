@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, Utensils, Car, Home, ShoppingBag, Heart, Users, Gamepad2, GraduationCap, Plane, Gift, CreditCard } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -62,6 +62,24 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
     }
   };
 
+  const getCategoryIcon = (categoryName: string) => {
+    const iconMap = {
+      'Alimentação': Utensils,
+      'Transporte': Car,
+      'Casa': Home,
+      'Compras': ShoppingBag,
+      'Saúde': Heart,
+      'Família e Crianças': Users,
+      'Entretenimento': Gamepad2,
+      'Educação': GraduationCap,
+      'Viagem': Plane,
+      'Outros': Gift,
+      'Cartão de Crédito': CreditCard
+    };
+    
+    return iconMap[categoryName] || Gift;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-0 rounded-[3rem] overflow-hidden relative">
@@ -81,7 +99,10 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
               className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
               style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
             >
-              <div className="w-8 h-8 bg-white/20 rounded-lg"></div>
+              {(() => {
+                const IconComponent = getCategoryIcon(transaction.categories?.name || '');
+                return <IconComponent className="w-8 h-8 text-white" />;
+              })()}
             </div>
           </div>
 
