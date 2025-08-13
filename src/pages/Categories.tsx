@@ -70,8 +70,9 @@ const Categories = () => {
                 return (
                   <div 
                     key={category.cat_id} 
-                    className="bg-[#202020] rounded-2xl p-4 shadow-lg relative"
+                    className="bg-[#202020] rounded-2xl p-4 shadow-lg relative cursor-pointer hover:bg-[#252525] transition-colors"
                     style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' }}
+                    onClick={() => handleGoalClick(category)}
                   >
                     {/* Top row with badge, title, and amount */}
                     <div className="flex items-center justify-between mb-2">
@@ -128,23 +129,10 @@ const Categories = () => {
                     
                     {/* Goal button for categories without goals */}
                     {!goal && (
-                      <button
-                        onClick={() => handleGoalClick(category)}
-                        className="w-full mt-2 py-2 bg-white/5 rounded-lg flex items-center justify-center gap-2 hover:bg-white/10 transition-colors"
-                      >
+                      <div className="w-full mt-2 py-2 bg-white/5 rounded-lg flex items-center justify-center gap-2">
                         <Plus size={16} className="text-gray-400" />
                         <span className="text-gray-400 text-sm">Definir meta</span>
-                      </button>
-                    )}
-                    
-                    {/* Edit goal button */}
-                    {goal && (
-                      <button
-                        onClick={() => handleGoalClick(category)}
-                        className="absolute top-3 right-3 w-6 h-6 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
-                      >
-                        <Target size={12} className="text-white" />
-                      </button>
+                      </div>
                     )}
                   </div>
                 );
