@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTransactions } from '@/hooks/useTransactions';
 import CategoryChart from '@/components/CategoryChart';
@@ -28,6 +28,10 @@ const Index = () => {
     // Handle transaction click if needed
     console.log('Transaction clicked:', transaction);
   };
+
+  useEffect(() => {
+    console.log('Categories data:', categories);
+  }, [categories]);
 
   if (!user) {
     return <AuthModal isOpen={true} onClose={() => setShowAuth(false)} />;
