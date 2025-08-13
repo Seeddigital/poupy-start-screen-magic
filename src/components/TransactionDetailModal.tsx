@@ -85,7 +85,7 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-2xl sm:rounded-3xl overflow-visible relative">
+      <DialogContent className="bg-white border-none text-black max-w-md mx-auto p-8 rounded-2xl sm:rounded-3xl overflow-visible">
         <DialogHeader className="relative">
           <DialogDescription className="sr-only">
             Detalhes da transação {transaction.description}
@@ -102,7 +102,7 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
           </div>
 
           {/* Content with top padding for the icon */}
-          <div className="pt-12 space-y-6">
+          <div className="pt-12 space-y-6 relative">
             {/* Transaction Name */}
             <DialogTitle className="text-2xl font-semibold text-center text-black">
               {transaction.description}
@@ -130,16 +130,16 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
                 <p className="text-gray-600 text-sm">{transaction.notes}</p>
               </div>
             )}
+
+            {/* Edit Button positioned at bottom right */}
+            <button 
+              onClick={handleEdit}
+              className="absolute bottom-0 right-0 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors"
+            >
+              Alterar
+            </button>
           </div>
         </DialogHeader>
-
-        {/* Edit Button positioned at bottom right */}
-        <button 
-          onClick={handleEdit}
-          className="absolute bottom-4 right-4 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors"
-        >
-          Alterar
-        </button>
       </DialogContent>
     </Dialog>
   );
