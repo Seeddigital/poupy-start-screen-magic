@@ -303,18 +303,11 @@ export const useTransactions = () => {
       if (result.success && result.categories) {
         console.log('API categories loaded:', result.categories);
         
-        // Calculate category totals from current transactions
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+        // Calculate category totals from all transactions (not just current month)
         
         // Use the transactions that are already loaded
         const categoryTotals = transactions
-          .filter(t => {
-            const transactionDate = new Date(t.transaction_date);
-            return transactionDate.getMonth() === currentMonth && 
-                   transactionDate.getFullYear() === currentYear &&
-                   Number(t.amount) < 0; // Only count negative amounts (expenses)
-          })
+          .filter(t => Number(t.amount) < 0) // Only count negative amounts (expenses)
           .reduce((acc, t) => {
             // Match by category_id from transaction with id from categories
             const categoryId = Number(t.category_id);
@@ -350,19 +343,11 @@ export const useTransactions = () => {
         console.log('Falling back to mock categories');
         const userCategories = MOCK_CATEGORIES.filter(c => c.user_id === user?.id);
         
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        
         const userTransactions = MOCK_TRANSACTIONS.filter(t => 
           t.user_id === user?.id && t.type === 'expense'
         );
 
         const categoryTotals = userTransactions
-          .filter(t => {
-            const transactionDate = new Date(t.transaction_date);
-            return transactionDate.getMonth() === currentMonth && 
-                   transactionDate.getFullYear() === currentYear;
-          })
           .reduce((acc, t) => {
             const categoryId = Number(t.category_id);
             acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
