@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Phone, Mail, Lock, User } from 'lucide-react';
+import { X, Phone, Key, Check, AlertCircle, Smartphone } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -92,6 +92,12 @@ const AuthModal = ({
     }
   };
 
+  // Phone number validation
+  const isValidPhoneNumber = (phone: string) => {
+    const phoneRegex = /^[0-9]{10,11}$/;
+    return phoneRegex.test(phone.replace(/\s+/g, ''));
+  };
+
   const resetForm = () => {
     setEmail('');
     setPassword('');
@@ -110,28 +116,49 @@ const AuthModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-black rounded-2xl p-8 w-full max-w-md mx-4 border border-gray-800">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-white">
-            Entrar com Telefone
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-300 transition-colors">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm">
+      <div className="bg-[#151515] rounded-3xl p-8 w-full max-w-md mx-4 border border-gray-800 shadow-2xl">
+        {/* Brand Element */}
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#A8E202] to-[#96CC02] rounded-2xl flex items-center justify-center shadow-lg">
+            <Smartphone className="w-8 h-8 text-black" />
+          </div>
+        </div>
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h2 className="text-3xl font-bold text-white mb-1">
+              Entrar com Telefone
+            </h2>
+            <p className="text-gray-400 text-sm">
+              Acesso rápido e seguro
+            </p>
+          </div>
+          <button 
+            onClick={onClose} 
+            className="text-gray-400 hover:text-gray-300 transition-colors p-2 rounded-lg hover:bg-gray-800"
+          >
             <X size={24} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Número do Telefone
-            </label>
-            <div className="flex gap-2">
-              <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202]">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Phone Number Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Phone className="w-5 h-5 text-[#A8E202]" />
+              <label className="text-base font-medium text-white">
+                Número do Telefone
+              </label>
+            </div>
+            
+            <div className="flex gap-3">
+              <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 transition-all">
                 <select 
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
-                  className="bg-transparent text-white px-3 py-3 focus:outline-none"
+                  className="bg-transparent text-white px-4 py-4 focus:outline-none rounded-xl"
                 >
                   <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
                   <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
@@ -140,61 +167,127 @@ const AuthModal = ({
                   <option value="+49" className="bg-gray-900">🇩🇪 +49</option>
                 </select>
               </div>
-              <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 focus-within:border-[#A8E202] flex-1">
+              
+              <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 transition-all flex-1 relative">
                 <input 
                   type="tel" 
                   value={phoneNumber} 
                   onChange={(e) => setPhoneNumber(e.target.value)} 
-                  className="flex-1 bg-transparent text-white px-2 py-3 focus:outline-none" 
+                  className="flex-1 bg-transparent text-white px-4 py-4 focus:outline-none rounded-xl" 
                   placeholder="11 91234 5678" 
                   disabled={otpSent} 
                   required 
                 />
+                {phoneNumber && (
+                  <div className="absolute right-3">
+                    {isValidPhoneNumber(phoneNumber) ? (
+                      <Check className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <AlertCircle className="w-5 h-5 text-red-500" />
+                    )}
+                  </div>
+                )}
               </div>
+              
               <button 
                 type="submit" 
-                disabled={loading || otpSent} 
-                className="bg-[#A8E202] text-black px-4 py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                disabled={loading || otpSent || !isValidPhoneNumber(phoneNumber)} 
+                className="bg-[#7A9B02] hover:bg-[#6B8502] text-white px-6 py-4 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg"
               >
-                <span className="text-lg">→</span>
+                <span className="text-xl">→</span>
               </button>
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            
+            {/* Validation Message */}
+            {phoneNumber && (
+              <div className="flex items-center gap-2 text-sm">
+                {isValidPhoneNumber(phoneNumber) ? (
+                  <>
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-green-400">Número válido</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                    <span className="text-red-400">Formato inválido</span>
+                  </>
+                )}
+              </div>
+            )}
+            
+            <p className="text-sm text-gray-300">
               Digite o DDD e número (ex: 11 91234 5678)
             </p>
           </div>
 
+          {/* Verification Code Section */}
           {otpSent && (
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Código de Verificação
-              </label>
+            <div className="space-y-6 pt-4 border-t border-gray-800">
+              <div className="flex items-center gap-2 mb-4">
+                <Key className="w-5 h-5 text-[#A8E202]" />
+                <label className="text-base font-medium text-white">
+                  Código de Verificação
+                </label>
+              </div>
+              
               <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otpCode} onChange={(value) => setOtpCode(value)}>
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
+                <InputOTP 
+                  maxLength={6} 
+                  value={otpCode} 
+                  onChange={(value) => setOtpCode(value)}
+                  className="gap-3"
+                >
+                  <InputOTPGroup className="gap-3">
+                    <InputOTPSlot 
+                      index={0} 
+                      className="w-12 h-12 text-lg font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 rounded-xl transition-all"
+                    />
+                    <InputOTPSlot 
+                      index={1} 
+                      className="w-12 h-12 text-lg font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 rounded-xl transition-all"
+                    />
+                    <InputOTPSlot 
+                      index={2} 
+                      className="w-12 h-12 text-lg font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 rounded-xl transition-all"
+                    />
+                    <InputOTPSlot 
+                      index={3} 
+                      className="w-12 h-12 text-lg font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 rounded-xl transition-all"
+                    />
+                    <InputOTPSlot 
+                      index={4} 
+                      className="w-12 h-12 text-lg font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 rounded-xl transition-all"
+                    />
+                    <InputOTPSlot 
+                      index={5} 
+                      className="w-12 h-12 text-lg font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 rounded-xl transition-all"
+                    />
                   </InputOTPGroup>
                 </InputOTP>
               </div>
-              <p className="text-xs text-gray-400 mt-2 text-center">
+              
+              <p className="text-sm text-gray-300 text-center">
                 Digite o código de 6 dígitos enviado por WhatsApp
               </p>
             </div>
           )}
 
+          {/* Action Buttons */}
           {otpSent && (
-            <>
+            <div className="space-y-4">
               <button 
                 type="submit" 
-                disabled={loading} 
-                className="w-full bg-[#A8E202] text-black py-3 rounded-lg font-medium hover:bg-[#96CC02] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || otpCode.length !== 6} 
+                className="w-full bg-[#A8E202] text-white py-4 rounded-xl font-semibold text-lg hover:bg-[#96CC02] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
               >
-                {loading ? 'Verificando...' : 'Verificar Código'}
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Verificando...</span>
+                  </div>
+                ) : (
+                  'Verificar Código'
+                )}
               </button>
               
               <div className="text-center">
@@ -204,12 +297,12 @@ const AuthModal = ({
                     setOtpSent(false);
                     setOtpCode('');
                   }} 
-                  className="text-[#A8E202] hover:text-[#96CC02] transition-colors text-sm"
+                  className="text-[#A8E202] hover:text-[#96CC02] transition-colors text-sm font-medium underline-offset-4 hover:underline"
                 >
                   Alterar número
                 </button>
               </div>
-            </>
+            </div>
           )}
         </form>
       </div>
