@@ -4,12 +4,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
 const AuthModal = ({
   isOpen,
   onClose
@@ -31,16 +29,14 @@ const AuthModal = ({
     sendOTP
   } = useAuth();
   const navigate = useNavigate();
-
   const handleSendOTP = async () => {
     if (!phoneNumber) {
       toast.error('Digite um número de telefone');
       return;
     }
-    
+
     // Formato para API: código do país sem '+' + número do telefone
     const apiPhoneNumber = countryCode.replace('+', '') + phoneNumber;
-    
     setLoading(true);
     try {
       const result = await sendOTP(apiPhoneNumber);
@@ -56,16 +52,14 @@ const AuthModal = ({
       setLoading(false);
     }
   };
-
   const handleVerifyOTP = async () => {
     if (!otpCode || otpCode.length !== 6) {
       toast.error('Digite o código de 6 dígitos');
       return;
     }
-    
+
     // Formato para API: código do país sem '+' + número do telefone
     const apiPhoneNumber = countryCode.replace('+', '') + phoneNumber;
-    
     setLoading(true);
     try {
       const result = await signInWithOTP(apiPhoneNumber, otpCode);
@@ -82,7 +76,6 @@ const AuthModal = ({
       setLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpSent) {
@@ -97,7 +90,6 @@ const AuthModal = ({
     const phoneRegex = /^[0-9]{10,11}$/;
     return phoneRegex.test(phone.replace(/\s+/g, ''));
   };
-
   const resetForm = () => {
     setEmail('');
     setPassword('');
@@ -107,44 +99,35 @@ const AuthModal = ({
     setOtpCode('');
     setOtpSent(false);
   };
-
   const toggleMode = () => {
     setIsLogin(!isLogin);
     resetForm();
   };
-
   if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4 safe-area-inset">
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm p-4 safe-area-inset">
       <div className="bg-[#151515] rounded-3xl w-full border border-gray-800 shadow-2xl overflow-y-auto max-h-[min(88vh,720px)]
                       max-w-[320px] xs:max-w-[360px] sm:max-w-[440px] md:max-w-[520px] lg:max-w-[560px]
                       p-4 xs:p-5 sm:p-6 lg:p-8">
         {/* Brand Element */}
         <div className="flex justify-center mb-4 sm:mb-6">
-          <img 
-            src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" 
-            alt="Poupy Logo" 
-            className="h-12 sm:h-16 w-auto object-contain"
-          />
+          <img src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" alt="Poupy Logo" className="h-12 sm:h-16 w-auto object-contain" />
         </div>
 
         {/* Header */}
         <div className="flex items-start justify-between mb-6 sm:mb-8 lg:mb-10 gap-3">
           <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-white mb-1 leading-tight break-words" 
-                style={{ fontSize: 'clamp(20px, 3.5vw, 28px)' }}>
+            <h2 className="font-bold text-white mb-1 leading-tight break-words" style={{
+            fontSize: 'clamp(20px, 3.5vw, 28px)'
+          }}>
               Entrar com Telefone
             </h2>
-            <p className="text-gray-400 leading-relaxed" 
-               style={{ fontSize: 'clamp(12px, 2.2vw, 14px)' }}>
+            <p className="text-gray-400 leading-relaxed" style={{
+            fontSize: 'clamp(12px, 2.2vw, 14px)'
+          }}>
               Acesso rápido e seguro
             </p>
           </div>
-          <button 
-            onClick={onClose} 
-            className="text-gray-400 hover:text-gray-300 transition-colors p-2 rounded-lg hover:bg-gray-800 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-300 transition-colors p-2 rounded-lg hover:bg-gray-800 flex-shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center">
             <X size={20} className="sm:w-6 sm:h-6" />
           </button>
         </div>
@@ -154,22 +137,18 @@ const AuthModal = ({
           <div className="flex flex-col gap-3 sm:gap-4">
             <div className="flex items-center gap-2">
               <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#A8E202] flex-shrink-0" />
-              <label className="font-semibold text-white" 
-                     style={{ fontSize: 'clamp(14px, 2.4vw, 16px)' }}>
-                📱 Número do Telefone
-              </label>
+              <label className="font-semibold text-white" style={{
+              fontSize: 'clamp(14px, 2.4vw, 16px)'
+            }}> Número do Telefone</label>
             </div>
             
             {/* Phone Input Row - Responsive: stacks on very small screens */}
             <div className="flex flex-col gap-2">
               {/* Country selector - full width on mobile */}
               <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all w-full sm:hidden">
-                <select 
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value)}
-                  className="bg-transparent text-white px-3 py-3 focus:outline-none rounded-xl min-h-[44px] w-full"
-                  style={{ fontSize: 'clamp(14px, 2.6vw, 16px)' }}
-                >
+                <select value={countryCode} onChange={e => setCountryCode(e.target.value)} className="bg-transparent text-white px-3 py-3 focus:outline-none rounded-xl min-h-[44px] w-full" style={{
+                fontSize: 'clamp(14px, 2.6vw, 16px)'
+              }}>
                   <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
                   <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
                   <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
@@ -182,12 +161,9 @@ const AuthModal = ({
               <div className="flex gap-2">
                 {/* Country selector for larger screens */}
                 <div className="hidden sm:flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all flex-shrink-0">
-                  <select 
-                    value={countryCode}
-                    onChange={(e) => setCountryCode(e.target.value)}
-                    className="bg-transparent text-white px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px]"
-                    style={{ fontSize: 'clamp(14px, 2.6vw, 16px)' }}
-                  >
+                  <select value={countryCode} onChange={e => setCountryCode(e.target.value)} className="bg-transparent text-white px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px]" style={{
+                  fontSize: 'clamp(14px, 2.6vw, 16px)'
+                }}>
                     <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
                     <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
                     <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
@@ -198,141 +174,95 @@ const AuthModal = ({
                 
                 {/* Phone input */}
                 <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all flex-1 relative">
-                  <input 
-                    type="tel" 
-                    value={phoneNumber} 
-                    onChange={(e) => setPhoneNumber(e.target.value)} 
-                    className="flex-1 bg-transparent text-white px-3 sm:px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px]" 
-                    style={{ fontSize: 'clamp(14px, 2.6vw, 16px)' }}
-                    placeholder="11 91234 5678" 
-                    disabled={otpSent} 
-                    required 
-                  />
-                  {phoneNumber && (
-                    <div className="absolute right-3 flex-shrink-0">
-                      {isValidPhoneNumber(phoneNumber) ? (
-                        <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
-                      ) : (
-                        <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />
-                      )}
-                    </div>
-                  )}
+                  <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="flex-1 bg-transparent text-white px-3 sm:px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px]" style={{
+                  fontSize: 'clamp(14px, 2.6vw, 16px)'
+                }} placeholder="11 91234 5678" disabled={otpSent} required />
+                  {phoneNumber && <div className="absolute right-3 flex-shrink-0">
+                      {isValidPhoneNumber(phoneNumber) ? <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
+                    </div>}
                 </div>
                 
                 {/* Send button */}
-                <button 
-                  type="submit" 
-                  disabled={loading || otpSent || !isValidPhoneNumber(phoneNumber)} 
-                  className="bg-[#7A9B02] hover:bg-[#6B8502] text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg px-3 sm:px-4 py-3 sm:py-4 min-h-[44px] flex-shrink-0"
-                >
+                <button type="submit" disabled={loading || otpSent || !isValidPhoneNumber(phoneNumber)} className="bg-[#7A9B02] hover:bg-[#6B8502] text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg px-3 sm:px-4 py-3 sm:py-4 min-h-[44px] flex-shrink-0">
                   <span className="text-lg sm:text-xl">→</span>
                 </button>
               </div>
             </div>
             
             {/* Validation Message */}
-            {phoneNumber && (
-              <div className="flex items-start gap-2" style={{ fontSize: 'clamp(12px, 2.2vw, 14px)' }}>
+            {phoneNumber && <div className="flex items-start gap-2" style={{
+            fontSize: 'clamp(12px, 2.2vw, 14px)'
+          }}>
                 <div className="flex-shrink-0 mt-0.5">
-                  {isValidPhoneNumber(phoneNumber) ? (
-                    <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
-                  ) : (
-                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
-                  )}
+                  {isValidPhoneNumber(phoneNumber) ? <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" /> : <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />}
                 </div>
                 <span className={`leading-relaxed break-words ${isValidPhoneNumber(phoneNumber) ? 'text-green-400' : 'text-red-400'}`}>
                   {isValidPhoneNumber(phoneNumber) ? 'Número válido' : 'Formato inválido'}
                 </span>
-              </div>
-            )}
+              </div>}
             
-            <p className="text-gray-300 leading-relaxed break-words" 
-               style={{ fontSize: 'clamp(12px, 2.2vw, 14px)' }}>
+            <p className="text-gray-300 leading-relaxed break-words" style={{
+            fontSize: 'clamp(12px, 2.2vw, 14px)'
+          }}>
               Digite o DDD e número (ex: 11 91234 5678)
             </p>
           </div>
 
           {/* Verification Code Section */}
-          {otpSent && (
-            <>
+          {otpSent && <>
               {/* Subtle Divider */}
               <div className="border-t border-gray-800 mx-4 sm:mx-6 lg:mx-8"></div>
               
               <div className="flex flex-col gap-4 sm:gap-5">
                 <div className="flex items-center gap-2">
                   <Key className="w-4 h-4 sm:w-5 sm:h-5 text-[#A8E202] flex-shrink-0" />
-                  <label className="font-semibold text-white" 
-                         style={{ fontSize: 'clamp(14px, 2.4vw, 16px)' }}>
-                    🔑 Código de Verificação
-                  </label>
+                  <label className="font-semibold text-white" style={{
+                fontSize: 'clamp(14px, 2.4vw, 16px)'
+              }}> Código de Verificação</label>
                 </div>
                 
                 <div className="flex justify-center">
-                  <InputOTP 
-                    maxLength={6} 
-                    value={otpCode} 
-                    onChange={(value) => setOtpCode(value)}
-                    className="gap-2 sm:gap-3"
-                  >
+                  <InputOTP maxLength={6} value={otpCode} onChange={value => setOtpCode(value)} className="gap-2 sm:gap-3">
                     <InputOTPGroup className="gap-2 sm:gap-3">
-                      {[0, 1, 2, 3, 4, 5].map((index) => (
-                        <InputOTPSlot 
-                          key={index}
-                          index={index} 
-                          className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 focus:ring-2 focus:ring-[#A8E202]/20 rounded-xl transition-all"
-                          style={{ fontSize: 'clamp(16px, 3vw, 20px)' }}
-                        />
-                      ))}
+                      {[0, 1, 2, 3, 4, 5].map(index => <InputOTPSlot key={index} index={index} className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 font-bold border-gray-700 bg-gray-900/50 text-white focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 focus:ring-2 focus:ring-[#A8E202]/20 rounded-xl transition-all" style={{
+                    fontSize: 'clamp(16px, 3vw, 20px)'
+                  }} />)}
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
                 
-                <p className="text-gray-300 text-center leading-relaxed break-words" 
-                   style={{ fontSize: 'clamp(12px, 2.2vw, 14px)' }}>
+                <p className="text-gray-300 text-center leading-relaxed break-words" style={{
+              fontSize: 'clamp(12px, 2.2vw, 14px)'
+            }}>
                   Digite o código de 6 dígitos enviado por WhatsApp
                 </p>
               </div>
-            </>
-          )}
+            </>}
 
           {/* Action Buttons */}
-          {otpSent && (
-            <div className="flex flex-col gap-3 sm:gap-4">
-              <button 
-                type="submit" 
-                disabled={loading || otpCode.length !== 6} 
-                className="w-full bg-[#A8E202] text-white rounded-xl font-semibold hover:bg-[#96CC02] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] min-h-[48px] sm:min-h-[52px] lg:min-h-[56px] flex items-center justify-center"
-                style={{ fontSize: 'clamp(14px, 2.6vw, 16px)' }}
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
+          {otpSent && <div className="flex flex-col gap-3 sm:gap-4">
+              <button type="submit" disabled={loading || otpCode.length !== 6} className="w-full bg-[#A8E202] text-white rounded-xl font-semibold hover:bg-[#96CC02] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] min-h-[48px] sm:min-h-[52px] lg:min-h-[56px] flex items-center justify-center" style={{
+            fontSize: 'clamp(14px, 2.6vw, 16px)'
+          }}>
+                {loading ? <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     <span>Verificando...</span>
-                  </div>
-                ) : (
-                  'Verificar Código'
-                )}
+                  </div> : 'Verificar Código'}
               </button>
               
               <div className="text-center">
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    setOtpSent(false);
-                    setOtpCode('');
-                  }} 
-                  className="text-[#A8E202] hover:text-[#96CC02] transition-colors font-medium underline-offset-4 hover:underline min-h-[44px] flex items-center justify-center mx-auto px-4"
-                  style={{ fontSize: 'clamp(12px, 2.2vw, 14px)' }}
-                >
+                <button type="button" onClick={() => {
+              setOtpSent(false);
+              setOtpCode('');
+            }} className="text-[#A8E202] hover:text-[#96CC02] transition-colors font-medium underline-offset-4 hover:underline min-h-[44px] flex items-center justify-center mx-auto px-4" style={{
+              fontSize: 'clamp(12px, 2.2vw, 14px)'
+            }}>
                   Alterar número
                 </button>
               </div>
-            </div>
-          )}
+            </div>}
         </form>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default AuthModal;
