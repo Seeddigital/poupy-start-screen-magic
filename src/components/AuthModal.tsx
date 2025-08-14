@@ -122,9 +122,11 @@ const AuthModal = ({
                       p-4 xs:p-5 sm:p-6 lg:p-8">
         {/* Brand Element */}
         <div className="flex justify-center mb-4 sm:mb-6">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-[#A8E202] to-[#96CC02] rounded-2xl flex items-center justify-center shadow-lg">
-            <Smartphone className="w-6 h-6 sm:w-8 sm:h-8 text-black" />
-          </div>
+          <img 
+            src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" 
+            alt="Poupy Logo" 
+            className="h-12 sm:h-16 w-auto object-contain"
+          />
         </div>
 
         {/* Header */}
