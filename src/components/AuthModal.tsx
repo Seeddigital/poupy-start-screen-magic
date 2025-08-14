@@ -159,12 +159,13 @@ const AuthModal = ({
             </div>
             
             {/* Phone Input Row - Responsive: stacks on very small screens */}
-            <div className="flex flex-col xs:flex-row gap-2 xs:gap-3">
-              <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all xs:w-auto xs:flex-shrink-0">
+            <div className="flex flex-col gap-2">
+              {/* Country selector - full width on mobile */}
+              <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all w-full sm:hidden">
                 <select 
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
-                  className="bg-transparent text-white px-3 sm:px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px] w-full xs:w-auto"
+                  className="bg-transparent text-white px-3 py-3 focus:outline-none rounded-xl min-h-[44px] w-full"
                   style={{ fontSize: 'clamp(14px, 2.6vw, 16px)' }}
                 >
                   <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
@@ -175,7 +176,25 @@ const AuthModal = ({
                 </select>
               </div>
               
-              <div className="flex gap-2 xs:gap-3 flex-1">
+              {/* Phone input and button row */}
+              <div className="flex gap-2">
+                {/* Country selector for larger screens */}
+                <div className="hidden sm:flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all flex-shrink-0">
+                  <select 
+                    value={countryCode}
+                    onChange={(e) => setCountryCode(e.target.value)}
+                    className="bg-transparent text-white px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px]"
+                    style={{ fontSize: 'clamp(14px, 2.6vw, 16px)' }}
+                  >
+                    <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
+                    <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
+                    <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
+                    <option value="+33" className="bg-gray-900">🇫🇷 +33</option>
+                    <option value="+49" className="bg-gray-900">🇩🇪 +49</option>
+                  </select>
+                </div>
+                
+                {/* Phone input */}
                 <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all flex-1 relative">
                   <input 
                     type="tel" 
@@ -198,10 +217,11 @@ const AuthModal = ({
                   )}
                 </div>
                 
+                {/* Send button */}
                 <button 
                   type="submit" 
                   disabled={loading || otpSent || !isValidPhoneNumber(phoneNumber)} 
-                  className="bg-[#7A9B02] hover:bg-[#6B8502] text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg px-4 py-3 sm:py-4 min-h-[44px] sm:min-h-[48px] flex-shrink-0"
+                  className="bg-[#7A9B02] hover:bg-[#6B8502] text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg px-3 sm:px-4 py-3 sm:py-4 min-h-[44px] flex-shrink-0"
                 >
                   <span className="text-lg sm:text-xl">→</span>
                 </button>
