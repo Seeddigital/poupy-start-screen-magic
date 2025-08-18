@@ -6,21 +6,9 @@
 
 @layer base {
   body {
-    font-family: 'Inter', -apple-system, 'SF Pro Text', ui-sans-serif, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   :root {
-    /* Welcome screen specific colors */
-    --welcome-bg-start: 13 15 18; /* #0D0F12 */
-    --welcome-bg-end: 7 8 10; /* #07080A */
-    --poupy-green: 76 100% 50%; /* #C4FF00 */
-    --neon-start: 316 77% 64%; /* #FF4DD2 */
-    --neon-end: 256 74% 67%; /* #7B5CFF */
-    --text-white: 0 0% 100%; /* #FFFFFF */
-    --text-black: 0 0% 4%; /* #0B0B0B */
-    
-    /* Default theme colors */
     --background: 0 0% 5.5%;
     --foreground: 210 40% 98%;
 
@@ -131,47 +119,5 @@
 
   .chart-preview-bg {
     background-color: #000000;
-  }
-
-  /* Welcome screen specific utilities */
-  .welcome-gradient {
-    background: linear-gradient(180deg, #0D0F12 0%, #07080A 100%);
-  }
-
-  .welcome-overlay {
-    background: linear-gradient(180deg, transparent 65%, rgba(0, 0, 0, 0.6) 100%);
-  }
-
-  .neon-element {
-    background: linear-gradient(180deg, #FF4DD2 0%, #7B5CFF 100%);
-    filter: blur(28px);
-    opacity: 0.8;
-  }
-
-  .poupy-text {
-    color: #C4FF00;
-    font-weight: 900;
-    letter-spacing: -0.01em;
-    transform: rotate(180deg) skew(-6deg);
-  }
-
-  .future-text {
-    color: #FFFFFF;
-    font-weight: 700;
-    text-transform: uppercase;
-    line-height: 1;
-  }
-
-  .cta-button {
-    background-color: #C4FF00;
-    transition: all 0.2s ease;
-  }
-
-  .cta-button:hover {
-    filter: brightness(1.06);
-  }
-
-  .cta-button:active {
-    transform: scale(0.98);
   }
 }

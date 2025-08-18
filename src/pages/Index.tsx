@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowRight } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 
 const Index = () => {
@@ -19,50 +18,24 @@ const Index = () => {
   }, [user, navigate]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden welcome-gradient">
-      {/* Overlay para legibilidade do texto */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-      
-      {/* Elementos neon decorativos à esquerda */}
-      <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-purple-500/20 to-transparent"></div>
-
-      {/* Hero do mascote full-bleed à direita */}
-      <div className="absolute right-0 top-0 w-full h-screen">
-        <img 
-          alt="Mascote Poupy" 
-          className="w-full h-full object-cover object-center" 
-          src="/lovable-uploads/7901496c-163f-40fb-a46f-ce0d38632d69.png" 
-        />
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{
+      backgroundImage: `url('/lovable-uploads/f3ee6670-5552-48cc-adb1-a46a742158df.png')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat'
+    }}>
+      {/* Logo no canto inferior esquerdo */}
+      <div className="absolute bottom-8 left-8 z-10 mx-[29px]">
+        <img alt="Logo" className="h-28 w-auto" src="/lovable-uploads/a5f7a3ad-fd73-4d04-979c-aa6192a26233.png" />
       </div>
 
-      {/* Conteúdo inferior esquerdo */}
-      <div className="absolute bottom-6 left-6 z-20 flex items-end gap-4 max-[479px]:max-w-none min-[480px]:max-w-[65%]">
-        {/* Bloco de texto */}
-        <div className="flex flex-col">
-          {/* Linha 1: poupy */}
-          <div className="poupy-text text-[44px] max-[340px]:text-[40px] leading-none mb-1">
-            poupy
-          </div>
-          
-          {/* Linhas 2-4: PARA O SEU FUTURO */}
-          <div className="flex flex-col future-text text-[22px] leading-none">
-            <span>PARA</span>
-            <span>O SEU</span>
-            <span>FUTURO</span>
-          </div>
-        </div>
-
-        {/* Botão CTA circular */}
+      {/* Botão de login no canto inferior direito */}
+      <div className="absolute bottom-8 right-8 z-10">
         <button 
           onClick={() => setIsAuthModalOpen(true)}
-          className="cta-button w-14 h-14 max-[340px]:w-12 max-[340px]:h-12 rounded-full flex items-center justify-center shrink-0"
-          aria-label="Continuar"
+          className="w-16 h-16 bg-[#a8e202] rounded-full flex items-center justify-center text-black text-2xl font-bold transition-all duration-200 transform hover:scale-105 shadow-lg"
         >
-          <ArrowRight 
-            size={20} 
-            className="text-[#0B0B0B]" 
-            strokeWidth={2}
-          />
+          →
         </button>
       </div>
       
@@ -71,6 +44,8 @@ const Index = () => {
         isOpen={isAuthModalOpen} 
         onClose={() => setIsAuthModalOpen(false)} 
       />
+      
+      {/* Página limpa com apenas a imagem de fundo */}
     </div>
   );
 };
