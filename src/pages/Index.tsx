@@ -22,11 +22,6 @@ const Index = () => {
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat'
   }}>
-      {/* Logo no canto inferior esquerdo */}
-      <div className="absolute bottom-8 left-8 z-10 mx-[29px]">
-        <img alt="Logo" className="h-28 w-auto" src="/lovable-uploads/a5f7a3ad-fd73-4d04-979c-aa6192a26233.png" />
-      </div>
-
       {/* Botão de login no canto inferior direito */}
       <div className="absolute bottom-8 right-8 z-10">
         <button onClick={() => setIsAuthModalOpen(true)} className="w-20 h-20 bg-[#a8e202] rounded-full flex items-center justify-center text-black transition-all duration-200 transform hover:scale-105 shadow-lg text-3xl text-left font-bold mx-0 my-[50px]">
