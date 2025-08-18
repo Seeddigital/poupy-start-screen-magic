@@ -27,10 +27,19 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'inter': ['Inter', 'sans-serif'],
-				'sans': ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				'inter': ['Inter', '-apple-system', 'SF Pro Text', 'ui-sans-serif', 'system-ui', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				'sans': ['Inter', '-apple-system', 'SF Pro Text', 'ui-sans-serif', 'system-ui', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 			},
 			colors: {
+				// Welcome screen colors
+				'welcome-bg-start': 'hsl(var(--welcome-bg-start))',
+				'welcome-bg-end': 'hsl(var(--welcome-bg-end))',
+				'poupy-green': 'hsl(var(--poupy-green))',
+				'neon-start': 'hsl(var(--neon-start))',
+				'neon-end': 'hsl(var(--neon-end))',
+				'text-white': 'hsl(var(--text-white))',
+				'text-black': 'hsl(var(--text-black))',
+				// Default theme colors
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',

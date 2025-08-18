@@ -6,9 +6,21 @@
 
 @layer base {
   body {
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, 'SF Pro Text', ui-sans-serif, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   :root {
+    /* Welcome screen specific colors */
+    --welcome-bg-start: 13 15 18; /* #0D0F12 */
+    --welcome-bg-end: 7 8 10; /* #07080A */
+    --poupy-green: 76 100% 50%; /* #C4FF00 */
+    --neon-start: 316 77% 64%; /* #FF4DD2 */
+    --neon-end: 256 74% 67%; /* #7B5CFF */
+    --text-white: 0 0% 100%; /* #FFFFFF */
+    --text-black: 0 0% 4%; /* #0B0B0B */
+    
+    /* Default theme colors */
     --background: 0 0% 5.5%;
     --foreground: 210 40% 98%;
 
@@ -119,5 +131,50 @@
 
   .chart-preview-bg {
     background-color: #000000;
+  }
+
+  /* Welcome screen specific utilities */
+  .welcome-gradient {
+    background: linear-gradient(180deg, hsl(var(--welcome-bg-start)) 0%, hsl(var(--welcome-bg-end)) 100%);
+  }
+
+  .welcome-overlay {
+    background: linear-gradient(180deg, transparent 65%, hsl(0 0% 0% / 0.6) 100%);
+  }
+
+  .neon-gradient {
+    background: linear-gradient(180deg, hsl(var(--neon-start)) 0%, hsl(var(--neon-end)) 100%);
+  }
+
+  .neon-glow {
+    filter: blur(28px);
+    opacity: 0.45;
+  }
+
+  .poupy-text {
+    color: hsl(var(--poupy-green));
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    transform: rotate(180deg) skew(-6deg);
+  }
+
+  .future-text {
+    color: hsl(var(--text-white));
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .cta-button {
+    background-color: hsl(var(--poupy-green));
+    transition: all 0.2s ease;
+  }
+
+  .cta-button:hover {
+    filter: brightness(1.06);
+  }
+
+  .cta-button:active {
+    transform: scale(0.98);
   }
 }
