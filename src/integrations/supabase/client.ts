@@ -1,2 +1,2 @@
-// Supabase temporarily disabled
+// Supabase client temporarily disabled
 export const supabase = null;
