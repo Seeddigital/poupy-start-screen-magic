@@ -20,18 +20,18 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden welcome-gradient">
-      {/* Overlay para legibilidade do texto no terço inferior */}
-      <div className="absolute inset-0 welcome-overlay"></div>
+      {/* Overlay para legibilidade do texto */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
       
-      {/* Elemento neon decorativo estreito à esquerda */}
-      <div className="absolute left-8 top-1/4 w-8 h-64 neon-element"></div>
+      {/* Elementos neon decorativos à esquerda */}
+      <div className="absolute left-0 top-0 w-24 h-full bg-gradient-to-r from-purple-500/20 to-transparent"></div>
 
       {/* Hero do mascote full-bleed à direita */}
-      <div className="absolute right-0 top-0 w-1/2 h-screen">
+      <div className="absolute right-0 top-0 w-full h-screen">
         <img 
           alt="Mascote Poupy" 
-          className="w-full h-[75vh] object-cover object-right-center" 
-          src="/lovable-uploads/f3ee6670-5552-48cc-adb1-a46a742158df.png" 
+          className="w-full h-full object-cover object-center" 
+          src="/lovable-uploads/7901496c-163f-40fb-a46f-ce0d38632d69.png" 
         />
       </div>
 
