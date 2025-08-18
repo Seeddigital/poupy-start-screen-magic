@@ -20,30 +20,23 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden welcome-gradient">
-      {/* Overlay para legibilidade do texto */}
+      {/* Overlay para legibilidade do texto no terço inferior */}
       <div className="absolute inset-0 welcome-overlay"></div>
       
-      {/* Letreiro neon na borda esquerda */}
-      <div className="absolute left-0 top-0 w-[14%] h-full overflow-hidden">
-        <div className="relative w-full h-full">
-          {/* Gradiente neon */}
-          <div className="absolute inset-0 neon-gradient"></div>
-          {/* Glow effect */}
-          <div className="absolute inset-0 neon-gradient neon-glow"></div>
-        </div>
-      </div>
+      {/* Elemento neon decorativo estreito à esquerda */}
+      <div className="absolute left-8 top-1/4 w-8 h-64 neon-element"></div>
 
-      {/* Mascote 3D na metade direita */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 h-[75vh] flex items-center justify-center">
+      {/* Hero do mascote full-bleed à direita */}
+      <div className="absolute right-0 top-0 w-1/2 h-screen">
         <img 
-          alt="Mascote 3D" 
-          className="h-full w-auto object-contain" 
+          alt="Mascote Poupy" 
+          className="w-full h-[75vh] object-cover object-right-center" 
           src="/lovable-uploads/f3ee6670-5552-48cc-adb1-a46a742158df.png" 
         />
       </div>
 
       {/* Conteúdo inferior esquerdo */}
-      <div className="absolute bottom-6 left-6 z-20 flex items-end gap-4">
+      <div className="absolute bottom-6 left-6 z-20 flex items-end gap-4 max-[479px]:max-w-none min-[480px]:max-w-[65%]">
         {/* Bloco de texto */}
         <div className="flex flex-col">
           {/* Linha 1: poupy */}
@@ -63,11 +56,11 @@ const Index = () => {
         <button 
           onClick={() => setIsAuthModalOpen(true)}
           className="cta-button w-14 h-14 max-[340px]:w-12 max-[340px]:h-12 rounded-full flex items-center justify-center shrink-0"
-          aria-label="Começar"
+          aria-label="Continuar"
         >
           <ArrowRight 
             size={20} 
-            className="text-text-black" 
+            className="text-[#0B0B0B]" 
             strokeWidth={2}
           />
         </button>
