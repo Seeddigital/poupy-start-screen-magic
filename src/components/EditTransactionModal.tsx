@@ -238,40 +238,43 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-black rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-gray-800">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-y-auto shadow-lg">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800">
-          <h2 className="text-xl font-semibold text-white">Editar Transação</h2>
+        <div className="flex items-center justify-between p-6">
+          <h2 className="text-xl font-medium text-black flex-1 text-center">Editar Transação</h2>
           <div className="flex items-center gap-2">
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="w-8 h-8 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
+              style={{ backgroundColor: '#EAEAEA' }}
             >
-              <Trash2 size={16} className="text-white" />
+              <Trash2 size={16} className="text-black" />
             </button>
             <button
               onClick={onClose}
-              className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+              style={{ backgroundColor: '#EAEAEA' }}
             >
-              <X size={16} className="text-white" />
+              <X size={16} className="text-black" />
             </button>
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
               Descrição
             </label>
             <Input
               type="text"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="bg-white text-black rounded-md px-3 py-2"
+              style={{ border: '1px solid #E0E0E0' }}
               placeholder="Ex: Supermercado"
               required
             />
@@ -279,7 +282,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
 
           {/* Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
               Valor (R$)
             </label>
             <Input
@@ -287,7 +290,8 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
               step="0.01"
               value={formData.amount}
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="bg-white text-black rounded-md px-3 py-2"
+              style={{ border: '1px solid #E0E0E0' }}
               placeholder="0,00"
               required
             />
@@ -295,13 +299,14 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
               Tipo
             </label>
             <select
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full bg-white text-black rounded-md px-3 py-2"
+              style={{ border: '1px solid #E0E0E0' }}
               required
             >
               <option value="expense">Despesa</option>
@@ -312,13 +317,14 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
               Categoria
             </label>
             <select
               value={formData.category_id}
               onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full bg-white text-black rounded-md px-3 py-2"
+              style={{ border: '1px solid #E0E0E0' }}
               required
             >
               <option value="">Selecione uma categoria</option>
@@ -332,13 +338,14 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
 
           {/* Account */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
               Conta
             </label>
             <select
               value={formData.account_id}
               onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full bg-white text-black rounded-md px-3 py-2"
+              style={{ border: '1px solid #E0E0E0' }}
               required
             >
               <option value="">Selecione uma conta</option>
@@ -352,27 +359,38 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
 
           {/* Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
               Data
             </label>
             <Input
               type="date"
               value={formData.transaction_date}
               onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="bg-white text-black rounded-md px-3 py-2"
+              style={{ border: '1px solid #E0E0E0' }}
               required
             />
           </div>
 
-          {/* Submit Button */}
-          <div className="pt-4">
-            <Button
+          {/* Action Buttons */}
+          <div className="pt-4 flex gap-3">
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex-1 py-3 rounded-2xl text-black font-medium disabled:opacity-50"
+              style={{ backgroundColor: '#EAEAEA' }}
+            >
+              {deleting ? 'Excluindo...' : 'Excluir registro'}
+            </button>
+            <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#A8E202] hover:bg-[#96D000] text-black font-medium"
+              className="flex-1 py-3 rounded-2xl text-black font-medium disabled:opacity-50"
+              style={{ backgroundColor: '#A6FF00' }}
             >
-              {loading ? 'Salvando...' : 'Salvar Alterações'}
-            </Button>
+              {loading ? 'Salvando...' : 'Salvar alterações'}
+            </button>
           </div>
         </form>
       </div>
