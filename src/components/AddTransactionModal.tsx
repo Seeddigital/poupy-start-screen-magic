@@ -204,7 +204,7 @@ const AddTransactionModal = ({
   return <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 pb-2">
+        <div className="flex items-center justify-between p-4 pb-2 mx-[20px] px-[24px] py-[18px] my-[8px]">
           <img src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" alt="Poupy Logo" className="h-6 w-auto" />
           
           <h2 className="text-lg font-bold text-black flex-1 text-center">
