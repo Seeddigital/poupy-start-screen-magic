@@ -61,7 +61,7 @@ const Categories = () => {
               <p className="text-gray-500 text-sm mt-2">Faça algumas transações para ver suas categorias aqui</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {categories.map((category) => {
                 const goal = getGoalByCategory(category.cat_id);
                 const goalProgress = goal ? calculateGoalProgress(category.amount, goal.amount) : 0;
@@ -70,84 +70,70 @@ const Categories = () => {
                 return (
                   <div 
                     key={category.cat_id} 
-                    className="bg-white rounded-2xl p-6 shadow-sm relative"
-                    style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)' }}
+                    className="bg-[#202020] rounded-2xl p-4 shadow-lg relative cursor-pointer hover:bg-[#252525] transition-colors"
+                    style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' }}
+                    onClick={() => handleGoalClick(category)}
                   >
-                    {/* Centered Icon */}
-                    <div className="flex justify-center mb-4">
-                      {category.icon ? (
-                        <div 
-                          className="w-12 h-12 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: category.color }}
-                        >
-                          <img 
-                            src={category.icon} 
-                            alt={category.name}
-                            className="w-6 h-6 object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div 
-                          className="w-12 h-12 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: category.color }}
-                        >
-                          <div className="w-5 h-5 rounded-full bg-white/30"></div>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Centered Title */}
-                    <h3 className="text-black text-lg font-semibold text-center mb-3">
-                      {category.name}
-                    </h3>
-                    
-                    {/* Centered Value */}
-                    <div className="text-center mb-2">
-                      <span className="text-black text-2xl font-bold">
+                    {/* Top row with badge, title, and amount */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        {category.icon ? (
+                          <div 
+                            className="w-9 h-9 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: category.color }}
+                          >
+                            <img 
+                              src={category.icon} 
+                              alt={category.name}
+                              className="w-5 h-5 object-contain"
+                            />
+                          </div>
+                        ) : (
+                          <div 
+                            className="w-9 h-9 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: category.color }}
+                          >
+                            <div className="w-4 h-4 rounded-full bg-white/30"></div>
+                          </div>
+                        )}
+                        <h3 className="text-[#EDEDED] text-base font-semibold flex-1">
+                          {category.name}
+                        </h3>
+                      </div>
+                      <span className="text-[#EDEDED] text-base font-medium">
                         {formatCurrency(Math.abs(category.amount))}
                       </span>
                     </div>
                     
-                    {/* Subtitle */}
-                    <p className="text-center text-sm mb-6" style={{ color: '#999999' }}>
-                      Todas as metas são mensais
-                    </p>
-                    
-                    {/* Action Buttons */}
-                    <div className="flex justify-end gap-2">
-                      {!goal ? (
-                        /* No goal defined - single gray button */
-                        <button
-                          onClick={() => handleGoalClick(category)}
-                          className="px-4 py-2 rounded-xl text-black font-medium text-sm"
-                          style={{ backgroundColor: '#EAEAEA' }}
-                        >
-                          Criar meta
-                        </button>
-                      ) : (
-                        /* Goal exists - two buttons aligned right */
-                        <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Handle delete goal
-                              handleGoalClick(category);
+                    {/* Progress bar */}
+                    {goal && (
+                      <>
+                        <div className="w-full h-1.5 bg-[#3A3A3E] rounded-full overflow-hidden mb-2">
+                          <div 
+                            className="h-full rounded-full transition-all duration-300"
+                            style={{ 
+                              backgroundColor: category.color,
+                              width: `${goalProgress}%`
                             }}
-                            className="px-4 py-2 rounded-xl text-black font-medium text-sm"
-                            style={{ backgroundColor: '#EAEAEA' }}
-                          >
-                            Excluir meta
-                          </button>
-                          <button
-                            onClick={() => handleGoalClick(category)}
-                            className="px-4 py-2 rounded-xl text-black font-medium text-sm"
-                            style={{ backgroundColor: '#A6FF00' }}
-                          >
-                            Atualizar
-                          </button>
-                        </>
-                      )}
-                    </div>
+                          ></div>
+                        </div>
+                        
+                        {/* Percentage label */}
+                        <div className="flex justify-end">
+                          <span className="text-[#9A9AA0] text-xs font-normal">
+                            {Math.round(goalProgress)}%
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Goal button for categories without goals */}
+                    {!goal && (
+                      <div className="w-full mt-2 py-2 bg-white/5 rounded-lg flex items-center justify-center gap-2">
+                        <Plus size={16} className="text-gray-400" />
+                        <span className="text-gray-400 text-sm">Definir meta</span>
+                      </div>
+                    )}
                   </div>
                 );
               })}
