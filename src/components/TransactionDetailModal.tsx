@@ -126,45 +126,35 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete
       />
       
       {/* Modal Content */}
-      <div className="relative z-50 bg-white rounded-2xl sm:rounded-3xl max-w-md w-full mx-4 shadow-xl overflow-visible">
-        {/* Close button */}
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center z-20 transition-colors"
-        >
-          <X className="w-4 h-4 text-gray-600" />
-        </button>
-        
-        {/* Category Icon positioned to be half outside */}
-        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 z-10">
+      <div className="relative z-50 bg-white rounded-3xl max-w-sm w-full mx-4 shadow-lg overflow-visible">
+        {/* Category Icon positioned at the top */}
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
           <div 
-            className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg"
-            style={{ backgroundColor: transaction.categories?.color || '#ff6b35' }}
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: '#F27935' }}
           >
-            <Utensils className="w-8 h-8 text-white" />
+            <Utensils className="w-6 h-6 text-white" />
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-8 pt-16 pb-20">
-          <div className="space-y-6">
+        <div className="px-6 pt-12 pb-6">
+          <div className="space-y-4">
             {/* Transaction Name */}
-            <h2 className="text-2xl font-semibold text-center text-black">
+            <h2 className="text-xl font-medium text-center text-black">
               {transaction.description}
             </h2>
 
             {/* Amount */}
             <div className="text-center">
-              <p className={`text-4xl font-bold ${
-                transaction.type === 'income' ? 'text-green-500' : 'text-red-500'
-              }`}>
+              <p className="text-3xl font-bold" style={{ color: '#FF3B30' }}>
                 R$ {Math.abs(transaction.amount).toFixed(2).replace('.', ',')}
               </p>
             </div>
 
             {/* Transaction Details */}
             <div className="text-center">
-              <p className="text-gray-500 text-lg">
+              <p className="text-sm" style={{ color: '#999999' }}>
                 {transaction.categories?.name} • {transaction.accounts?.name} • {formatDate(transaction.transaction_date)}
               </p>
             </div>
@@ -172,27 +162,28 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete
             {/* Notes (if any) */}
             {transaction.notes && (
               <div className="text-center">
-                <p className="text-gray-600 text-sm">{transaction.notes}</p>
+                <p className="text-sm" style={{ color: '#999999' }}>{transaction.notes}</p>
               </div>
             )}
           </div>
         </div>
         
         {/* Two Action Buttons at the Bottom */}
-        <div className="absolute bottom-6 left-6 right-6 flex gap-3">
-          <Button
-            variant="outline"
+        <div className="px-6 pb-6 flex gap-3">
+          <button
             onClick={handleDelete}
-            className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50"
+            className="flex-1 py-3 rounded-2xl text-black font-medium"
+            style={{ backgroundColor: '#EAEAEA' }}
           >
             Excluir registro
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={handleEdit}
-            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white"
+            className="flex-1 py-3 rounded-2xl text-black font-medium"
+            style={{ backgroundColor: '#A6FF00' }}
           >
             Atualizar
-          </Button>
+          </button>
         </div>
       </div>
     </div>
