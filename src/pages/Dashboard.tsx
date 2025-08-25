@@ -101,6 +101,12 @@ const Dashboard = () => {
     setSelectedTransactionId(null);
   };
 
+  const handleTransactionDeleted = () => {
+    refetch();
+    setIsTransactionModalOpen(false);
+    setSelectedTransaction(null);
+  };
+
   // Show loading or redirect if no user
   if (!user) {
     return null; // Will redirect in useEffect
@@ -267,6 +273,7 @@ const Dashboard = () => {
         isOpen={isTransactionModalOpen} 
         onClose={() => setIsTransactionModalOpen(false)}
         onEdit={handleEditTransaction}
+        onDelete={handleTransactionDeleted}
       />
 
       <CategoryTransactionsModal 

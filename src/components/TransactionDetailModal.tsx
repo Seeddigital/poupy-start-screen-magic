@@ -8,6 +8,10 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { otpService } from "@/services/otpService";
+import { toast } from "sonner";
 
 interface Transaction {
   id: string;
@@ -35,9 +39,12 @@ interface TransactionDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEdit?: (transaction: Transaction) => void;
+  onDelete?: () => void;
 }
 
-const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: TransactionDetailModalProps) => {
+const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete }: TransactionDetailModalProps) => {
+  const { session } = useAuth();
+  
   console.log('TransactionDetailModal render:', { transaction: !!transaction, isOpen });
   
   if (!transaction) return null;
@@ -62,6 +69,31 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
     if (onEdit && transaction) {
       onEdit(transaction);
       onClose();
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!session?.access_token || !transaction.id) return;
+    
+    // Show confirmation
+    const confirmed = window.confirm('Tem certeza que deseja excluir este registro?');
+    if (!confirmed) return;
+
+    try {
+      const result = await otpService.deleteExpense(session.access_token, parseInt(transaction.id));
+      
+      if (result.success) {
+        toast.success('Registro excluído com sucesso!');
+        onClose();
+        if (onDelete) {
+          onDelete();
+        }
+      } else {
+        toast.error(result.error || 'Erro ao excluir registro');
+      }
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      toast.error('Erro ao excluir registro');
     }
   };
 
@@ -146,13 +178,22 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit }: Transa
           </div>
         </div>
         
-        {/* Edit Button positioned in bottom right */}
-        <button 
-          onClick={handleEdit}
-          className="absolute bottom-6 right-6 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-full font-medium transition-colors"
-        >
-          Alterar
-        </button>
+        {/* Two Action Buttons at the Bottom */}
+        <div className="absolute bottom-6 left-6 right-6 flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleDelete}
+            className="flex-1 text-gray-700 border-gray-300 hover:bg-gray-50"
+          >
+            Excluir registro
+          </Button>
+          <Button
+            onClick={handleEdit}
+            className="flex-1 bg-lime-500 hover:bg-lime-600 text-white"
+          >
+            Atualizar
+          </Button>
+        </div>
       </div>
     </div>
   );
