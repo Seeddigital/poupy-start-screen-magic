@@ -52,51 +52,57 @@ const CategoryChart = ({ data, onCategoryClick }: CategoryChartProps) => {
       </g>
     );
   };
+  // Calcular largura necessária baseada no número de categorias
+  const minBarWidth = 120; // Largura mínima por categoria para evitar sobreposição
+  const chartWidth = Math.max(data.length * minBarWidth, 400);
+
   return (
     <div className="w-full bg-black p-6 rounded-lg">
-      {/* Chart Area */}
-      <div className="h-80 mb-6">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart 
-            data={data} 
-            margin={{ top: 20, right: 0, left: 0, bottom: 20 }}
-            barCategoryGap="10%"
-            maxBarSize={100}
-          >
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              stroke="#333333" 
-              strokeOpacity={0.3}
-              horizontal={true}
-              vertical={false}
-            />
-            <XAxis 
-              dataKey="name"
-              axisLine={false}
-              tickLine={false}
-              tick={<CustomXAxisTick />}
-              interval={0}
-              height={50}
-            />
-            <YAxis 
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: '#9ca3af' }}
-              domain={[0, 'dataMax']}
-              tickCount={6}
-            />
-            <Bar 
-              dataKey="amount" 
-              radius={[20, 20, 20, 20]}
-              cursor="pointer"
-              onClick={(data) => onCategoryClick(data)}
+      {/* Chart Area com scroll horizontal */}
+      <div className="h-80 mb-6 overflow-x-auto">
+        <div style={{ width: chartWidth, height: '100%', minWidth: '100%' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart 
+              data={data} 
+              margin={{ top: 20, right: 20, left: 20, bottom: 60 }}
+              barCategoryGap="20%"
+              maxBarSize={80}
             >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+              <CartesianGrid 
+                strokeDasharray="3 3" 
+                stroke="#333333" 
+                strokeOpacity={0.3}
+                horizontal={true}
+                vertical={false}
+              />
+              <XAxis 
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={<CustomXAxisTick />}
+                interval={0}
+                height={60}
+              />
+              <YAxis 
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#9ca3af' }}
+                domain={[0, 'dataMax']}
+                tickCount={6}
+              />
+              <Bar 
+                dataKey="amount" 
+                radius={[20, 20, 20, 20]}
+                cursor="pointer"
+                onClick={(data) => onCategoryClick(data)}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       {/* Legenda Horizontal */}
