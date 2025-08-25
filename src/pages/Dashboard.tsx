@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Bell, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTransactions } from '@/hooks/useTransactions';
-import BottomNavigation from '../components/BottomNavigation';
 import CategoryChart from '../components/CategoryChart';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
-import AddTransactionModal from '../components/AddTransactionModal';
 import EditTransactionModal from '../components/EditTransactionModal';
 import AuthModal from '../components/AuthModal';
 import { toast } from 'sonner';
@@ -21,7 +19,6 @@ const Dashboard = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
@@ -73,14 +70,6 @@ const Dashboard = () => {
     } catch (error) {
       toast.error('Erro ao fazer logout');
     }
-  };
-
-  const handleAddTransaction = () => {
-    setIsAddModalOpen(true);
-  };
-
-  const handleTransactionAdded = () => {
-    refetch();
   };
 
   const handleEditTransaction = (transaction) => {
@@ -264,9 +253,6 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Bottom Navigation Menu */}
-      <BottomNavigation onAddTransaction={handleAddTransaction} />
-
       {/* Modals */}
       <TransactionDetailModal 
         transaction={selectedTransaction} 
@@ -282,12 +268,6 @@ const Dashboard = () => {
         isOpen={isCategoryModalOpen} 
         onClose={() => setIsCategoryModalOpen(false)} 
         onTransactionClick={handleCategoryTransactionClick} 
-      />
-
-      <AddTransactionModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onTransactionAdded={handleTransactionAdded}
       />
 
       {selectedTransactionId && (

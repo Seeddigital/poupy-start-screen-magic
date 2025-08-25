@@ -42,7 +42,7 @@ const Learning = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-[#151515] text-white pb-24">
       {/* Header */}
       <header className="flex items-center justify-between p-4 sm:p-6">
         <button 
