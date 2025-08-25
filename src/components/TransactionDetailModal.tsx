@@ -168,18 +168,18 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete
           </div>
         </div>
         
-        {/* Two Action Buttons at the Bottom */}
-        <div className="px-6 pb-6 flex gap-3">
+        {/* Two Action Buttons at the Bottom - Right Aligned */}
+        <div className="px-6 pb-6 flex justify-end gap-2">
           <button
             onClick={handleDelete}
-            className="flex-1 py-3 rounded-2xl text-black font-medium"
+            className="px-4 py-2 rounded-xl text-black font-medium text-sm"
             style={{ backgroundColor: '#EAEAEA' }}
           >
             Excluir registro
           </button>
           <button
             onClick={handleEdit}
-            className="flex-1 py-3 rounded-2xl text-black font-medium"
+            className="px-4 py-2 rounded-xl text-black font-medium text-sm"
             style={{ backgroundColor: '#A6FF00' }}
           >
             Atualizar
