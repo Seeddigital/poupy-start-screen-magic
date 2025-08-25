@@ -189,7 +189,7 @@ export const useTransactions = () => {
   };
 
   useEffect(() => {
-    if (user && transactions.length > 0) {
+    if (user) {
       fetchCategories();
     }
   }, [user, transactions]);
@@ -329,8 +329,14 @@ export const useTransactions = () => {
           amount: categoryTotals[Number(cat.id)] || 0,
           percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.id)] || 0) / totalExpenses * 100) : 0
         }))
-        .filter((cat: any) => cat.amount > 0 && cat.name && cat.name.trim() !== '') // Only show categories with transactions and valid names
-        .sort((a: any, b: any) => b.amount - a.amount); // Sort by amount descending
+        .filter((cat: any) => cat.name && cat.name.trim() !== '') // Show all categories with valid names, regardless of spending
+        .sort((a: any, b: any) => {
+          // Sort categories with spending first (by amount descending), then categories without spending alphabetically
+          if (a.amount > 0 && b.amount === 0) return -1;
+          if (a.amount === 0 && b.amount > 0) return 1;
+          if (a.amount > 0 && b.amount > 0) return b.amount - a.amount;
+          return a.name.localeCompare(b.name);
+        });
 
         console.log('Categories with amounts:', categoriesWithAmounts);
         setCategories(categoriesWithAmounts);
@@ -363,8 +369,14 @@ export const useTransactions = () => {
           amount: categoryTotals[Number(cat.category_id)] || 0,
           percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
         }))
-        .filter(cat => cat.amount > 0)
-        .sort((a, b) => b.amount - a.amount);
+        .filter(cat => cat.name && cat.name.trim() !== '') // Show all categories with valid names
+        .sort((a, b) => {
+          // Sort categories with spending first (by amount descending), then categories without spending alphabetically
+          if (a.amount > 0 && b.amount === 0) return -1;
+          if (a.amount === 0 && b.amount > 0) return 1;
+          if (a.amount > 0 && b.amount > 0) return b.amount - a.amount;
+          return a.name.localeCompare(b.name);
+        });
 
         setCategories(categoriesWithAmounts);
       }
