@@ -26,14 +26,15 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
       setAmount(existingGoal.amount.toString());
       setPeriod(existingGoal.period);
     } else {
-      setAmount('');
+      setAmount('0');
       setPeriod('monthly');
     }
   }, [existingGoal]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || parseFloat(amount) < 0) return;
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount < 0) return;
 
     setIsLoading(true);
     try {
@@ -174,7 +175,7 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
             )}
             <Button
               type="submit"
-              disabled={isLoading || !amount}
+              disabled={isLoading || isNaN(parseFloat(amount)) || parseFloat(amount) < 0}
               className="px-3 py-1.5 bg-[#A6FF00] text-black rounded-lg text-xs hover:bg-[#95E600] transition-colors"
             >
               {isLoading ? 'Salvando...' : existingGoal ? 'Atualizar' : 'Criar Meta'}
