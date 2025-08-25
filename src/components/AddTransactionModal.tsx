@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, DollarSign } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { otpService } from '@/services/otpService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -118,6 +119,33 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
     }
   };
 
+  const formatCurrency = (value: string) => {
+    // Convert the string value to cents for formatting
+    const numericValue = parseFloat(value) || 0;
+    
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(numericValue);
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    // Remove all non-digit characters
+    const digitsOnly = inputValue.replace(/[^\d]/g, '');
+    
+    if (digitsOnly === '') {
+      setFormData({ ...formData, amount: '0' });
+      return;
+    }
+    
+    // Convert cents to reais (divide by 100)
+    const numericAmount = parseInt(digitsOnly) / 100;
+    setFormData({ ...formData, amount: numericAmount.toString() });
+  };
+
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const description = e.target.value;
     setFormData({ ...formData, description });
@@ -187,31 +215,35 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-[#151515]/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#151515] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto border border-gray-800">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800">
-          <h2 className="text-xl font-semibold text-white">Nova Transação</h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
+        <div className="flex flex-col items-center p-4">
+          <button 
+            onClick={onClose} 
+            className="self-end mb-2 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
-            <X size={16} className="text-white" />
+            <X size={14} className="text-gray-600" />
           </button>
+          
+          <h2 className="text-lg font-bold text-black text-center">
+            Nova Transação
+          </h2>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="px-4 pb-4 space-y-3">
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="description" className="text-[#666666] text-xs font-medium mb-1 block">
               Descrição
-            </label>
+            </Label>
             <Input
+              id="description"
               type="text"
               value={formData.description}
               onChange={handleDescriptionChange}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1"
               placeholder="Ex: Supermercado"
               required
             />
@@ -219,29 +251,32 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
 
           {/* Amount */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Valor (R$)
-            </label>
-            <Input
-              type="number"
-              step="0.01"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="bg-gray-900 border-gray-700 text-white"
-              placeholder="0,00"
-              required
-            />
+            <Label htmlFor="amount" className="text-[#666666] text-xs font-medium mb-1 block">
+              Valor
+            </Label>
+            <div className="relative">
+              <DollarSign size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#666666]" />
+              <Input
+                id="amount"
+                value={formatCurrency(formData.amount)}
+                onChange={handleAmountChange}
+                placeholder="R$ 0,00"
+                className="pl-7 py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1"
+                required
+              />
+            </div>
           </div>
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="type" className="text-[#666666] text-xs font-medium mb-1 block">
               Tipo
-            </label>
+            </Label>
             <select
+              id="type"
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none"
               required
             >
               <option value="expense">Despesa</option>
@@ -252,16 +287,17 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Categoria {suggestingCategory && <span className="text-sm text-gray-500">(sugerindo...)</span>}
-            </label>
+            <Label htmlFor="category" className="text-[#666666] text-xs font-medium mb-1 block">
+              Categoria {suggestingCategory && <span className="text-xs text-[#999999]">(sugerindo...)</span>}
+            </Label>
             <select
+              id="category"
               value={formData.category_id}
               onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none"
               required
             >
-              <option value="">Selecione uma categoria</option>
+              <option value="" className="text-[#999999]">Selecione uma categoria</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -272,16 +308,17 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
 
           {/* Account */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="account" className="text-[#666666] text-xs font-medium mb-1 block">
               Conta
-            </label>
+            </Label>
             <select
+              id="account"
               value={formData.account_id}
               onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2"
+              className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none"
               required
             >
-              <option value="">Selecione uma conta</option>
+              <option value="" className="text-[#999999]">Selecione uma conta</option>
               {accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.name}
@@ -292,38 +329,40 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
 
           {/* Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <Label htmlFor="date" className="text-[#666666] text-xs font-medium mb-1 block">
               Data
-            </label>
+            </Label>
             <Input
+              id="date"
               type="date"
               value={formData.transaction_date}
               onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })}
-              className="bg-gray-900 border-gray-700 text-white"
+              className="py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1"
               required
             />
           </div>
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Observações (opcional)
-            </label>
+            <Label htmlFor="notes" className="text-[#666666] text-xs font-medium mb-1 block">
+              Observações
+            </Label>
             <textarea
+              id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md px-3 py-2 resize-none"
+              className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 resize-none focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none"
               rows={3}
               placeholder="Observações adicionais..."
             />
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="flex justify-end pt-3">
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full bg-[#A8E202] hover:bg-[#96D000] text-black font-medium"
+              disabled={loading || isNaN(parseFloat(formData.amount)) || parseFloat(formData.amount) < 0}
+              className="px-3 py-1.5 bg-[#A6FF00] text-black rounded-lg text-xs hover:bg-[#95E600] transition-colors"
             >
               {loading ? 'Salvando...' : 'Salvar Transação'}
             </Button>
