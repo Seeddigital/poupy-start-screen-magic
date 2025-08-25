@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { X, Utensils, Car, Home, ShoppingBag, Heart, Users, Gamepad2, GraduationCap, Plane, Gift, CreditCard } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -57,85 +57,119 @@ const CategoryTransactionsModal = ({
     }).format(Math.abs(value));
   };
 
+  const getCategoryIcon = (categoryName: string) => {
+    const iconMap = {
+      'Alimentação': Utensils,
+      'Transporte': Car,
+      'Casa': Home,
+      'Compras': ShoppingBag,
+      'Saúde': Heart,
+      'Família e Crianças': Users,
+      'Entretenimento': Gamepad2,
+      'Educação': GraduationCap,
+      'Viagem': Plane,
+      'Outros': Gift,
+      'Cartão de Crédito': CreditCard
+    };
+    
+    return iconMap[categoryName] || Gift;
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   const categoryTransactions = transactions.filter(t => 
     t.categories?.name.toLowerCase().includes(category.name.toLowerCase())
   );
 
+  const CategoryIcon = getCategoryIcon(category.name);
+
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black border-gray-700 text-white max-w-md mx-auto max-h-[80vh] overflow-hidden">
-        <DialogHeader className="flex flex-row items-center justify-between border-b border-gray-700 pb-4">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={onClose}
-              className="w-8 h-8 bg-white/5 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
-            >
-              <ArrowLeft size={16} className="text-white" />
-            </button>
-            <div>
-              <DialogTitle className="text-xl font-semibold flex items-center gap-2">
-                <div 
-                  className="w-4 h-4 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                ></div>
-                {category.name}
-              </DialogTitle>
-              <p className="text-gray-400 text-sm mt-1">
-                Total: {formatCurrency(category.amount)}
-              </p>
-            </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Overlay */}
+      <div 
+        className="fixed inset-0 bg-black/50" 
+        onClick={onClose}
+      />
+      
+      {/* Modal Content */}
+      <div className="relative z-50 bg-white rounded-3xl max-w-sm w-full mx-4 shadow-lg overflow-visible max-h-[90vh]">
+        {/* Category Icon positioned at the top */}
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div 
+            className="w-16 h-16 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: category.color }}
+          >
+            <CategoryIcon className="w-6 h-6 text-white" />
           </div>
-        </DialogHeader>
-        
-        <div className="overflow-y-auto max-h-[60vh] pr-2">
-          <div className="space-y-3">
+        </div>
+
+        {/* Content */}
+        <div className="px-6 pt-12 pb-4">
+          {/* Category Name */}
+          <h2 className="text-xl font-medium text-center text-black mb-2">
+            {category.name}
+          </h2>
+
+          {/* Total Amount */}
+          <div className="text-center mb-6">
+            <p className="text-3xl font-bold text-[#FF3B30]">
+              {formatCurrency(category.amount)}
+            </p>
+            <p className="text-sm text-[#999999] mt-1">
+              Total da categoria
+            </p>
+          </div>
+
+          {/* Transactions List */}
+          <div className="max-h-[50vh] overflow-y-auto space-y-3">
             {categoryTransactions.length > 0 ? (
               categoryTransactions.map((transaction) => (
                 <div 
                   key={transaction.id} 
-                  className="flex items-center justify-between py-3 px-4 bg-gray-900 rounded-lg cursor-pointer hover:bg-gray-800 transition-colors"
+                  className="bg-[#F8F8F8] rounded-2xl p-4 cursor-pointer hover:bg-[#F0F0F0] transition-colors"
                   onClick={() => onTransactionClick(transaction)}
                 >
-                  {/* Left side - Icon and Details */}
-                  <div className="flex items-center gap-3 flex-1">
-                    <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center p-2">
-                      <div 
-                        className="w-6 h-6 rounded-full"
-                        style={{ backgroundColor: transaction.categories?.color || '#gray' }}
-                      ></div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-medium text-sm truncate">
-                        {transaction.description}
-                      </p>
-                      <p className="text-gray-400 text-xs truncate">
-                        {transaction.categories?.name} • {transaction.accounts?.name}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right side - Amount and Date */}
-                  <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-4">
+                  {/* Transaction Name */}
+                  <p className="text-black font-semibold text-sm mb-1">
+                    {transaction.description}
+                  </p>
+                  
+                  {/* Account and Bank */}
+                  <p className="text-[#666666] text-xs mb-2">
+                    {transaction.categories?.name} • {transaction.accounts?.name}
+                  </p>
+                  
+                  {/* Amount and Date Row */}
+                  <div className="flex justify-between items-end">
                     <p className={`font-bold text-sm ${
-                      transaction.type === 'income' ? 'text-[#A8E202]' : 'text-red-500'
+                      transaction.type === 'income' ? 'text-[#00C851]' : 'text-[#FF3B30]'
                     }`}>
                       {transaction.type === 'income' ? '+' : '-'} {formatCurrency(transaction.amount)}
                     </p>
-                    <p className="text-gray-400 text-xs">
-                      {new Date(transaction.transaction_date).toLocaleDateString('pt-BR')}
+                    <p className="text-[#999999] text-xs">
+                      {formatDate(transaction.transaction_date)}
                     </p>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="text-center py-8 text-gray-400">
+              <div className="text-center py-8 text-[#999999]">
                 <p>Nenhuma transação encontrada para esta categoria</p>
               </div>
             )}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
 
