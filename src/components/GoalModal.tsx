@@ -33,7 +33,7 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || parseFloat(amount) <= 0) return;
+    if (!amount || parseFloat(amount) < 0) return;
 
     setIsLoading(true);
     try {
@@ -76,19 +76,21 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
 
   const formatCurrency = (value: string) => {
     const numericValue = value.replace(/[^\d]/g, '');
-    if (!numericValue) return '';
+    if (numericValue === '') return '';
     
+    const numericAmount = parseInt(numericValue || '0') / 100;
     const formatted = new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(parseInt(numericValue) / 100);
+    }).format(numericAmount);
     
     return formatted;
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, '');
-    setAmount((parseInt(value) / 100).toString());
+    const numericAmount = parseInt(value || '0') / 100;
+    setAmount(numericAmount.toString());
   };
 
   if (!isOpen) return null;
