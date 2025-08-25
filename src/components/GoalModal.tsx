@@ -3,7 +3,6 @@ import { X, Target, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGoals } from '@/hooks/useGoals';
 
 interface GoalModalProps {
@@ -17,17 +16,14 @@ interface GoalModalProps {
 
 const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, existingGoal }: GoalModalProps) => {
   const [amount, setAmount] = useState('0');
-  const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const [isLoading, setIsLoading] = useState(false);
   const { createGoal, updateGoal, deleteGoal } = useGoals();
 
   useEffect(() => {
     if (existingGoal) {
       setAmount(existingGoal.amount.toString());
-      setPeriod(existingGoal.period);
     } else {
       setAmount('0');
-      setPeriod('monthly');
     }
   }, [existingGoal]);
 
@@ -41,13 +37,13 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
       const goalData = {
         category_id: categoryId,
         amount: parseFloat(amount),
-        period
+        period: 'monthly' as const
       };
 
       if (existingGoal) {
         await updateGoal(existingGoal.id, {
           amount: parseFloat(amount),
-          period
+          period: 'monthly' as const
         });
       } else {
         await createGoal(goalData);
@@ -133,7 +129,7 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label htmlFor="amount" className="text-[#666666] text-xs font-medium mb-1 block">
-              Valor da Meta
+              Valor da Meta Mensal
             </Label>
             <div className="relative">
               <DollarSign size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#666666]" />
@@ -146,21 +142,6 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
                 required
               />
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="period" className="text-[#666666] text-xs font-medium mb-1 block">
-              Período
-            </Label>
-            <Select value={period} onValueChange={(value: 'monthly' | 'yearly') => setPeriod(value)}>
-              <SelectTrigger className="py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-[#E0E0E0] z-50">
-                <SelectItem value="monthly" className="text-black hover:bg-gray-50 text-sm">Mensal</SelectItem>
-                <SelectItem value="yearly" className="text-black hover:bg-gray-50 text-sm">Anual</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Actions */}
