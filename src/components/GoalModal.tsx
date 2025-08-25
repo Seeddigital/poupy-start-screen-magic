@@ -76,12 +76,14 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
 
   const formatCurrency = (value: string) => {
     const numericValue = value.replace(/[^\d]/g, '');
-    if (numericValue === '') return '';
+    if (numericValue === '') return 'R$ 0,00';
     
-    const numericAmount = parseInt(numericValue || '0') / 100;
+    const numericAmount = parseInt(numericValue) / 100;
     const formatted = new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(numericAmount);
     
     return formatted;
@@ -89,7 +91,11 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^\d]/g, '');
-    const numericAmount = parseInt(value || '0') / 100;
+    if (value === '') {
+      setAmount('0');
+      return;
+    }
+    const numericAmount = parseInt(value) / 100;
     setAmount(numericAmount.toString());
   };
 
