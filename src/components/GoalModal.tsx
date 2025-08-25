@@ -16,7 +16,7 @@ interface GoalModalProps {
 }
 
 const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, existingGoal }: GoalModalProps) => {
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState('0');
   const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const [isLoading, setIsLoading] = useState(false);
   const { createGoal, updateGoal, deleteGoal } = useGoals();
@@ -76,27 +76,29 @@ const GoalModal = ({ isOpen, onClose, categoryId, categoryName, categoryColor, e
   };
 
   const formatCurrency = (value: string) => {
-    const numericValue = value.replace(/[^\d]/g, '');
-    if (numericValue === '') return 'R$ 0,00';
+    // Convert the string value to cents for formatting
+    const numericValue = parseFloat(value) || 0;
     
-    const numericAmount = parseInt(numericValue) / 100;
-    const formatted = new Intl.NumberFormat('pt-BR', {
+    return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(numericAmount);
-    
-    return formatted;
+    }).format(numericValue);
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d]/g, '');
-    if (value === '') {
+    const inputValue = e.target.value;
+    // Remove all non-digit characters
+    const digitsOnly = inputValue.replace(/[^\d]/g, '');
+    
+    if (digitsOnly === '') {
       setAmount('0');
       return;
     }
-    const numericAmount = parseInt(value) / 100;
+    
+    // Convert cents to reais (divide by 100)
+    const numericAmount = parseInt(digitsOnly) / 100;
     setAmount(numericAmount.toString());
   };
 
