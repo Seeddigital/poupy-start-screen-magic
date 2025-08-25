@@ -218,17 +218,23 @@ const AddTransactionModal = ({ isOpen, onClose, onTransactionAdded }: AddTransac
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
         {/* Header */}
-        <div className="flex flex-col items-center p-4">
+        <div className="flex items-center justify-between p-4 pb-2">
+          <img 
+            src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" 
+            alt="Poupy Logo" 
+            className="h-6 w-auto" 
+          />
+          
+          <h2 className="text-lg font-bold text-black flex-1 text-center">
+            Nova Transação
+          </h2>
+          
           <button 
             onClick={onClose} 
-            className="self-end mb-2 w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
+            className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors"
           >
             <X size={14} className="text-gray-600" />
           </button>
-          
-          <h2 className="text-lg font-bold text-black text-center">
-            Nova Transação
-          </h2>
         </div>
 
         {/* Form */}
