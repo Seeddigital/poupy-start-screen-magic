@@ -83,7 +83,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-transparent p-0 pb-16">
-      <div className="bg-white rounded-t-[2rem] w-full max-w-md p-6 pb-8 shadow-2xl">
+      <div className="bg-white rounded-[2rem] w-full max-w-md p-6 pb-8 shadow-2xl">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {!otpSent && (
             <>
