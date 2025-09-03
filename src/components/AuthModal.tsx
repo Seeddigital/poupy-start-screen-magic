@@ -124,36 +124,55 @@ const AuthModal = ({
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 lg:gap-5">
           {/* Phone Number Section - Only show when OTP not sent */}
-          {!otpSent && <div className="flex flex-col gap-3 sm:gap-4">
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-[#A8E202] flex-shrink-0" />
-                <label className="font-semibold text-white" style={{
-              fontSize: 'clamp(14px, 2.4vw, 16px)'
-            }}> Número do Telefone</label>
-              </div>
-              
-              {/* Phone Input Row - Responsive: stacks on very small screens */}
-              <div className="flex flex-col gap-2">
-                {/* Country selector - full width on mobile */}
-                <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all w-full sm:hidden">
-                  <select value={countryCode} onChange={e => setCountryCode(e.target.value)} className="bg-transparent text-white px-3 py-3 focus:outline-none rounded-xl min-h-[44px] w-full" style={{
-                fontSize: 'clamp(14px, 2.6vw, 16px)'
-              }}>
-                    <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
-                    <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
-                    <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
-                    <option value="+33" className="bg-gray-900">🇫🇷 +33</option>
-                    <option value="+49" className="bg-gray-900">🇩🇪 +49</option>
-                  </select>
+          {!otpSent && <div className="flex flex-col gap-4 sm:gap-6">
+              {/* Integrated Phone Input Bar */}
+              <div className="w-full">
+                {/* Mobile: Stacked layout */}
+                <div className="flex flex-col gap-3 sm:hidden">
+                  {/* Country selector - mobile */}
+                  <div className="flex items-center bg-gray-900/50 rounded-2xl border border-gray-700/50 focus-within:border-[#A8E202]/60 focus-within:shadow-lg focus-within:shadow-[#A8E202]/10 focus-within:bg-gray-800/60 transition-all duration-300">
+                    <select 
+                      value={countryCode} 
+                      onChange={e => setCountryCode(e.target.value)} 
+                      className="bg-transparent text-white px-4 py-4 focus:outline-none rounded-2xl w-full text-base"
+                    >
+                      <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
+                      <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
+                      <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
+                      <option value="+33" className="bg-gray-900">🇫🇷 +33</option>
+                      <option value="+49" className="bg-gray-900">🇩🇪 +49</option>
+                    </select>
+                  </div>
+                  
+                  {/* Phone input with integrated button - mobile */}
+                  <div className="flex items-center bg-gray-900/50 rounded-2xl border border-gray-700/50 focus-within:border-[#A8E202]/60 focus-within:shadow-lg focus-within:shadow-[#A8E202]/10 focus-within:bg-gray-800/60 transition-all duration-300 overflow-hidden">
+                    <input 
+                      type="tel" 
+                      value={phoneNumber} 
+                      onChange={e => setPhoneNumber(e.target.value)} 
+                      className="flex-1 bg-transparent text-white px-4 py-4 focus:outline-none text-base placeholder:text-gray-500" 
+                      placeholder="11 91234 5678" 
+                      required 
+                    />
+                    <button 
+                      type="submit" 
+                      disabled={loading || !isValidPhoneNumber(phoneNumber)} 
+                      className="bg-[#A8E202] hover:bg-[#96CC02] text-black rounded-xl font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg m-2 px-4 py-3 transform hover:scale-105 active:scale-95"
+                    >
+                      <span className="text-lg">→</span>
+                    </button>
+                  </div>
                 </div>
                 
-                {/* Phone input and button row */}
-                <div className="flex gap-2">
-                  {/* Country selector for larger screens */}
-                  <div className="hidden sm:flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all flex-shrink-0">
-                    <select value={countryCode} onChange={e => setCountryCode(e.target.value)} className="bg-transparent text-white px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px]" style={{
-                  fontSize: 'clamp(14px, 2.6vw, 16px)'
-                }}>
+                {/* Desktop: Single row layout */}
+                <div className="hidden sm:flex items-center bg-gray-900/50 rounded-2xl border border-gray-700/50 focus-within:border-[#A8E202]/60 focus-within:shadow-lg focus-within:shadow-[#A8E202]/10 focus-within:bg-gray-800/60 transition-all duration-300 overflow-hidden">
+                  {/* Country selector */}
+                  <div className="flex items-center border-r border-gray-700/50">
+                    <select 
+                      value={countryCode} 
+                      onChange={e => setCountryCode(e.target.value)} 
+                      className="bg-transparent text-white px-4 py-4 focus:outline-none text-base min-w-[100px]"
+                    >
                       <option value="+55" className="bg-gray-900">🇧🇷 +55</option>
                       <option value="+1" className="bg-gray-900">🇺🇸 +1</option>
                       <option value="+44" className="bg-gray-900">🇬🇧 +44</option>
@@ -163,39 +182,25 @@ const AuthModal = ({
                   </div>
                   
                   {/* Phone input */}
-                  <div className="flex items-center bg-gray-900/50 rounded-xl border border-gray-700 focus-within:border-[#A8E202] focus-within:shadow-lg focus-within:shadow-[#A8E202]/20 focus-within:ring-2 focus-within:ring-[#A8E202]/20 transition-all flex-1 relative">
-                    <input type="tel" value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} className="flex-1 bg-transparent text-white px-3 sm:px-4 py-3 sm:py-4 focus:outline-none rounded-xl min-h-[44px]" style={{
-                  fontSize: 'clamp(14px, 2.6vw, 16px)'
-                }} placeholder="11 91234 5678" required />
-                    {phoneNumber && <div className="absolute right-3 flex-shrink-0">
-                        {isValidPhoneNumber(phoneNumber) ? <Check className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" /> : <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />}
-                      </div>}
-                  </div>
+                  <input 
+                    type="tel" 
+                    value={phoneNumber} 
+                    onChange={e => setPhoneNumber(e.target.value)} 
+                    className="flex-1 bg-transparent text-white px-4 py-4 focus:outline-none text-base placeholder:text-gray-500" 
+                    placeholder="11 91234 5678" 
+                    required 
+                  />
                   
-                  {/* Send button */}
-                  <button type="submit" disabled={loading || !isValidPhoneNumber(phoneNumber)} className="bg-[#7A9B02] hover:bg-[#6B8502] text-white rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg px-3 sm:px-4 py-3 sm:py-4 min-h-[44px] flex-shrink-0">
-                    <span className="text-lg sm:text-xl">→</span>
+                  {/* Integrated submit button */}
+                  <button 
+                    type="submit" 
+                    disabled={loading || !isValidPhoneNumber(phoneNumber)} 
+                    className="bg-[#A8E202] hover:bg-[#96CC02] text-black rounded-xl font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-md hover:shadow-lg m-2 px-5 py-3 transform hover:scale-105 active:scale-95"
+                  >
+                    <span className="text-lg">→</span>
                   </button>
                 </div>
               </div>
-              
-              {/* Validation Message */}
-              {phoneNumber && <div className="flex items-start gap-2" style={{
-            fontSize: 'clamp(12px, 2.2vw, 14px)'
-          }}>
-                  <div className="flex-shrink-0 mt-0.5">
-                    {isValidPhoneNumber(phoneNumber) ? <Check className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" /> : <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />}
-                  </div>
-                  <span className={`leading-relaxed break-words ${isValidPhoneNumber(phoneNumber) ? 'text-green-400' : 'text-red-400'}`}>
-                    {isValidPhoneNumber(phoneNumber) ? 'Número válido' : 'Formato inválido'}
-                  </span>
-                </div>}
-              
-              <p className="text-gray-300 leading-relaxed break-words" style={{
-            fontSize: 'clamp(12px, 2.2vw, 14px)'
-          }}>
-                Digite o DDD e número (ex: 11 91234 5678)
-              </p>
             </div>}
 
           {/* Verification Code Section */}
