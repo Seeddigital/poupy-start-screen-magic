@@ -124,54 +124,72 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
           {/* Verification Code Section */}
           {otpSent && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               <div className="text-center">
-                <label className="font-semibold text-gray-800 text-lg">Código de Verificação</label>
+                <p className="text-gray-800 text-base font-medium">Código enviado para o seu Whatsapp</p>
               </div>
               
               <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otpCode} onChange={value => setOtpCode(value)} className="gap-2">
-                  <InputOTPGroup className="gap-2">
-                    {[0, 1, 2, 3, 4, 5].map(index => 
-                      <InputOTPSlot 
-                        key={index} 
-                        index={index} 
-                        className="w-12 h-12 font-bold border-gray-300 bg-gray-50 text-gray-800 focus:border-[#A8E202] focus:shadow-lg focus:shadow-[#A8E202]/20 focus:ring-2 focus:ring-[#A8E202]/20 rounded-xl transition-all text-lg"
-                      />
-                    )}
-                  </InputOTPGroup>
-                </InputOTP>
+                <div className="flex gap-3">
+                  {[0, 1, 2, 3, 4, 5].map(index => (
+                    <input
+                      key={index}
+                      type="text"
+                      maxLength={1}
+                      value={otpCode[index] || ''}
+                      onChange={(e) => {
+                        const newOtp = otpCode.split('');
+                        newOtp[index] = e.target.value;
+                        setOtpCode(newOtp.join(''));
+                        
+                        // Auto focus next input
+                        if (e.target.value && index < 5) {
+                          const target = e.target as HTMLInputElement;
+                          const nextInput = target.parentElement?.children[index + 1] as HTMLInputElement;
+                          nextInput?.focus();
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        // Handle backspace
+                        if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
+                          const target = e.target as HTMLInputElement;
+                          const prevInput = target.parentElement?.children[index - 1] as HTMLInputElement;
+                          prevInput?.focus();
+                        }
+                      }}
+                      className="w-12 h-16 text-center text-4xl font-bold text-gray-400 bg-gray-100 rounded-2xl border-none focus:outline-none focus:ring-2 focus:ring-[#A8E202] focus:bg-white transition-all"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                    />
+                  ))}
+                </div>
               </div>
               
-              <p className="text-gray-600 text-center text-sm">
-                Digite o código de 6 dígitos enviado por WhatsApp
-              </p>
-              
-              <button 
-                type="submit" 
-                disabled={loading || otpCode.length !== 6} 
-                className="w-full bg-[#A8E202] text-black rounded-2xl font-semibold hover:bg-[#96CC02] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl py-4 text-lg"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
-                    <span>Verificando...</span>
-                  </div>
-                ) : (
-                  'Verificar Código'
-                )}
-              </button>
-              
-              <div className="text-center">
+              <div className="flex gap-3">
                 <button 
                   type="button" 
                   onClick={() => {
                     setOtpSent(false);
                     setOtpCode('');
                   }} 
-                  className="text-[#A8E202] hover:text-[#96CC02] transition-colors font-medium underline-offset-4 hover:underline text-sm"
+                  className="flex-1 bg-gray-200 text-gray-700 rounded-2xl font-medium py-4 text-base hover:bg-gray-300 transition-all"
                 >
                   Alterar número
+                </button>
+                
+                <button 
+                  type="submit" 
+                  disabled={loading || otpCode.length !== 6} 
+                  className="flex-1 bg-[#A8E202] text-black rounded-2xl font-medium hover:bg-[#96CC02] transition-all disabled:opacity-50 disabled:cursor-not-allowed py-4 text-base"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      <span>Verificando...</span>
+                    </div>
+                  ) : (
+                    'Verificar código'
+                  )}
                 </button>
               </div>
             </div>
