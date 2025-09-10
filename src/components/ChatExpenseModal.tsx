@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
@@ -58,15 +58,8 @@ export default function ChatExpenseModal({ isOpen, onClose, onExpenseParsed }: C
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-transparent flex items-end justify-center z-50">
-      <div className="bg-white w-full max-w-md rounded-t-[2rem] flex flex-col shadow-2xl border border-gray-100 p-6 relative">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <X className="h-5 w-5" />
-        </button>
+    <div className="fixed inset-0 bg-transparent flex items-end justify-center z-50" onClick={onClose}>
+      <div className="bg-white w-full max-w-md rounded-t-[2rem] flex flex-col shadow-2xl border border-gray-100 p-6 relative" onClick={(e) => e.stopPropagation()}>
         
         {/* Input Area */}
         <div className="flex items-center space-x-3">
