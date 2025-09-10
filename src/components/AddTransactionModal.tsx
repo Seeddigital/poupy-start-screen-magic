@@ -75,7 +75,21 @@ const AddTransactionModal = ({
         account_id: accounts.find(acc => 
           acc.name.toLowerCase() === preFilledData.expenseable_name?.toLowerCase()
         )?.id.toString() || '',
-        transaction_date: preFilledData.due_at || new Date().toISOString().split('T')[0]
+        transaction_date: (() => {
+          const apiDate = preFilledData.due_at;
+          if (apiDate) {
+            const parsedDate = new Date(apiDate);
+            // Se a data da API é muito antiga (mais de 1 ano), usar data atual
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+            
+            if (parsedDate < oneYearAgo) {
+              return new Date().toISOString().split('T')[0];
+            }
+            return parsedDate.toISOString().split('T')[0];
+          }
+          return new Date().toISOString().split('T')[0];
+        })()
       }));
     }
   }, [preFilledData, categories, accounts]);
