@@ -14,22 +14,32 @@ import Learning from "./pages/Learning";
 import NotFound from "./pages/NotFound";
 import { useState } from "react";
 import AddTransactionModal from "@/components/AddTransactionModal";
+import ChatExpenseModal from "@/components/ChatExpenseModal";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [preFilledData, setPreFilledData] = useState<any>(null);
   const { refetch } = useTransactions();
   
   const showBottomNav = location.pathname !== '/';
   
   const handleAddTransaction = () => {
+    setIsChatModalOpen(true);
+  };
+
+  const handleExpenseParsed = (expenseData: any) => {
+    setPreFilledData(expenseData);
+    setIsChatModalOpen(false);
     setIsAddModalOpen(true);
   };
 
   const handleTransactionAdded = () => {
     setIsAddModalOpen(false);
+    setPreFilledData(null);
     refetch();
   };
 
@@ -48,10 +58,20 @@ const AppContent = () => {
         <BottomNavigation onAddTransaction={handleAddTransaction} />
       )}
       
+      <ChatExpenseModal
+        isOpen={isChatModalOpen}
+        onClose={() => setIsChatModalOpen(false)}
+        onExpenseParsed={handleExpenseParsed}
+      />
+      
       <AddTransactionModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setPreFilledData(null);
+        }}
         onTransactionAdded={handleTransactionAdded}
+        preFilledData={preFilledData}
       />
     </div>
   );

@@ -257,6 +257,40 @@ class OTPService {
       return { success: false, error: 'Erro de conexão' };
     }
   }
+
+  async guessExpense(token: string, message: string): Promise<OTPResponse & { 
+    expenses?: Array<{
+      amount: number;
+      description: string;
+      expenseable_type: string;
+      expenseable_name: string;
+      category_name: string;
+      due_at: string;
+    }>;
+    message?: string;
+  }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/expenses/guess`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, ...data };
+      } else {
+        const errorData = await response.json();
+        return { success: false, error: errorData.message || 'Erro ao processar mensagem' };
+      }
+    } catch (error) {
+      console.error('Error guessing expense:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
 }
 
 export const otpService = new OTPService();

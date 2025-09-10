@@ -10,6 +10,14 @@ interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onTransactionAdded: () => void;
+  preFilledData?: {
+    amount: number;
+    description: string;
+    expenseable_type: string;
+    expenseable_name: string;
+    category_name: string;
+    due_at: string;
+  };
 }
 interface Category {
   id: number;
@@ -26,7 +34,8 @@ interface Account {
 const AddTransactionModal = ({
   isOpen,
   onClose,
-  onTransactionAdded
+  onTransactionAdded,
+  preFilledData
 }: AddTransactionModalProps) => {
   const {
     user,
@@ -51,6 +60,25 @@ const AddTransactionModal = ({
       fetchAccounts();
     }
   }, [isOpen, user]);
+
+  // Pre-fill form when preFilledData is provided
+  useEffect(() => {
+    if (preFilledData && categories.length > 0 && accounts.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        description: preFilledData.description || '',
+        amount: Math.abs(preFilledData.amount).toString() || '',
+        type: preFilledData.amount < 0 ? 'expense' : 'income',
+        category_id: categories.find(cat => 
+          cat.name.toLowerCase() === preFilledData.category_name?.toLowerCase()
+        )?.id.toString() || '',
+        account_id: accounts.find(acc => 
+          acc.name.toLowerCase() === preFilledData.expenseable_name?.toLowerCase()
+        )?.id.toString() || '',
+        transaction_date: preFilledData.due_at || new Date().toISOString().split('T')[0]
+      }));
+    }
+  }, [preFilledData, categories, accounts]);
   const fetchCategories = async () => {
     try {
       if (!session?.access_token) return;
