@@ -75,7 +75,7 @@ export default function ChatExpenseModal({ isOpen, onClose, onExpenseParsed }: C
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Digite sua despesa em linguagem natural, ex: gastei 100 no mercado pelo Nubank"
-            className="flex-1 border-gray-200 focus:border-gray-300 focus:ring-0 text-base py-3 px-4 rounded-xl bg-white"
+            className="flex-1 border-gray-200 focus:border-gray-300 focus:ring-0 text-base py-3 px-4 rounded-xl bg-white text-gray-900 placeholder:text-gray-500"
             disabled={isLoading}
           />
           <Button
