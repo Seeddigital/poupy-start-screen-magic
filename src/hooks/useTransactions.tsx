@@ -258,29 +258,56 @@ export const useTransactions = () => {
         if (recurrentResult.success && recurrentResult.recurrentExpenses) {
           console.log('API recurrent expenses loaded:', recurrentResult.recurrentExpenses);
           
-          recurrentTransactions = recurrentResult.recurrentExpenses.map((expense: any) => ({
-            id: `recurrent_${expense.id}`, // Prefix to avoid ID conflicts
-            user_id: user?.id || '',
-            description: expense.description,
-            amount: -Number(expense.amount), // Negative for expenses
-            type: 'expense' as const,
-            transaction_date: expense.next_charge_date || expense.start_date,
-            category_id: expense.expense_category_id,
-            account_id: expense.expenseable?.id || 1,
-            categories: expense.category ? {
-              name: expense.category.name,
-              color: getCategoryColor(expense.category.name, expense.expense_category_id),
-              icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
-            } : undefined,
-            accounts: expense.expenseable ? {
-              name: expense.expenseable.name,
-              type: expense.expenseable.brand || 'card'
-            } : undefined,
-            created_at: expense.created_at,
-            updated_at: expense.updated_at,
-            isRecurrent: true,
-            recurrentId: expense.id
-          }));
+          // Helper function to calculate next charge date based on create_on_dom
+          const calculateNextChargeDate = (createOnDom: number): string => {
+            const now = new Date();
+            const currentDay = now.getDate();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            // If the day hasn't passed this month, use this month
+            if (createOnDom >= currentDay) {
+              const nextDate = new Date(currentYear, currentMonth, createOnDom);
+              return nextDate.toISOString();
+            } else {
+              // Day has passed, use next month
+              const nextDate = new Date(currentYear, currentMonth + 1, createOnDom);
+              return nextDate.toISOString();
+            }
+          };
+          
+          recurrentTransactions = recurrentResult.recurrentExpenses.map((expense: any) => {
+            // Calculate next charge date from create_on_dom
+            const nextChargeDate = calculateNextChargeDate(expense.create_on_dom);
+            
+            console.log(`Recurrent expense ${expense.description}: create_on_dom=${expense.create_on_dom}, next_charge=${nextChargeDate}`);
+            
+            return {
+              id: `recurrent_${expense.id}`, // Prefix to avoid ID conflicts
+              user_id: user?.id || '',
+              description: expense.description,
+              amount: expense.amount < 0 ? expense.amount : -Math.abs(expense.amount), // Ensure expenses are negative
+              type: 'expense' as const,
+              transaction_date: nextChargeDate,
+              category_id: expense.expense_category_id,
+              account_id: expense.expenseable?.id || 1,
+              categories: expense.category ? {
+                name: expense.category.name,
+                color: getCategoryColor(expense.category.name, expense.expense_category_id),
+                icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
+              } : undefined,
+              accounts: expense.expenseable ? {
+                name: expense.expenseable.name,
+                type: expense.expenseable.brand || 'card'
+              } : undefined,
+              created_at: expense.created_at,
+              updated_at: expense.updated_at,
+              isRecurrent: true,
+              recurrentId: expense.id
+            };
+          });
+          
+          console.log('Transformed recurrent transactions:', recurrentTransactions);
         }
 
         // Combine both regular and recurrent transactions and sort by date
