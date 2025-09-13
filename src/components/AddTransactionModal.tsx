@@ -384,7 +384,7 @@ const AddTransactionModal = ({
                   <strong>Frequência:</strong> Mensal (automático)
                 </p>
                 <p className="text-xs text-[#666666]">
-                  Esta despesa será cobrada automaticamente todo mês.
+                  Esta despesa será registrada automaticamente todo mês.
                 </p>
               </div>
 
