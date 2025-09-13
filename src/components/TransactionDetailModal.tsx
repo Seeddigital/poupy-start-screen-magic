@@ -75,17 +75,36 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete
   };
 
   const handleDelete = async () => {
-    if (!session?.access_token || !transaction.id) return;
+    if (!session?.access_token) return;
     
-    // Show confirmation
-    const confirmed = window.confirm('Tem certeza que deseja excluir este registro?');
+    // Validate ID based on transaction type
+    const isRecurrent = transaction.isRecurrent;
+    const deleteId = isRecurrent ? transaction.recurrentId : parseInt(transaction.id);
+    
+    if (!deleteId || isNaN(deleteId)) {
+      toast.error('ID inválido para exclusão');
+      return;
+    }
+    
+    // Show confirmation with appropriate message
+    const confirmMessage = isRecurrent 
+      ? 'Tem certeza que deseja excluir esta despesa recorrente?' 
+      : 'Tem certeza que deseja excluir este registro?';
+    const confirmed = window.confirm(confirmMessage);
     if (!confirmed) return;
 
     try {
-      const result = await otpService.deleteExpense(session.access_token, parseInt(transaction.id));
+      console.log(`Deleting ${isRecurrent ? 'recurrent' : 'regular'} expense with ID:`, deleteId);
+      
+      const result = isRecurrent 
+        ? await otpService.deleteRecurrentExpense(session.access_token, deleteId)
+        : await otpService.deleteExpense(session.access_token, deleteId);
       
       if (result.success) {
-        toast.success('Registro excluído com sucesso!');
+        const successMessage = isRecurrent 
+          ? 'Despesa recorrente excluída com sucesso!' 
+          : 'Registro excluído com sucesso!';
+        toast.success(successMessage);
         onClose();
         if (onDelete) {
           onDelete();
@@ -94,7 +113,7 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete
         toast.error(result.error || 'Erro ao excluir registro');
       }
     } catch (error) {
-      console.error('Error deleting transaction:', error);
+      console.error(`Error deleting ${isRecurrent ? 'recurrent' : 'regular'} transaction:`, error);
       toast.error('Erro ao excluir registro');
     }
   };
