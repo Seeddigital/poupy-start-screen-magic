@@ -21,6 +21,8 @@ interface Transaction extends MockTransaction {
     name: string;
     type: string;
   };
+  isRecurrent?: boolean;
+  recurrentId?: number;
 }
 
 interface ApiExpense {
@@ -216,15 +218,19 @@ export const useTransactions = () => {
         return;
       }
 
-      console.log('Fetching expenses from API for user:', user?.full_name);
+      console.log('Fetching expenses and recurrent expenses from API for user:', user?.full_name);
       
-      const result = await otpService.getExpenses(session.access_token);
+      // Fetch both regular transactions and recurrent expenses
+      const [expensesResult, recurrentResult] = await Promise.all([
+        otpService.getExpenses(session.access_token),
+        otpService.getRecurrentExpenses(session.access_token)
+      ]);
       
-      if (result.success && result.expenses) {
-        console.log('API expenses loaded:', result.expenses);
+      if (expensesResult.success && expensesResult.expenses) {
+        console.log('API expenses loaded:', expensesResult.expenses);
         
         // Transform API expenses to match our transaction format
-        const enrichedTransactions: ApiExpense[] = result.expenses.map((expense: any) => ({
+        const enrichedTransactions: ApiExpense[] = expensesResult.expenses.map((expense: any) => ({
           id: expense.id,
           user_id: user?.id || '',
           description: expense.description,
@@ -243,19 +249,55 @@ export const useTransactions = () => {
             type: expense.expenseable.brand || 'card'
           } : undefined,
           created_at: expense.created_at,
-          updated_at: expense.updated_at
-        })).sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
+          updated_at: expense.updated_at,
+          isRecurrent: false
+        }));
+
+        // Transform recurrent expenses to transaction format if available
+        let recurrentTransactions: any[] = [];
+        if (recurrentResult.success && recurrentResult.recurrentExpenses) {
+          console.log('API recurrent expenses loaded:', recurrentResult.recurrentExpenses);
+          
+          recurrentTransactions = recurrentResult.recurrentExpenses.map((expense: any) => ({
+            id: `recurrent_${expense.id}`, // Prefix to avoid ID conflicts
+            user_id: user?.id || '',
+            description: expense.description,
+            amount: -Number(expense.amount), // Negative for expenses
+            type: 'expense' as const,
+            transaction_date: expense.next_charge_date || expense.start_date,
+            category_id: expense.expense_category_id,
+            account_id: expense.expenseable?.id || 1,
+            categories: expense.category ? {
+              name: expense.category.name,
+              color: getCategoryColor(expense.category.name, expense.expense_category_id),
+              icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
+            } : undefined,
+            accounts: expense.expenseable ? {
+              name: expense.expenseable.name,
+              type: expense.expenseable.brand || 'card'
+            } : undefined,
+            created_at: expense.created_at,
+            updated_at: expense.updated_at,
+            isRecurrent: true,
+            recurrentId: expense.id
+          }));
+        }
+
+        // Combine both regular and recurrent transactions and sort by date
+        const allTransactions = [...enrichedTransactions, ...recurrentTransactions]
+          .sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
         
-        setTransactions(enrichedTransactions as Transaction[]);
+        console.log('Combined transactions (regular + recurrent):', allTransactions);
+        setTransactions(allTransactions as Transaction[]);
         
-        // Cache the transactions
-        localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(enrichedTransactions));
+        // Cache the combined transactions
+        localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(allTransactions));
         localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
         
-        // Calculate monthly expenses
+        // Calculate monthly expenses from combined transactions
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
-        const monthlyTotal = enrichedTransactions
+        const monthlyTotal = allTransactions
           .filter((t) => {
             const transactionDate = new Date(t.transaction_date);
             return transactionDate.getMonth() === currentMonth && 
@@ -267,7 +309,7 @@ export const useTransactions = () => {
         console.log('Monthly expenses calculated:', monthlyTotal);
         setMonthlyExpenses(monthlyTotal);
       } else {
-        console.error('Failed to fetch expenses:', result.error);
+        console.error('Failed to fetch expenses:', expensesResult.error);
         // Fallback to mock data
         console.log('Falling back to mock data');
         const userTransactions = MOCK_TRANSACTIONS.filter(t => t.user_id === user?.id);

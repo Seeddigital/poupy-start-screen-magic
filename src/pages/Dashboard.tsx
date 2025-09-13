@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Bell, LogOut, ChevronDown, ChevronUp } from 'lucide-react';
+import { Eye, EyeOff, Bell, LogOut, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTransactions } from '@/hooks/useTransactions';
 import CategoryChart from '../components/CategoryChart';
@@ -225,11 +225,17 @@ const Dashboard = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium text-sm sm:text-base truncate">
-                      {transaction.description}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-medium text-sm sm:text-base truncate">
+                        {transaction.description}
+                      </p>
+                      {transaction.isRecurrent && (
+                        <RotateCcw size={14} className="text-gray-400 flex-shrink-0" />
+                      )}
+                    </div>
                     <p className="text-gray-400 text-xs sm:text-sm truncate">
                       {transaction.categories?.name} • {transaction.accounts?.name}
+                      {transaction.isRecurrent && ' • Recorrente'}
                     </p>
                   </div>
                 </div>

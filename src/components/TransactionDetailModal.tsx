@@ -32,6 +32,8 @@ interface Transaction {
     name: string;
     type: string;
   };
+  isRecurrent?: boolean;
+  recurrentId?: number;
 }
 
 interface TransactionDetailModalProps {
@@ -155,7 +157,9 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete
             {/* Transaction Details */}
             <div className="text-center">
               <p className="text-sm" style={{ color: '#999999' }}>
-                {transaction.categories?.name} • {transaction.accounts?.name} • {formatDate(transaction.transaction_date)}
+                {transaction.categories?.name} • {transaction.accounts?.name} • 
+                {transaction.isRecurrent ? 'Próxima cobrança: ' : ''}{formatDate(transaction.transaction_date)}
+                {transaction.isRecurrent && ' • Despesa Recorrente'}
               </p>
             </div>
 
