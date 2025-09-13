@@ -329,13 +329,20 @@ export const useTransactions = () => {
         
         // Filter transactions excluding only future recurrent expenses
         const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
         const filtered = allTransactions.filter(transaction => {
           // Keep all regular transactions
           if (!transaction.isRecurrent) return true;
           
-          // For recurrent transactions, only exclude future ones
-          const transactionDate = new Date(transaction.transaction_date);
-          return transactionDate <= now;
+          // For recurrent transactions, check if they have occurred (use nextChargeDate or transaction_date)
+          const chargeDate = transaction.nextChargeDate 
+            ? new Date(transaction.nextChargeDate)
+            : new Date(transaction.transaction_date);
+          
+          // Compare dates only (no time) to avoid timezone issues  
+          const chargeDateOnly = new Date(chargeDate.getFullYear(), chargeDate.getMonth(), chargeDate.getDate());
+          return chargeDateOnly <= today;
         });
         
         console.log('Filtered transactions (excluding future recurrent):', filtered);
