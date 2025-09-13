@@ -206,7 +206,14 @@ const AddTransactionModal = ({
     setLoading(true);
     try {
       if (formData.type === 'recurrent') {
-        // Create recurrent expense
+        // Create recurrent expense - fix expenseable_type logic
+        const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
+        
+        if (!selectedAccount) {
+          toast.error('Conta selecionada não encontrada');
+          return;
+        }
+        
         const recurrentData: {
           description: string;
           amount: number;
@@ -219,15 +226,18 @@ const AddTransactionModal = ({
           amount: parseFloat(formData.amount),
           start_date: formData.start_date,
           expense_category_id: parseInt(formData.category_id),
-          expenseable_type: 'App\\Models\\Account',
+          expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
           expenseable_id: parseInt(formData.account_id)
         };
 
+        console.log('Creating recurrent expense with data:', recurrentData);
         const result = await otpService.createRecurrentExpense(session.access_token, recurrentData);
+        console.log('Recurrent expense result:', result);
         
         if (result.success) {
           toast.success('Despesa recorrente criada com sucesso!');
         } else {
+          console.error('Failed to create recurrent expense:', result.error);
           toast.error(result.error || 'Erro ao criar despesa recorrente');
           return;
         }
