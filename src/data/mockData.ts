@@ -38,6 +38,22 @@ export interface MockTransaction {
   created_at: string;
 }
 
+export interface MockRecurrentExpense {
+  id: number;
+  description: string;
+  amount: number;
+  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  start_date: string;
+  end_date?: string;
+  status: 'active' | 'paused';
+  next_charge_date: string;
+  expense_category_id: number;
+  expenseable_type: string;
+  expenseable_id: number;
+  user_id: string;
+  created_at: string;
+}
+
 // Default user for testing
 export const DEFAULT_USER: MockUser = {
   id: 'user-123',

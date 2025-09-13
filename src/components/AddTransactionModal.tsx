@@ -48,11 +48,16 @@ const AddTransactionModal = ({
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
-    type: 'expense' as 'income' | 'expense' | 'transfer',
+    type: 'expense' as 'income' | 'expense' | 'transfer' | 'recurrent',
     category_id: '',
     account_id: '',
     transaction_date: new Date().toISOString().split('T')[0],
-    notes: ''
+    notes: '',
+    // Recurrent expense fields
+    frequency: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: '',
+    status: 'active' as 'active' | 'paused'
   });
   useEffect(() => {
     if (isOpen && user) {
@@ -203,38 +208,69 @@ const AddTransactionModal = ({
     if (!user || !session?.access_token) return;
     setLoading(true);
     try {
-      const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
-      const amount = parseFloat(formData.amount);
-      const transactionData = {
-        description: formData.description,
-        amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
-        due_at: formData.transaction_date,
-        expense_category_id: parseInt(formData.category_id),
-        expenseable_type: selectedAccount?.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
-        expenseable_id: parseInt(formData.account_id)
-      };
-      console.log('Sending transaction data:', transactionData);
-      console.log('Transaction type:', formData.type);
-      const result = await otpService.createExpense(session.access_token, transactionData);
-      if (result.success) {
-        const messageType = formData.type === 'income' ? 'receita' : 'despesa';
-        toast.success(`${messageType.charAt(0).toUpperCase() + messageType.slice(1)} criada com sucesso!`);
-        onTransactionAdded();
-        onClose();
+      if (formData.type === 'recurrent') {
+        // Create recurrent expense
+        const recurrentData = {
+          description: formData.description,
+          amount: parseFloat(formData.amount),
+          frequency: formData.frequency,
+          start_date: formData.start_date,
+          end_date: formData.end_date || undefined,
+          status: formData.status,
+          expense_category_id: parseInt(formData.category_id),
+          expenseable_type: 'App\\Models\\Account',
+          expenseable_id: parseInt(formData.account_id)
+        };
 
-        // Reset form
-        setFormData({
-          description: '',
-          amount: '',
-          type: 'expense',
-          category_id: '',
-          account_id: '',
-          transaction_date: new Date().toISOString().split('T')[0],
-          notes: ''
-        });
+        const result = await otpService.createRecurrentExpense(session.access_token, recurrentData);
+        
+        if (result.success) {
+          toast.success('Despesa recorrente criada com sucesso!');
+        } else {
+          toast.error(result.error || 'Erro ao criar despesa recorrente');
+          return;
+        }
       } else {
-        toast.error(result.error || 'Erro ao criar transação');
+        // Create regular transaction
+        const selectedAccount = accounts.find(acc => acc.id === parseInt(formData.account_id));
+        const amount = parseFloat(formData.amount);
+        const transactionData = {
+          description: formData.description,
+          amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
+          due_at: formData.transaction_date,
+          expense_category_id: parseInt(formData.category_id),
+          expenseable_type: selectedAccount?.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
+          expenseable_id: parseInt(formData.account_id)
+        };
+        console.log('Sending transaction data:', transactionData);
+        console.log('Transaction type:', formData.type);
+        const result = await otpService.createExpense(session.access_token, transactionData);
+        if (result.success) {
+          const messageType = formData.type === 'income' ? 'receita' : 'despesa';
+          toast.success(`${messageType.charAt(0).toUpperCase() + messageType.slice(1)} criada com sucesso!`);
+        } else {
+          toast.error(result.error || 'Erro ao criar transação');
+          return;
+        }
       }
+
+      onTransactionAdded();
+      onClose();
+
+      // Reset form
+      setFormData({
+        description: '',
+        amount: '',
+        type: 'expense',
+        category_id: '',
+        account_id: '',
+        transaction_date: new Date().toISOString().split('T')[0],
+        notes: '',
+        frequency: 'monthly',
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: '',
+        status: 'active'
+      });
     } catch (error) {
       console.error('Error creating transaction:', error);
       toast.error('Erro ao criar transação');
@@ -286,11 +322,12 @@ const AddTransactionModal = ({
             </Label>
             <select id="type" value={formData.type} onChange={e => setFormData({
             ...formData,
-            type: e.target.value as 'income' | 'expense' | 'transfer'
+            type: e.target.value as 'income' | 'expense' | 'transfer' | 'recurrent'
           })} className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none" required>
               <option value="expense">Despesa</option>
               <option value="income">Receita</option>
               <option value="transfer">Transferência</option>
+              <option value="recurrent">Despesas Recorrentes</option>
             </select>
           </div>
 
@@ -336,6 +373,84 @@ const AddTransactionModal = ({
             transaction_date: e.target.value
           })} className="py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1" required />
           </div>
+
+          {/* Recurrent Fields - Only show when type is 'recurrent' */}
+          {formData.type === 'recurrent' && (
+            <>
+              <div>
+                <Label htmlFor="frequency" className="text-[#666666] text-xs font-medium mb-1 block">
+                  Frequência
+                </Label>
+                <select 
+                  id="frequency" 
+                  value={formData.frequency} 
+                  onChange={e => setFormData({
+                    ...formData,
+                    frequency: e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly'
+                  })} 
+                  className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none" 
+                  required
+                >
+                  <option value="daily">Diária</option>
+                  <option value="weekly">Semanal</option>
+                  <option value="monthly">Mensal</option>
+                  <option value="yearly">Anual</option>
+                </select>
+              </div>
+
+              <div>
+                <Label htmlFor="start_date" className="text-[#666666] text-xs font-medium mb-1 block">
+                  Data de início
+                </Label>
+                <Input 
+                  id="start_date" 
+                  type="date" 
+                  value={formData.start_date} 
+                  onChange={e => setFormData({
+                    ...formData,
+                    start_date: e.target.value
+                  })} 
+                  className="py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1" 
+                  required 
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="end_date" className="text-[#666666] text-xs font-medium mb-1 block">
+                  Data de fim (opcional)
+                </Label>
+                <Input 
+                  id="end_date" 
+                  type="date" 
+                  value={formData.end_date} 
+                  onChange={e => setFormData({
+                    ...formData,
+                    end_date: e.target.value
+                  })} 
+                  className="py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1" 
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="status" className="text-[#666666] text-xs font-medium mb-1 block">
+                  Status
+                </Label>
+                <select 
+                  id="status" 
+                  value={formData.status} 
+                  onChange={e => setFormData({
+                    ...formData,
+                    status: e.target.value as 'active' | 'paused'
+                  })} 
+                  className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none" 
+                  required
+                >
+                  <option value="active">Ativa</option>
+                  <option value="paused">Pausada</option>
+                </select>
+              </div>
+            </>
+          )}
 
           {/* Notes */}
           

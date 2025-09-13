@@ -291,6 +291,158 @@ class OTPService {
       return { success: false, error: 'Erro de conexão' };
     }
   }
+
+  // Recurrent Expenses Methods
+  async getRecurrentExpenses(token: string): Promise<OTPResponse & { recurrentExpenses?: any[] }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/recurrent-expenses`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, recurrentExpenses: data.data };
+      } else {
+        return { success: false, error: 'Erro ao buscar despesas recorrentes' };
+      }
+    } catch (error) {
+      console.error('Error fetching recurrent expenses:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
+
+  async createRecurrentExpense(token: string, recurrentExpenseData: {
+    description: string;
+    amount: number;
+    frequency: string;
+    start_date: string;
+    end_date?: string;
+    status: string;
+    expense_category_id: number;
+    expenseable_type: string;
+    expenseable_id: number;
+  }): Promise<OTPResponse & { recurrentExpense?: any }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/recurrent-expenses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(recurrentExpenseData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, recurrentExpense: data };
+      } else {
+        const errorData = await response.json();
+        return { success: false, error: errorData.message || 'Erro ao criar despesa recorrente' };
+      }
+    } catch (error) {
+      console.error('Error creating recurrent expense:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
+
+  async getRecurrentExpense(token: string, id: number): Promise<OTPResponse & { recurrentExpense?: any }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/recurrent-expenses/${id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return { success: true, recurrentExpense: data };
+      } else {
+        return { success: false, error: 'Erro ao buscar despesa recorrente' };
+      }
+    } catch (error) {
+      console.error('Error fetching recurrent expense:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
+
+  async updateRecurrentExpense(token: string, id: number, recurrentExpenseData: {
+    description: string;
+    amount: number;
+    frequency: string;
+    start_date: string;
+    end_date?: string;
+    status: string;
+    expense_category_id: number;
+    expenseable_type: string;
+    expenseable_id: number;
+  }): Promise<OTPResponse & { recurrentExpense?: any }> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/recurrent-expenses/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(recurrentExpenseData),
+      });
+
+      if (response.ok) {
+        const text = await response.text();
+        let data = null;
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            data = { message: 'Despesa recorrente atualizada com sucesso' };
+          }
+        }
+        return { success: true, recurrentExpense: data };
+      } else {
+        let errorMessage = 'Erro ao atualizar despesa recorrente';
+        try {
+          const errorText = await response.text();
+          if (errorText) {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || errorMessage;
+          }
+        } catch (e) {
+          errorMessage = `Erro ${response.status}: ${response.statusText}`;
+        }
+        return { success: false, error: errorMessage };
+      }
+    } catch (error) {
+      console.error('Error updating recurrent expense:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
+
+  async deleteRecurrentExpense(token: string, id: number): Promise<OTPResponse> {
+    try {
+      const response = await fetch(`${this.apiBaseUrl}/recurrent-expenses/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        return { success: true };
+      } else {
+        const errorData = await response.json();
+        return { success: false, error: errorData.message || 'Erro ao deletar despesa recorrente' };
+      }
+    } catch (error) {
+      console.error('Error deleting recurrent expense:', error);
+      return { success: false, error: 'Erro de conexão' };
+    }
+  }
 }
 
 export const otpService = new OTPService();

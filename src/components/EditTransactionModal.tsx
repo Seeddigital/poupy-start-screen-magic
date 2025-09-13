@@ -50,11 +50,16 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
-    type: 'expense' as 'income' | 'expense' | 'transfer',
+    type: 'expense' as 'income' | 'expense' | 'transfer' | 'recurrent',
     category_id: '',
     account_id: '',
     transaction_date: '',
-    notes: ''
+    notes: '',
+    // Recurrent expense fields
+    frequency: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: '',
+    status: 'active' as 'active' | 'paused'
   });
 
   useEffect(() => {
@@ -84,7 +89,11 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
           category_id: expense.expense_category_id?.toString() || '',
           account_id: expense.expenseable_id?.toString() || '',
           transaction_date: transactionDate,
-          notes: ''
+          notes: '',
+          frequency: 'monthly',
+          start_date: new Date().toISOString().split('T')[0],
+          end_date: '',
+          status: 'active'
         });
       }
     } catch (error) {
@@ -304,7 +313,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
             </label>
             <select
               value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' })}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value as 'income' | 'expense' | 'transfer' | 'recurrent' })}
               className="w-full bg-white text-black rounded-md px-3 py-2"
               style={{ border: '1px solid #E0E0E0' }}
               required
@@ -312,6 +321,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
               <option value="expense">Despesa</option>
               <option value="income">Receita</option>
               <option value="transfer">Transferência</option>
+              <option value="recurrent">Despesas Recorrentes</option>
             </select>
           </div>
 
@@ -371,6 +381,72 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
               required
             />
           </div>
+
+          {/* Recurrent Fields - Only show when type is 'recurrent' */}
+          {formData.type === 'recurrent' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
+                  Frequência
+                </label>
+                <select
+                  value={formData.frequency}
+                  onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly' })}
+                  className="w-full bg-white text-black rounded-md px-3 py-2"
+                  style={{ border: '1px solid #E0E0E0' }}
+                  required
+                >
+                  <option value="daily">Diária</option>
+                  <option value="weekly">Semanal</option>
+                  <option value="monthly">Mensal</option>
+                  <option value="yearly">Anual</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
+                  Data de início
+                </label>
+                <Input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                  className="bg-white text-black rounded-md px-3 py-2"
+                  style={{ border: '1px solid #E0E0E0' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
+                  Data de fim (opcional)
+                </label>
+                <Input
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                  className="bg-white text-black rounded-md px-3 py-2"
+                  style={{ border: '1px solid #E0E0E0' }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
+                  Status
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'paused' })}
+                  className="w-full bg-white text-black rounded-md px-3 py-2"
+                  style={{ border: '1px solid #E0E0E0' }}
+                  required
+                >
+                  <option value="active">Ativa</option>
+                  <option value="paused">Pausada</option>
+                </select>
+              </div>
+            </>
+          )}
 
           {/* Action Buttons */}
           <div className="pt-4 flex gap-3">
