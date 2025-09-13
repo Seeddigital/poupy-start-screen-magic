@@ -73,7 +73,11 @@ const Dashboard = () => {
   };
 
   const handleEditTransaction = (transaction) => {
-    setSelectedTransactionId(Number(transaction.id));
+    // For recurrent expenses, use recurrentId instead of parsing the string ID
+    const transactionId = transaction.isRecurrent ? transaction.recurrentId : Number(transaction.id);
+    console.log('Edit transaction:', { isRecurrent: transaction.isRecurrent, id: transaction.id, recurrentId: transaction.recurrentId, finalId: transactionId });
+    
+    setSelectedTransactionId(transactionId);
     setSelectedTransaction(transaction);
     setIsTransactionModalOpen(false);
     setIsEditModalOpen(true);
@@ -282,6 +286,7 @@ const Dashboard = () => {
           onClose={handleEditModalClose}
           onTransactionUpdated={handleTransactionUpdated}
           transactionId={selectedTransactionId}
+          isRecurrent={selectedTransaction?.isRecurrent || false}
         />
       )}
     </div>
