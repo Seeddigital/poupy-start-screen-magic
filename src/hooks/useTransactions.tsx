@@ -207,11 +207,7 @@ export const useTransactions = () => {
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchCategories();
-    }
-  }, [user, transactions]);
+  // Categories will be updated automatically when transactions are processed
 
   const fetchTransactions = async () => {
     try {
@@ -366,6 +362,9 @@ export const useTransactions = () => {
         console.log('Monthly expenses calculated:', monthlyTotal);
         setMonthlyExpenses(monthlyTotal);
         
+        // Update categories with the same filtered data immediately
+        await updateCategoriesWithFilteredData(filtered as Transaction[]);
+        
         // Filter transactions for current month only (already occurred)
         const filterMonth = new Date().getMonth();
         const filterYear = new Date().getFullYear();
@@ -491,27 +490,22 @@ export const useTransactions = () => {
     }
   };
 
-  const fetchCategories = async () => {
+  const updateCategoriesWithFilteredData = async (filteredData: Transaction[]) => {
     try {
       if (!session?.access_token) {
         console.log('No access token available for categories');
         return;
       }
 
-      console.log('Fetching categories from API for user:', user?.full_name);
-      console.log('Current transactions for calculation:', transactions);
+      console.log('Updating categories with filtered data:', filteredData);
       
       const result = await otpService.getCategories(session.access_token);
       
       if (result.success && result.categories) {
         console.log('API categories loaded:', result.categories);
         
-        // Calculate category totals from filtered transactions (excluding future recurrent)
-        
-        // Use filteredTransactions (same data source as display list)
-        const transactionsForCategories = filteredTransactions;
-        
-        const categoryTotals = transactionsForCategories
+        // Calculate category totals from the provided filtered data
+        const categoryTotals = filteredData
           .filter((t: any) => Number(t.amount) < 0) // Only count negative amounts (expenses)
           .reduce((acc: Record<number, number>, t: any) => {
             // Match by category_id from transaction with id from categories
@@ -548,6 +542,34 @@ export const useTransactions = () => {
         
         // Cache the categories
         localStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify(categoriesWithAmounts));
+        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+      } else {
+        console.error('Failed to fetch categories:', result.error);
+      }
+    } catch (error) {
+      console.error('Error updating categories:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      if (!session?.access_token) {
+        console.log('No access token available for categories');
+        return;
+      }
+
+      console.log('Fetching categories from API for user:', user?.full_name);
+      console.log('Current transactions for calculation:', transactions);
+      
+      const result = await otpService.getCategories(session.access_token);
+      
+      if (result.success && result.categories) {
+        console.log('API categories loaded:', result.categories);
+        
+        // Calculate category totals from filtered transactions (excluding future recurrent)
+        
+        // This fallback method now uses current filteredTransactions state
+        await updateCategoriesWithFilteredData(filteredTransactions);
       } else {
         console.error('Failed to fetch categories:', result.error);
         // Fallback to mock categories
