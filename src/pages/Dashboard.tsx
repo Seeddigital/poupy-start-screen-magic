@@ -20,8 +20,7 @@ const Dashboard = () => {
     loading, 
     refetch, 
     refreshing, 
-    pullToRefresh,
-    forceRefresh
+    pullToRefresh
   } = useTransactions();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
@@ -99,8 +98,7 @@ const Dashboard = () => {
   };
 
   const handleTransactionUpdated = () => {
-    // Use forceRefresh for better synchronization after conversions
-    forceRefresh();
+    refetch();
     setIsEditModalOpen(false);
     setSelectedTransactionId(null);
   };

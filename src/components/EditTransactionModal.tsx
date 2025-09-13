@@ -259,10 +259,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
         const conversionType = formData.type === 'recurrent' ? 'recorrente' : 'regular';
         toast.success(`Despesa convertida para ${conversionType} com sucesso!`);
         
-        // Add delay to ensure API synchronization before refetch
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Force complete refresh by clearing cache
+        // Trigger immediate update
         onTransactionUpdated();
         onClose();
         

@@ -508,16 +508,8 @@ export const useTransactions = () => {
         
         // Calculate category totals from filtered transactions (excluding future recurrent)
         
-        // Filter transactions to exclude future recurrent expenses
-        const now = new Date();
-        const transactionsForCategories = transactions.filter(transaction => {
-          // Keep all regular transactions
-          if (!transaction.isRecurrent) return true;
-          
-          // For recurrent transactions, only exclude future ones
-          const transactionDate = new Date(transaction.transaction_date);
-          return transactionDate <= now;
-        });
+        // Use filteredTransactions (same data source as display list)
+        const transactionsForCategories = filteredTransactions;
         
         const categoryTotals = transactionsForCategories
           .filter((t: any) => Number(t.amount) < 0) // Only count negative amounts (expenses)
@@ -630,18 +622,6 @@ export const useTransactions = () => {
       if (user && session && !authLoading) {
         await fetchDataFromAPI();
       }
-    },
-    forceRefresh: async () => {
-      console.log('🔄 Force refresh - complete cache clear and page reload');
-      // Clear ALL cached data
-      localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
-      localStorage.removeItem(CATEGORIES_CACHE_KEY);
-      localStorage.removeItem(CACHE_TIMESTAMP_KEY);
-      
-      // Add a small delay then reload the page to ensure fresh state
-      setTimeout(() => {
-        window.location.reload();
-      }, 200);
     }
   };
 };
