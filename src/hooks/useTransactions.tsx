@@ -157,6 +157,27 @@ export const useTransactions = () => {
         setTransactions(transactionsData);
         setCategories(categoriesData);
         
+        // Apply the same filtering logic when loading from cache
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        const filtered = transactionsData.filter((transaction: any) => {
+          // Keep all regular transactions
+          if (!transaction.isRecurrent) return true;
+          
+          // For recurrent transactions, check if they have occurred
+          const chargeDate = transaction.nextChargeDate 
+            ? new Date(transaction.nextChargeDate)
+            : new Date(transaction.transaction_date);
+          
+          // Compare dates only (no time) to avoid timezone issues  
+          const chargeDateOnly = new Date(chargeDate.getFullYear(), chargeDate.getMonth(), chargeDate.getDate());
+          return chargeDateOnly <= today;
+        });
+        
+        console.log('Filtered transactions from cache:', filtered);
+        setFilteredTransactions(filtered);
+        
         // Calculate monthly expenses from cached data
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
