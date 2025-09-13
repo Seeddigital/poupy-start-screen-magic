@@ -348,6 +348,22 @@ export const useTransactions = () => {
         console.log('Filtered transactions (excluding future recurrent):', filtered);
         setFilteredTransactions(filtered as Transaction[]);
         
+        // Calculate monthly expenses from filtered transactions
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        const monthlyTotal = filtered
+          .filter((t) => {
+            const transactionDate = new Date(t.transaction_date);
+            return transactionDate.getMonth() === currentMonth && 
+                   transactionDate.getFullYear() === currentYear &&
+                   t.type === 'expense' && Number(t.amount) < 0;
+          })
+          .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+        
+        console.log('Monthly expenses calculated:', monthlyTotal);
+        setMonthlyExpenses(monthlyTotal);
+        
         // Filter transactions for current month only (already occurred)
         const filterMonth = new Date().getMonth();
         const filterYear = new Date().getFullYear();
@@ -433,7 +449,21 @@ export const useTransactions = () => {
         }).sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
         
         setTransactions(enrichedTransactions);
-        setMonthlyExpenses(0);
+        
+        // Calculate monthly expenses for fallback scenario
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        const monthlyTotal = userTransactions
+          .filter((t) => {
+            const transactionDate = new Date(t.transaction_date);
+            return transactionDate.getMonth() === currentMonth && 
+                   transactionDate.getFullYear() === currentYear &&
+                   t.type === 'expense' && Number(t.amount) < 0;
+          })
+          .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+        
+        setMonthlyExpenses(monthlyTotal);
       }
     } catch (error) {
       console.error('Error fetching transactions:', error);
@@ -441,7 +471,21 @@ export const useTransactions = () => {
       console.log('Falling back to mock data due to error');
       const userTransactions = MOCK_TRANSACTIONS.filter(t => t.user_id === user?.id);
       setTransactions(userTransactions);
-      setMonthlyExpenses(0);
+      
+      // Calculate monthly expenses for mock data fallback
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      
+      const monthlyTotal = userTransactions
+        .filter((t) => {
+          const transactionDate = new Date(t.transaction_date);
+          return transactionDate.getMonth() === currentMonth && 
+                 transactionDate.getFullYear() === currentYear &&
+                 t.type === 'expense' && Number(t.amount) < 0;
+        })
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+      
+      setMonthlyExpenses(monthlyTotal);
     }
   };
 
