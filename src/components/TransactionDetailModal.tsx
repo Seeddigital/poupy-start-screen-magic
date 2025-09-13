@@ -86,12 +86,6 @@ const TransactionDetailModal = ({ transaction, isOpen, onClose, onEdit, onDelete
       return;
     }
     
-    // Show confirmation with appropriate message
-    const confirmMessage = isRecurrent 
-      ? 'Tem certeza que deseja excluir esta despesa recorrente?' 
-      : 'Tem certeza que deseja excluir este registro?';
-    const confirmed = window.confirm(confirmMessage);
-    if (!confirmed) return;
 
     try {
       console.log(`Deleting ${isRecurrent ? 'recurrent' : 'regular'} expense with ID:`, deleteId);

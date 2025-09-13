@@ -184,22 +184,6 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
     const originalType = isRecurrent ? 'recurrent' : (Number(transaction.amount) > 0 ? 'income' : 'expense');
     const isTypeChanging = formData.type !== originalType;
     
-    // Confirm type change
-    if (isTypeChanging) {
-      const typeNames = {
-        'expense': 'Despesa',
-        'income': 'Receita', 
-        'transfer': 'Transferência',
-        'recurrent': 'Despesas Recorrentes'
-      };
-      
-      const confirmMessage = `Você está alterando o tipo de "${typeNames[originalType as keyof typeof typeNames]}" para "${typeNames[formData.type as keyof typeof typeNames]}". Isso criará uma nova transação e excluirá a atual. Continuar?`;
-      
-      if (!confirm(confirmMessage)) {
-        return;
-      }
-    }
-    
     setLoading(true);
     
     try {
@@ -303,7 +287,6 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
     if (!session?.access_token || !transaction) return;
     
     const transactionType = isRecurrent ? 'despesa recorrente' : 'transação';
-    if (!confirm(`Tem certeza que deseja deletar esta ${transactionType}?`)) return;
     
     setDeleting(true);
     
