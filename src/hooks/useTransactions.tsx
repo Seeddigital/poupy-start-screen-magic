@@ -107,6 +107,7 @@ const getCategoryColor = (categoryName: string, categoryId: number): string => {
 export const useTransactions = () => {
   const { user, session } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [currentMonthTransactions, setCurrentMonthTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
@@ -258,27 +259,35 @@ export const useTransactions = () => {
         if (recurrentResult.success && recurrentResult.recurrentExpenses) {
           console.log('API recurrent expenses loaded:', recurrentResult.recurrentExpenses);
           
-          // Helper function to calculate next charge date based on create_on_dom
-          const calculateNextChargeDate = (createOnDom: number): string => {
+          // Helper function to calculate charge date for recurrent expenses
+          const calculateChargeDate = (createOnDom: number, forCurrentMonth: boolean = false): string => {
             const now = new Date();
             const currentDay = now.getDate();
             const currentMonth = now.getMonth();
             const currentYear = now.getFullYear();
             
-            // If the day hasn't passed this month, use this month
-            if (createOnDom >= currentDay) {
-              const nextDate = new Date(currentYear, currentMonth, createOnDom);
-              return nextDate.toISOString();
+            if (forCurrentMonth) {
+              // For current month filter: only show if the day has already passed
+              if (createOnDom <= currentDay) {
+                const chargeDate = new Date(currentYear, currentMonth, createOnDom);
+                return chargeDate.toISOString();
+              }
+              return null; // Don't show future charges in current month
             } else {
-              // Day has passed, use next month
-              const nextDate = new Date(currentYear, currentMonth + 1, createOnDom);
-              return nextDate.toISOString();
+              // For all transactions: calculate next charge date
+              if (createOnDom >= currentDay) {
+                const nextDate = new Date(currentYear, currentMonth, createOnDom);
+                return nextDate.toISOString();
+              } else {
+                const nextDate = new Date(currentYear, currentMonth + 1, createOnDom);
+                return nextDate.toISOString();
+              }
             }
           };
           
           recurrentTransactions = recurrentResult.recurrentExpenses.map((expense: any) => {
             // Calculate next charge date from create_on_dom
-            const nextChargeDate = calculateNextChargeDate(expense.create_on_dom);
+            const nextChargeDate = calculateChargeDate(expense.create_on_dom, false);
             
             console.log(`Recurrent expense ${expense.description}: create_on_dom=${expense.create_on_dom}, next_charge=${nextChargeDate}`);
             
@@ -317,24 +326,66 @@ export const useTransactions = () => {
         console.log('Combined transactions (regular + recurrent):', allTransactions);
         setTransactions(allTransactions as Transaction[]);
         
+        // Filter transactions for current month only (already occurred)
+        const filterMonth = new Date().getMonth();
+        const filterYear = new Date().getFullYear();
+        const currentDay = new Date().getDate();
+        
+        const currentMonthOnly = [];
+        
+        // Add regular transactions from current month
+        const regularCurrentMonth = enrichedTransactions.filter((t) => {
+          const transactionDate = new Date(t.transaction_date);
+          return transactionDate.getMonth() === filterMonth && 
+                 transactionDate.getFullYear() === filterYear;
+        });
+        currentMonthOnly.push(...regularCurrentMonth);
+        
+        // Add recurrent expenses that have already been charged in current month
+        if (recurrentResult.success && recurrentResult.recurrentExpenses) {
+          const currentMonthRecurrent = recurrentResult.recurrentExpenses
+            .filter((expense: any) => expense.create_on_dom <= currentDay)
+            .map((expense: any) => {
+              const chargeDate = new Date(filterYear, filterMonth, expense.create_on_dom).toISOString();
+              
+              return {
+                id: `recurrent_${expense.id}`,
+                user_id: user?.id || '',
+                description: expense.description,
+                amount: expense.amount < 0 ? expense.amount : -Math.abs(expense.amount),
+                type: 'expense' as const,
+                transaction_date: chargeDate,
+                category_id: expense.expense_category_id,
+                account_id: expense.expenseable?.id || 1,
+                categories: expense.category ? {
+                  name: expense.category.name,
+                  color: getCategoryColor(expense.category.name, expense.expense_category_id),
+                  icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
+                } : undefined,
+                accounts: expense.expenseable ? {
+                  name: expense.expenseable.name,
+                  type: expense.expenseable.brand || 'card'
+                } : undefined,
+                created_at: expense.created_at,
+                updated_at: expense.updated_at,
+                isRecurrent: true,
+                recurrentId: expense.id
+              };
+            });
+          currentMonthOnly.push(...currentMonthRecurrent);
+        }
+        
+        // Sort current month transactions by date
+        const sortedCurrentMonth = currentMonthOnly.sort((a, b) => 
+          new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime()
+        );
+        
+        console.log('Current month transactions (already occurred):', sortedCurrentMonth);
+        setCurrentMonthTransactions(sortedCurrentMonth as Transaction[]);
+        
         // Cache the combined transactions
         localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(allTransactions));
         localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-        
-        // Calculate monthly expenses from combined transactions
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        const monthlyTotal = allTransactions
-          .filter((t) => {
-            const transactionDate = new Date(t.transaction_date);
-            return transactionDate.getMonth() === currentMonth && 
-                   transactionDate.getFullYear() === currentYear &&
-                   Number(t.amount) < 0; // Only count negative amounts (expenses)
-          })
-          .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
-        
-        console.log('Monthly expenses calculated:', monthlyTotal);
-        setMonthlyExpenses(monthlyTotal);
       } else {
         console.error('Failed to fetch expenses:', expensesResult.error);
         // Fallback to mock data
@@ -390,6 +441,8 @@ export const useTransactions = () => {
         // Calculate category totals from all transactions (not just current month)
         
         // Use the transactions that are already loaded
+        const categoriesCurrentMonth = new Date().getMonth();
+        const categoriesCurrentYear = new Date().getFullYear();
         const categoryTotals = transactions
           .filter(t => Number(t.amount) < 0) // Only count negative amounts (expenses)
           .reduce((acc, t) => {
@@ -483,6 +536,7 @@ export const useTransactions = () => {
 
   return {
     transactions,
+    currentMonthTransactions,
     categories,
     monthlyExpenses,
     loading,
