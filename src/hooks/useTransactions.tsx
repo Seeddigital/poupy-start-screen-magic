@@ -268,7 +268,7 @@ export const useTransactions = () => {
             const currentYear = now.getFullYear();
             
             if (forCurrentMonth) {
-              // For current month filter: only show if the day has already passed
+              // For current month filter: only show if the day has already passed or is today
               if (createOnDom <= currentDay) {
                 const chargeDate = new Date(currentYear, currentMonth, createOnDom);
                 return chargeDate.toISOString();
@@ -276,6 +276,7 @@ export const useTransactions = () => {
               return null; // Don't show future charges in current month
             } else {
               // For all transactions: calculate next charge date
+              // Include today as a valid charge date
               if (createOnDom >= currentDay) {
                 const nextDate = new Date(currentYear, currentMonth, createOnDom);
                 return nextDate.toISOString();
@@ -313,7 +314,8 @@ export const useTransactions = () => {
               created_at: expense.created_at,
               updated_at: expense.updated_at,
               isRecurrent: true,
-              recurrentId: expense.id
+              recurrentId: expense.id,
+              nextChargeDate: nextChargeDate
             };
           });
           
@@ -379,7 +381,7 @@ export const useTransactions = () => {
         });
         currentMonthOnly.push(...regularCurrentMonth);
         
-        // Add recurrent expenses that have already been charged in current month
+        // Add recurrent expenses that have already been charged in current month (including today)
         if (recurrentResult.success && recurrentResult.recurrentExpenses) {
           const currentMonthRecurrent = recurrentResult.recurrentExpenses
             .filter((expense: any) => expense.create_on_dom <= currentDay)
