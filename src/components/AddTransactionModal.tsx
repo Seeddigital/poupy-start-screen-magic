@@ -210,18 +210,14 @@ const AddTransactionModal = ({
         const recurrentData: {
           description: string;
           amount: number;
-          frequency: 'monthly';
           start_date: string;
-          status: 'active';
           expense_category_id: number;
           expenseable_type: string;
           expenseable_id: number;
         } = {
           description: formData.description,
           amount: parseFloat(formData.amount),
-          frequency: 'monthly',
           start_date: formData.start_date,
-          status: 'active',
           expense_category_id: parseInt(formData.category_id),
           expenseable_type: 'App\\Models\\Account',
           expenseable_id: parseInt(formData.account_id)

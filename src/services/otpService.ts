@@ -318,33 +318,54 @@ class OTPService {
   async createRecurrentExpense(token: string, recurrentExpenseData: {
     description: string;
     amount: number;
-    frequency: 'monthly'; // Only monthly supported
     start_date: string;
-    status: 'active'; // Always active
     expense_category_id: number;
     expenseable_type: string;
     expenseable_id: number;
   }): Promise<OTPResponse & { recurrentExpense?: any }> {
     try {
+      // Get user info to get customer_id
+      const userInfo = await this.getUserInfo(token);
+      if (!userInfo.success || !userInfo.user) {
+        return { success: false, error: 'Failed to get user info' };
+      }
+
+      // Extract day from start_date for create_on_dom
+      const startDate = new Date(recurrentExpenseData.start_date);
+      const createOnDom = startDate.getDate();
+
+      const apiData = {
+        customer_id: userInfo.user.id,
+        description: recurrentExpenseData.description,
+        amount: recurrentExpenseData.amount,
+        expenseable_id: recurrentExpenseData.expenseable_id,
+        expenseable_type: recurrentExpenseData.expenseable_type,
+        create_on_dom: createOnDom,
+        expense_category_id: recurrentExpenseData.expense_category_id,
+      };
+
+      console.log('Creating recurrent expense with data:', apiData);
       const response = await fetch(`${this.apiBaseUrl}/recurrent-expenses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(recurrentExpenseData),
+        body: JSON.stringify(apiData),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        return { success: true, recurrentExpense: data };
-      } else {
-        const errorData = await response.json();
-        return { success: false, error: errorData.message || 'Erro ao criar despesa recorrente' };
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Error creating recurrent expense:', data);
+        return { success: false, error: data.message || 'Failed to create recurrent expense' };
       }
+
+      console.log('Recurrent expense created successfully:', data);
+      return { success: true, recurrentExpense: data };
     } catch (error) {
       console.error('Error creating recurrent expense:', error);
-      return { success: false, error: 'Erro de conexão' };
+      return { success: false, error: 'Failed to create recurrent expense' };
     }
   }
 
@@ -373,21 +394,40 @@ class OTPService {
   async updateRecurrentExpense(token: string, id: number, recurrentExpenseData: {
     description: string;
     amount: number;
-    frequency: 'monthly'; // Only monthly supported
     start_date: string;
-    status: 'active'; // Always active
     expense_category_id: number;
     expenseable_type: string;
     expenseable_id: number;
   }): Promise<OTPResponse & { recurrentExpense?: any }> {
     try {
+      // Get user info to get customer_id
+      const userInfo = await this.getUserInfo(token);
+      if (!userInfo.success || !userInfo.user) {
+        return { success: false, error: 'Failed to get user info' };
+      }
+
+      // Extract day from start_date for create_on_dom
+      const startDate = new Date(recurrentExpenseData.start_date);
+      const createOnDom = startDate.getDate();
+
+      const apiData = {
+        customer_id: userInfo.user.id,
+        description: recurrentExpenseData.description,
+        amount: recurrentExpenseData.amount,
+        expenseable_id: recurrentExpenseData.expenseable_id,
+        expenseable_type: recurrentExpenseData.expenseable_type,
+        create_on_dom: createOnDom,
+        expense_category_id: recurrentExpenseData.expense_category_id,
+      };
+
+      console.log('Updating recurrent expense with data:', apiData);
       const response = await fetch(`${this.apiBaseUrl}/recurrent-expenses/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(recurrentExpenseData),
+        body: JSON.stringify(apiData),
       });
 
       if (response.ok) {

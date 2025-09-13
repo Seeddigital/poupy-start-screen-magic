@@ -7,9 +7,7 @@ export interface RecurrentExpense {
   id: number;
   description: string;
   amount: number;
-  frequency: 'monthly'; // Only monthly frequency supported
   start_date: string;
-  status: 'active'; // Always active
   next_charge_date: string;
   expense_category_id: number;
   expenseable_type: string;
@@ -82,10 +80,7 @@ export const useRecurrentExpenses = () => {
           id: expense.id,
           description: expense.description,
           amount: expense.amount,
-          frequency: expense.frequency,
           start_date: expense.start_date,
-          end_date: expense.end_date,
-          status: expense.status,
           next_charge_date: expense.next_charge_date,
           expense_category_id: expense.expense_category_id,
           expenseable_type: expense.expenseable_type,
