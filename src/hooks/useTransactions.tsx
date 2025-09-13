@@ -159,18 +159,24 @@ export const useTransactions = () => {
         
         // Apply the same filtering logic when loading from cache
         const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const currentDay = now.getDate();
         
         const filtered = transactionsData.filter((transaction: any) => {
           // Keep all regular transactions
           if (!transaction.isRecurrent) return true;
           
-          // For recurrent transactions, check if they have occurred
+          // For recurrent transactions, check if they should have been charged
+          // Use createOnDom if available, otherwise fall back to date comparison
+          if (transaction.createOnDom) {
+            return transaction.createOnDom <= currentDay;
+          }
+          
+          // Fallback for older cached data without createOnDom
           const chargeDate = transaction.nextChargeDate 
             ? new Date(transaction.nextChargeDate)
             : new Date(transaction.transaction_date);
           
-          // Compare dates only (no time) to avoid timezone issues  
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
           const chargeDateOnly = new Date(chargeDate.getFullYear(), chargeDate.getMonth(), chargeDate.getDate());
           return chargeDateOnly <= today;
         });
@@ -277,144 +283,30 @@ export const useTransactions = () => {
         if (recurrentResult.success && recurrentResult.recurrentExpenses) {
           console.log('API recurrent expenses loaded:', recurrentResult.recurrentExpenses);
           
-          // Helper function to calculate charge date for recurrent expenses
-          const calculateChargeDate = (createOnDom: number, forCurrentMonth: boolean = false): string => {
-            const now = new Date();
-            const currentDay = now.getDate();
-            const currentMonth = now.getMonth();
-            const currentYear = now.getFullYear();
-            
-            if (forCurrentMonth) {
-              // For current month filter: only show if the day has already passed or is today
-              if (createOnDom <= currentDay) {
-                const chargeDate = new Date(currentYear, currentMonth, createOnDom);
-                return chargeDate.toISOString();
-              }
-              return null; // Don't show future charges in current month
-            } else {
-              // For all transactions: calculate next charge date
-              // Include today as a valid charge date
-              if (createOnDom >= currentDay) {
-                const nextDate = new Date(currentYear, currentMonth, createOnDom);
-                return nextDate.toISOString();
-              } else {
-                const nextDate = new Date(currentYear, currentMonth + 1, createOnDom);
-                return nextDate.toISOString();
-              }
-            }
-          };
+          const now = new Date();
+          const currentDay = now.getDate();
+          const currentMonth = now.getMonth();
+          const currentYear = now.getFullYear();
           
-          recurrentTransactions = recurrentResult.recurrentExpenses.map((expense: any) => {
-            // Calculate next charge date from create_on_dom
-            const nextChargeDate = calculateChargeDate(expense.create_on_dom, false);
-            
-            console.log(`Recurrent expense ${expense.description}: create_on_dom=${expense.create_on_dom}, next_charge=${nextChargeDate}`);
-            
-            return {
-              id: `recurrent_${expense.id}`, // Prefix to avoid ID conflicts
-              user_id: user?.id || '',
-              description: expense.description,
-              amount: expense.amount < 0 ? expense.amount : -Math.abs(expense.amount), // Ensure expenses are negative
-              type: 'expense' as const,
-              transaction_date: nextChargeDate,
-              category_id: expense.expense_category_id,
-              account_id: expense.expenseable?.id || 1,
-              categories: expense.category ? {
-                name: expense.category.name,
-                color: getCategoryColor(expense.category.name, expense.expense_category_id),
-                icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
-              } : undefined,
-              accounts: expense.expenseable ? {
-                name: expense.expenseable.name,
-                type: expense.expenseable.brand || 'card'
-              } : undefined,
-              created_at: expense.created_at,
-              updated_at: expense.updated_at,
-              isRecurrent: true,
-              recurrentId: expense.id,
-              nextChargeDate: nextChargeDate
-            };
-          });
-          
-          console.log('Transformed recurrent transactions:', recurrentTransactions);
-        }
-
-        // Combine both regular and recurrent transactions and sort by date
-        const allTransactions = [...enrichedTransactions, ...recurrentTransactions]
-          .sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
-        
-        console.log('Combined transactions (regular + recurrent):', allTransactions);
-        setTransactions(allTransactions as Transaction[]);
-        
-        // Filter transactions excluding only future recurrent expenses
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        
-        const filtered = allTransactions.filter(transaction => {
-          // Keep all regular transactions
-          if (!transaction.isRecurrent) return true;
-          
-          // For recurrent transactions, check if they have occurred (use nextChargeDate or transaction_date)
-          const chargeDate = transaction.nextChargeDate 
-            ? new Date(transaction.nextChargeDate)
-            : new Date(transaction.transaction_date);
-          
-          // Compare dates only (no time) to avoid timezone issues  
-          const chargeDateOnly = new Date(chargeDate.getFullYear(), chargeDate.getMonth(), chargeDate.getDate());
-          return chargeDateOnly <= today;
-        });
-        
-        console.log('Filtered transactions (excluding future recurrent):', filtered);
-        setFilteredTransactions(filtered as Transaction[]);
-        
-        // Calculate monthly expenses from filtered transactions
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
-        
-        const monthlyTotal = filtered
-          .filter((t) => {
-            const transactionDate = new Date(t.transaction_date);
-            return transactionDate.getMonth() === currentMonth && 
-                   transactionDate.getFullYear() === currentYear &&
-                   t.type === 'expense' && Number(t.amount) < 0;
-          })
-          .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
-        
-        console.log('Monthly expenses calculated:', monthlyTotal);
-        setMonthlyExpenses(monthlyTotal);
-        
-        // Update categories with the same filtered data immediately
-        await updateCategoriesWithFilteredData(filtered as Transaction[]);
-        
-        // Filter transactions for current month only (already occurred)
-        const filterMonth = new Date().getMonth();
-        const filterYear = new Date().getFullYear();
-        const currentDay = new Date().getDate();
-        
-        const currentMonthOnly = [];
-        
-        // Add regular transactions from current month
-        const regularCurrentMonth = enrichedTransactions.filter((t) => {
-          const transactionDate = new Date(t.transaction_date);
-          return transactionDate.getMonth() === filterMonth && 
-                 transactionDate.getFullYear() === filterYear;
-        });
-        currentMonthOnly.push(...regularCurrentMonth);
-        
-        // Add recurrent expenses that have already been charged in current month (including today)
-        if (recurrentResult.success && recurrentResult.recurrentExpenses) {
-          const currentMonthRecurrent = recurrentResult.recurrentExpenses
-            .filter((expense: any) => expense.create_on_dom <= currentDay)
+          recurrentTransactions = recurrentResult.recurrentExpenses
+            .filter((expense: any) => {
+              // Only show recurrent expenses that should have been charged by now
+              console.log(`Checking recurrent expense ${expense.description}: create_on_dom=${expense.create_on_dom}, current_day=${currentDay}`);
+              return expense.create_on_dom <= currentDay;
+            })
             .map((expense: any) => {
-              const chargeDate = new Date(filterYear, filterMonth, expense.create_on_dom).toISOString();
+              // Use create_on_dom to create the transaction date for current month
+              const transactionDate = new Date(currentYear, currentMonth, expense.create_on_dom).toISOString();
+              
+              console.log(`Adding recurrent expense ${expense.description}: create_on_dom=${expense.create_on_dom}, date=${transactionDate}`);
               
               return {
-                id: `recurrent_${expense.id}`,
+                id: `recurrent_${expense.id}`, // Prefix to avoid ID conflicts
                 user_id: user?.id || '',
                 description: expense.description,
-                amount: expense.amount < 0 ? expense.amount : -Math.abs(expense.amount),
+                amount: expense.amount < 0 ? expense.amount : -Math.abs(expense.amount), // Ensure expenses are negative
                 type: 'expense' as const,
-                transaction_date: chargeDate,
+                transaction_date: transactionDate,
                 category_id: expense.expense_category_id,
                 account_id: expense.expenseable?.id || 1,
                 categories: expense.category ? {
@@ -429,19 +321,48 @@ export const useTransactions = () => {
                 created_at: expense.created_at,
                 updated_at: expense.updated_at,
                 isRecurrent: true,
-                recurrentId: expense.id
+                recurrentId: expense.id,
+                createOnDom: expense.create_on_dom
               };
             });
-          currentMonthOnly.push(...currentMonthRecurrent);
+          
+          console.log('Transformed recurrent transactions:', recurrentTransactions);
         }
+
+        // Combine both regular and recurrent transactions and sort by date
+        const allTransactions = [...enrichedTransactions, ...recurrentTransactions]
+          .sort((a, b) => new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime());
         
-        // Sort current month transactions by date
-        const sortedCurrentMonth = currentMonthOnly.sort((a, b) => 
-          new Date(b.transaction_date).getTime() - new Date(a.transaction_date).getTime()
-        );
+        console.log('Combined transactions (regular + recurrent):', allTransactions);
+        setTransactions(allTransactions as Transaction[]);
         
-        console.log('Current month transactions (already occurred):', sortedCurrentMonth);
-        setCurrentMonthTransactions(sortedCurrentMonth as Transaction[]);
+        // Since we already filtered recurrent expenses during transformation, 
+        // all transactions in allTransactions should be shown
+        console.log('All valid transactions (regular + current recurrent):', allTransactions);
+        setFilteredTransactions(allTransactions as Transaction[]);
+        
+        // Calculate monthly expenses from all transactions (already filtered)
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        
+        const monthlyTotal = allTransactions
+          .filter((t) => {
+            const transactionDate = new Date(t.transaction_date);
+            return transactionDate.getMonth() === currentMonth && 
+                   transactionDate.getFullYear() === currentYear &&
+                   t.type === 'expense' && Number(t.amount) < 0;
+          })
+          .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+        
+        console.log('Monthly expenses calculated:', monthlyTotal);
+        setMonthlyExpenses(monthlyTotal);
+        
+        // Update categories with the same transaction data immediately
+        await updateCategoriesWithFilteredData(allTransactions as Transaction[]);
+        
+        // Set current month transactions (same as allTransactions since we filter during transformation)
+        console.log('Current month transactions:', allTransactions);
+        setCurrentMonthTransactions(allTransactions as Transaction[]);
         
         // Cache the combined transactions
         localStorage.setItem(TRANSACTIONS_CACHE_KEY, JSON.stringify(allTransactions));
