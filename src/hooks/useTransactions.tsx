@@ -110,7 +110,7 @@ export const useTransactions = () => {
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Early return if auth context is not ready
+  // Check if auth is ready
   const authLoading = !user && !session;
 
   // Cache keys - only create if user exists
@@ -119,28 +119,24 @@ export const useTransactions = () => {
   const CACHE_TIMESTAMP_KEY = user ? `cache_timestamp_${user.id}` : null;
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-  // Return safe defaults if auth is loading
-  if (authLoading) {
-    return {
-      transactions: [],
-      categories: [],
-      monthlyExpenses: 0,
-      loading: true,
-      refreshing: false,
-      pullToRefresh: async () => {},
-      refetch: () => {}
-    };
-  }
-
   useEffect(() => {
     if (user && session && !authLoading) {
       loadFromCacheOrFetch();
+    } else {
+      // If auth is not ready, set loading to false to avoid infinite loading
+      setLoading(false);
     }
   }, [user, session, authLoading]);
 
   // Load data from cache first, then fetch if needed
   const loadFromCacheOrFetch = async () => {
     try {
+      // Return early if cache keys are null (user not loaded)
+      if (!TRANSACTIONS_CACHE_KEY || !CATEGORIES_CACHE_KEY || !CACHE_TIMESTAMP_KEY) {
+        await fetchDataFromAPI();
+        return;
+      }
+
       const cachedTransactions = localStorage.getItem(TRANSACTIONS_CACHE_KEY);
       const cachedCategories = localStorage.getItem(CATEGORIES_CACHE_KEY);
       const cacheTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
@@ -193,12 +189,15 @@ export const useTransactions = () => {
   const pullToRefresh = async () => {
     setRefreshing(true);
     try {
-      // Clear cache to force fresh data
-      localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
-      localStorage.removeItem(CATEGORIES_CACHE_KEY);
-      localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+      // Clear cache to force fresh data (only if keys exist)
+      if (TRANSACTIONS_CACHE_KEY) localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
+      if (CATEGORIES_CACHE_KEY) localStorage.removeItem(CATEGORIES_CACHE_KEY);
+      if (CACHE_TIMESTAMP_KEY) localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       
-      await fetchDataFromAPI();
+      // Fetch fresh data only if user is available
+      if (user && session && !authLoading) {
+        await fetchDataFromAPI();
+      }
     } finally {
       setRefreshing(false);
     }
@@ -422,13 +421,15 @@ export const useTransactions = () => {
     pullToRefresh,
     refetch: async () => {
       console.log('Refetching data - clearing cache first');
-      // Clear cache to ensure fresh data
-      localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
-      localStorage.removeItem(CATEGORIES_CACHE_KEY);
-      localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+      // Clear cache to ensure fresh data (only if keys exist)
+      if (TRANSACTIONS_CACHE_KEY) localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
+      if (CATEGORIES_CACHE_KEY) localStorage.removeItem(CATEGORIES_CACHE_KEY);
+      if (CACHE_TIMESTAMP_KEY) localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       
-      // Fetch fresh data
-      await fetchDataFromAPI();
+      // Fetch fresh data only if user is available
+      if (user && session && !authLoading) {
+        await fetchDataFromAPI();
+      }
     }
   };
 };
