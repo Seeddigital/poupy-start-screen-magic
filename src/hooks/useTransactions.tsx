@@ -108,6 +108,7 @@ export const useTransactions = () => {
   const { user, session } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [currentMonthTransactions, setCurrentMonthTransactions] = useState<Transaction[]>([]);
+  const [filteredTransactions, setFilteredTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
@@ -326,6 +327,20 @@ export const useTransactions = () => {
         console.log('Combined transactions (regular + recurrent):', allTransactions);
         setTransactions(allTransactions as Transaction[]);
         
+        // Filter transactions excluding only future recurrent expenses
+        const now = new Date();
+        const filtered = allTransactions.filter(transaction => {
+          // Keep all regular transactions
+          if (!transaction.isRecurrent) return true;
+          
+          // For recurrent transactions, only exclude future ones
+          const transactionDate = new Date(transaction.transaction_date);
+          return transactionDate <= now;
+        });
+        
+        console.log('Filtered transactions (excluding future recurrent):', filtered);
+        setFilteredTransactions(filtered as Transaction[]);
+        
         // Filter transactions for current month only (already occurred)
         const filterMonth = new Date().getMonth();
         const filterYear = new Date().getFullYear();
@@ -438,14 +453,22 @@ export const useTransactions = () => {
       if (result.success && result.categories) {
         console.log('API categories loaded:', result.categories);
         
-        // Calculate category totals from all transactions (not just current month)
+        // Calculate category totals from filtered transactions (excluding future recurrent)
         
-        // Use the transactions that are already loaded
-        const categoriesCurrentMonth = new Date().getMonth();
-        const categoriesCurrentYear = new Date().getFullYear();
-        const categoryTotals = transactions
-          .filter(t => Number(t.amount) < 0) // Only count negative amounts (expenses)
-          .reduce((acc, t) => {
+        // Filter transactions to exclude future recurrent expenses
+        const now = new Date();
+        const transactionsForCategories = transactions.filter(transaction => {
+          // Keep all regular transactions
+          if (!transaction.isRecurrent) return true;
+          
+          // For recurrent transactions, only exclude future ones
+          const transactionDate = new Date(transaction.transaction_date);
+          return transactionDate <= now;
+        });
+        
+        const categoryTotals = transactionsForCategories
+          .filter((t: any) => Number(t.amount) < 0) // Only count negative amounts (expenses)
+          .reduce((acc: Record<number, number>, t: any) => {
             // Match by category_id from transaction with id from categories
             const categoryId = Number(t.category_id);
             acc[categoryId] = (acc[categoryId] || 0) + Math.abs(Number(t.amount));
@@ -454,7 +477,7 @@ export const useTransactions = () => {
 
         console.log('Category totals calculated:', categoryTotals);
 
-        const totalExpenses = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
+        const totalExpenses = Object.values(categoryTotals).reduce((sum: number, amount: number) => sum + amount, 0);
         console.log('Total expenses:', totalExpenses);
 
         const categoriesWithAmounts = result.categories.map((cat: any) => ({
@@ -464,7 +487,7 @@ export const useTransactions = () => {
           color: cat.color || getCategoryColor(cat.name, Number(cat.id)),
           icon: categoryIcons[cat.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
           amount: categoryTotals[Number(cat.id)] || 0,
-          percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.id)] || 0) / totalExpenses * 100) : 0
+          percentage: totalExpenses > 0 ? Math.round(((categoryTotals[Number(cat.id)] || 0) / totalExpenses) * 100) : 0
         }))
         .filter((cat: any) => cat.name && cat.name.trim() !== '') // Show all categories with valid names, regardless of spending
         .sort((a: any, b: any) => {
@@ -537,6 +560,7 @@ export const useTransactions = () => {
   return {
     transactions,
     currentMonthTransactions,
+    filteredTransactions,
     categories,
     monthlyExpenses,
     loading,

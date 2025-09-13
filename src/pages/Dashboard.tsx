@@ -12,7 +12,16 @@ import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
-  const { transactions, currentMonthTransactions, categories, monthlyExpenses, loading, refetch, refreshing, pullToRefresh } = useTransactions();
+  const { 
+    transactions, 
+    filteredTransactions, 
+    categories, 
+    monthlyExpenses, 
+    loading, 
+    refetch, 
+    refreshing, 
+    pullToRefresh 
+  } = useTransactions();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -202,14 +211,14 @@ const Dashboard = () => {
           <div className="text-center py-8">
             <p className="text-gray-400">Carregando transações...</p>
           </div>
-        ) : currentMonthTransactions.length === 0 ? (
+        ) : filteredTransactions.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-400">Nenhuma transação encontrada</p>
             <p className="text-gray-500 text-sm mt-2">Suas transações aparecerão aqui</p>
           </div>
         ) : (
           <div className="space-y-4">
-            {currentMonthTransactions.map(transaction => (
+            {filteredTransactions.map(transaction => (
               <div 
                 key={transaction.id} 
                 className="flex items-center justify-between py-3 sm:py-4 cursor-pointer hover:bg-gray-900 rounded-lg px-2 transition-colors" 
@@ -274,7 +283,7 @@ const Dashboard = () => {
 
       <CategoryTransactionsModal 
         category={selectedCategory} 
-        transactions={transactions}
+        transactions={filteredTransactions}
         isOpen={isCategoryModalOpen} 
         onClose={() => setIsCategoryModalOpen(false)} 
         onTransactionClick={handleCategoryTransactionClick} 
