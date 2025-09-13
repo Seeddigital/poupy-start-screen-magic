@@ -7,10 +7,9 @@ export interface RecurrentExpense {
   id: number;
   description: string;
   amount: number;
-  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  frequency: 'monthly'; // Only monthly frequency supported
   start_date: string;
-  end_date?: string;
-  status: 'active' | 'paused';
+  status: 'active'; // Always active
   next_charge_date: string;
   expense_category_id: number;
   expenseable_type: string;

@@ -318,10 +318,9 @@ class OTPService {
   async createRecurrentExpense(token: string, recurrentExpenseData: {
     description: string;
     amount: number;
-    frequency: string;
+    frequency: 'monthly'; // Only monthly supported
     start_date: string;
-    end_date?: string;
-    status: string;
+    status: 'active'; // Always active
     expense_category_id: number;
     expenseable_type: string;
     expenseable_id: number;
@@ -374,10 +373,9 @@ class OTPService {
   async updateRecurrentExpense(token: string, id: number, recurrentExpenseData: {
     description: string;
     amount: number;
-    frequency: string;
+    frequency: 'monthly'; // Only monthly supported
     start_date: string;
-    end_date?: string;
-    status: string;
+    status: 'active'; // Always active
     expense_category_id: number;
     expenseable_type: string;
     expenseable_id: number;

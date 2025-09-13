@@ -53,11 +53,8 @@ const AddTransactionModal = ({
     account_id: '',
     transaction_date: new Date().toISOString().split('T')[0],
     notes: '',
-    // Recurrent expense fields
-    frequency: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
-    start_date: new Date().toISOString().split('T')[0],
-    end_date: '',
-    status: 'active' as 'active' | 'paused'
+    // Recurrent expense fields (only monthly)
+    start_date: new Date().toISOString().split('T')[0]
   });
   useEffect(() => {
     if (isOpen && user) {
@@ -210,13 +207,21 @@ const AddTransactionModal = ({
     try {
       if (formData.type === 'recurrent') {
         // Create recurrent expense
-        const recurrentData = {
+        const recurrentData: {
+          description: string;
+          amount: number;
+          frequency: 'monthly';
+          start_date: string;
+          status: 'active';
+          expense_category_id: number;
+          expenseable_type: string;
+          expenseable_id: number;
+        } = {
           description: formData.description,
           amount: parseFloat(formData.amount),
-          frequency: formData.frequency,
+          frequency: 'monthly',
           start_date: formData.start_date,
-          end_date: formData.end_date || undefined,
-          status: formData.status,
+          status: 'active',
           expense_category_id: parseInt(formData.category_id),
           expenseable_type: 'App\\Models\\Account',
           expenseable_id: parseInt(formData.account_id)
@@ -266,10 +271,7 @@ const AddTransactionModal = ({
         account_id: '',
         transaction_date: new Date().toISOString().split('T')[0],
         notes: '',
-        frequency: 'monthly',
-        start_date: new Date().toISOString().split('T')[0],
-        end_date: '',
-        status: 'active'
+        start_date: new Date().toISOString().split('T')[0]
       });
     } catch (error) {
       console.error('Error creating transaction:', error);
@@ -377,25 +379,13 @@ const AddTransactionModal = ({
           {/* Recurrent Fields - Only show when type is 'recurrent' */}
           {formData.type === 'recurrent' && (
             <>
-              <div>
-                <Label htmlFor="frequency" className="text-[#666666] text-xs font-medium mb-1 block">
-                  Frequência
-                </Label>
-                <select 
-                  id="frequency" 
-                  value={formData.frequency} 
-                  onChange={e => setFormData({
-                    ...formData,
-                    frequency: e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly'
-                  })} 
-                  className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none" 
-                  required
-                >
-                  <option value="daily">Diária</option>
-                  <option value="weekly">Semanal</option>
-                  <option value="monthly">Mensal</option>
-                  <option value="yearly">Anual</option>
-                </select>
+              <div className="bg-gray-50 p-3 rounded-md">
+                <p className="text-xs text-[#666666] mb-2">
+                  <strong>Frequência:</strong> Mensal (automático)
+                </p>
+                <p className="text-xs text-[#666666]">
+                  Esta despesa será cobrada automaticamente todo mês.
+                </p>
               </div>
 
               <div>
@@ -414,46 +404,8 @@ const AddTransactionModal = ({
                   required 
                 />
               </div>
-
-              <div>
-                <Label htmlFor="end_date" className="text-[#666666] text-xs font-medium mb-1 block">
-                  Data de fim (opcional)
-                </Label>
-                <Input 
-                  id="end_date" 
-                  type="date" 
-                  value={formData.end_date} 
-                  onChange={e => setFormData({
-                    ...formData,
-                    end_date: e.target.value
-                  })} 
-                  className="py-2 text-sm bg-white border-[#E0E0E0] text-black focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1" 
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="status" className="text-[#666666] text-xs font-medium mb-1 block">
-                  Status
-                </Label>
-                <select 
-                  id="status" 
-                  value={formData.status} 
-                  onChange={e => setFormData({
-                    ...formData,
-                    status: e.target.value as 'active' | 'paused'
-                  })} 
-                  className="w-full py-2 text-sm bg-white border border-[#E0E0E0] text-black rounded-md px-3 focus:border-[#A6FF00] focus:ring-[#A6FF00] focus:ring-1 focus:outline-none" 
-                  required
-                >
-                  <option value="active">Ativa</option>
-                  <option value="paused">Pausada</option>
-                </select>
-              </div>
             </>
           )}
-
-          {/* Notes */}
-          
 
           {/* Submit Button */}
           <div className="flex justify-end pt-3">

@@ -55,11 +55,8 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
     account_id: '',
     transaction_date: '',
     notes: '',
-    // Recurrent expense fields
-    frequency: 'monthly' as 'daily' | 'weekly' | 'monthly' | 'yearly',
-    start_date: new Date().toISOString().split('T')[0],
-    end_date: '',
-    status: 'active' as 'active' | 'paused'
+    // Recurrent expense fields (only monthly)
+    start_date: new Date().toISOString().split('T')[0]
   });
 
   useEffect(() => {
@@ -90,10 +87,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
           account_id: expense.expenseable_id?.toString() || '',
           transaction_date: transactionDate,
           notes: '',
-          frequency: 'monthly',
-          start_date: new Date().toISOString().split('T')[0],
-          end_date: '',
-          status: 'active'
+          start_date: new Date().toISOString().split('T')[0]
         });
       }
     } catch (error) {
@@ -385,22 +379,13 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
           {/* Recurrent Fields - Only show when type is 'recurrent' */}
           {formData.type === 'recurrent' && (
             <>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
-                  Frequência
-                </label>
-                <select
-                  value={formData.frequency}
-                  onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'daily' | 'weekly' | 'monthly' | 'yearly' })}
-                  className="w-full bg-white text-black rounded-md px-3 py-2"
-                  style={{ border: '1px solid #E0E0E0' }}
-                  required
-                >
-                  <option value="daily">Diária</option>
-                  <option value="weekly">Semanal</option>
-                  <option value="monthly">Mensal</option>
-                  <option value="yearly">Anual</option>
-                </select>
+              <div className="bg-gray-50 p-3 rounded-md">
+                <p className="text-xs text-gray-600 mb-2">
+                  <strong>Frequência:</strong> Mensal (automático)
+                </p>
+                <p className="text-xs text-gray-600">
+                  Esta despesa será cobrada automaticamente todo mês.
+                </p>
               </div>
 
               <div>
@@ -415,35 +400,6 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
                   style={{ border: '1px solid #E0E0E0' }}
                   required
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
-                  Data de fim (opcional)
-                </label>
-                <Input
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                  className="bg-white text-black rounded-md px-3 py-2"
-                  style={{ border: '1px solid #E0E0E0' }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
-                  Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'paused' })}
-                  className="w-full bg-white text-black rounded-md px-3 py-2"
-                  style={{ border: '1px solid #E0E0E0' }}
-                  required
-                >
-                  <option value="active">Ativa</option>
-                  <option value="paused">Pausada</option>
-                </select>
               </div>
             </>
           )}
