@@ -200,7 +200,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
       let result;
       
       if (isTypeChanging) {
-        // Handle type conversion by creating new and deleting old
+        // Handle type conversion using Promise.all for better synchronization
         if (formData.type === 'recurrent') {
           // Converting to recurrent
           const recurrentTransactionData = {
@@ -212,13 +212,21 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
             expenseable_id: parseInt(formData.account_id)
           };
           
-          // Create new recurrent expense
-          result = await otpService.createRecurrentExpense(session.access_token, recurrentTransactionData);
+          // Use Promise.all to ensure both operations complete
+          const [createResult, deleteResult] = await Promise.all([
+            otpService.createRecurrentExpense(session.access_token, recurrentTransactionData),
+            otpService.deleteExpense(session.access_token, transactionId)
+          ]);
           
-          if (result.success) {
-            // Delete old regular expense
-            await otpService.deleteExpense(session.access_token, transactionId);
+          if (!createResult.success) {
+            throw new Error(createResult.error || 'Falha ao criar despesa recorrente');
           }
+          
+          if (!deleteResult.success) {
+            throw new Error(deleteResult.error || 'Falha ao deletar despesa original');
+          }
+          
+          result = createResult;
         } else {
           // Converting from recurrent to regular
           const regularTransactionData = {
@@ -230,14 +238,34 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
             expenseable_id: parseInt(formData.account_id)
           };
           
-          // Create new regular expense
-          result = await otpService.createExpense(session.access_token, regularTransactionData);
+          // Use Promise.all to ensure both operations complete
+          const [createResult, deleteResult] = await Promise.all([
+            otpService.createExpense(session.access_token, regularTransactionData),
+            otpService.deleteRecurrentExpense(session.access_token, transactionId)
+          ]);
           
-          if (result.success) {
-            // Delete old recurrent expense
-            await otpService.deleteRecurrentExpense(session.access_token, transactionId);
+          if (!createResult.success) {
+            throw new Error(createResult.error || 'Falha ao criar despesa regular');
           }
+          
+          if (!deleteResult.success) {
+            throw new Error(deleteResult.error || 'Falha ao deletar despesa recorrente original');
+          }
+          
+          result = createResult;
         }
+        
+        // Show specific toast for conversions
+        const conversionType = formData.type === 'recurrent' ? 'recorrente' : 'regular';
+        toast.success(`Despesa convertida para ${conversionType} com sucesso!`);
+        
+        // Add delay to ensure API synchronization before refetch
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Force complete refresh by clearing cache
+        onTransactionUpdated();
+        onClose();
+        
       } else {
         // Regular update without type change
         if (isRecurrent) {
@@ -263,21 +291,20 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
           console.log('Final Regular Transaction Data being sent:', regularTransactionData);
           result = await otpService.updateExpense(session.access_token, transactionId, regularTransactionData);
         }
-      }
 
-      if (result.success) {
-        const actionType = isTypeChanging ? 'convertida' : 'atualizada';
-        const messageType = formData.type === 'income' ? 'receita' : 
-                           formData.type === 'recurrent' ? 'despesa recorrente' : 'despesa';
-        toast.success(`${messageType.charAt(0).toUpperCase() + messageType.slice(1)} ${actionType} com sucesso!`);
-        onTransactionUpdated();
-        onClose();
-      } else {
-        toast.error(result.error || 'Erro ao processar transação');
+        if (result.success) {
+          const messageType = formData.type === 'income' ? 'receita' : 
+                             formData.type === 'recurrent' ? 'despesa recorrente' : 'despesa';
+          toast.success(`${messageType.charAt(0).toUpperCase() + messageType.slice(1)} atualizada com sucesso!`);
+          onTransactionUpdated();
+          onClose();
+        } else {
+          toast.error(result.error || 'Erro ao processar transação');
+        }
       }
     } catch (error) {
       console.error('Error processing transaction:', error);
-      toast.error('Erro ao processar transação');
+      toast.error(error instanceof Error ? error.message : 'Erro ao processar transação');
     } finally {
       setLoading(false);
     }

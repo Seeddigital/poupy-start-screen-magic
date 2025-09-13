@@ -630,6 +630,18 @@ export const useTransactions = () => {
       if (user && session && !authLoading) {
         await fetchDataFromAPI();
       }
+    },
+    forceRefresh: async () => {
+      console.log('🔄 Force refresh - complete cache clear and page reload');
+      // Clear ALL cached data
+      localStorage.removeItem(TRANSACTIONS_CACHE_KEY);
+      localStorage.removeItem(CATEGORIES_CACHE_KEY);
+      localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+      
+      // Add a small delay then reload the page to ensure fresh state
+      setTimeout(() => {
+        window.location.reload();
+      }, 200);
     }
   };
 };
