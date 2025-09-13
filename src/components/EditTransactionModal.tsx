@@ -237,23 +237,33 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
   const handleDelete = async () => {
     if (!session?.access_token || !transaction) return;
     
-    if (!confirm('Tem certeza que deseja deletar esta transação?')) return;
+    const transactionType = isRecurrent ? 'despesa recorrente' : 'transação';
+    if (!confirm(`Tem certeza que deseja deletar esta ${transactionType}?`)) return;
     
     setDeleting(true);
     
     try {
-      const result = await otpService.deleteExpense(session.access_token, transactionId);
+      console.log(`Deleting ${transactionType} with ID:`, transactionId, 'isRecurrent:', isRecurrent);
+      
+      let result;
+      if (isRecurrent) {
+        result = await otpService.deleteRecurrentExpense(session.access_token, transactionId);
+      } else {
+        result = await otpService.deleteExpense(session.access_token, transactionId);
+      }
 
       if (result.success) {
-        toast.success('Transação deletada com sucesso!');
+        console.log(`${transactionType} deleted successfully`);
+        toast.success(`${transactionType.charAt(0).toUpperCase() + transactionType.slice(1)} deletada com sucesso!`);
         onTransactionUpdated();
         onClose();
       } else {
-        toast.error(result.error || 'Erro ao deletar transação');
+        console.error(`Error deleting ${transactionType}:`, result.error);
+        toast.error(result.error || `Erro ao deletar ${transactionType}`);
       }
     } catch (error) {
-      console.error('Error deleting transaction:', error);
-      toast.error('Erro ao deletar transação');
+      console.error(`Error deleting ${transactionType}:`, error);
+      toast.error(`Erro ao deletar ${transactionType}`);
     } finally {
       setDeleting(false);
     }
