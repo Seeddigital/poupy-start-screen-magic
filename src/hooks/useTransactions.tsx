@@ -110,17 +110,33 @@ export const useTransactions = () => {
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Cache keys
-  const TRANSACTIONS_CACHE_KEY = `transactions_${user?.id}`;
-  const CATEGORIES_CACHE_KEY = `categories_${user?.id}`;
-  const CACHE_TIMESTAMP_KEY = `cache_timestamp_${user?.id}`;
+  // Early return if auth context is not ready
+  const authLoading = !user && !session;
+
+  // Cache keys - only create if user exists
+  const TRANSACTIONS_CACHE_KEY = user ? `transactions_${user.id}` : null;
+  const CATEGORIES_CACHE_KEY = user ? `categories_${user.id}` : null;
+  const CACHE_TIMESTAMP_KEY = user ? `cache_timestamp_${user.id}` : null;
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+  // Return safe defaults if auth is loading
+  if (authLoading) {
+    return {
+      transactions: [],
+      categories: [],
+      monthlyExpenses: 0,
+      loading: true,
+      refreshing: false,
+      pullToRefresh: async () => {},
+      refetch: () => {}
+    };
+  }
+
   useEffect(() => {
-    if (user) {
+    if (user && session && !authLoading) {
       loadFromCacheOrFetch();
     }
-  }, [user]);
+  }, [user, session, authLoading]);
 
   // Load data from cache first, then fetch if needed
   const loadFromCacheOrFetch = async () => {
