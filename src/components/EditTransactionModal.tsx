@@ -104,7 +104,7 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
       setFormData({
         description: expense.description || '',
         amount: Math.abs(Number(expense.amount)).toString(),
-        type: Number(expense.amount) > 0 ? 'income' : 'expense',
+        type: isRecurrent ? 'recurrent' : (Number(expense.amount) > 0 ? 'income' : 'expense'),
         category_id: expense.expense_category_id?.toString() || '',
         account_id: expense.expenseable_id?.toString() || '',
         transaction_date: transactionDate,
@@ -179,56 +179,121 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
       toast.error(`Conta não encontrada. ID: ${formData.account_id}`);
       return;
     }
+
+    // Check if user is changing the transaction type
+    const originalType = isRecurrent ? 'recurrent' : (Number(transaction.amount) > 0 ? 'income' : 'expense');
+    const isTypeChanging = formData.type !== originalType;
+    
+    // Confirm type change
+    if (isTypeChanging) {
+      const typeNames = {
+        'expense': 'Despesa',
+        'income': 'Receita', 
+        'transfer': 'Transferência',
+        'recurrent': 'Despesas Recorrentes'
+      };
+      
+      const confirmMessage = `Você está alterando o tipo de "${typeNames[originalType as keyof typeof typeNames]}" para "${typeNames[formData.type as keyof typeof typeNames]}". Isso criará uma nova transação e excluirá a atual. Continuar?`;
+      
+      if (!confirm(confirmMessage)) {
+        return;
+      }
+    }
     
     setLoading(true);
     
     try {
       const amount = parseFloat(formData.amount);
       
-      console.log(`=== DEBUGGING ${isRecurrent ? 'RECURRENT' : 'REGULAR'} TRANSACTION UPDATE ===`);
+      console.log(`=== DEBUGGING TRANSACTION UPDATE ===`);
       console.log('Transaction ID:', transactionId);
-      console.log('Is Recurrent:', isRecurrent);
-      console.log('Original Transaction:', transaction);
+      console.log('Original Is Recurrent:', isRecurrent);
+      console.log('New Type:', formData.type);
+      console.log('Is Type Changing:', isTypeChanging);
       console.log('Form Data:', formData);
       console.log('Selected Account:', selectedAccount);
 
       let result;
       
-      if (isRecurrent) {
-        const recurrentTransactionData = {
-          description: formData.description,
-          amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
-          start_date: formData.transaction_date,
-          expense_category_id: parseInt(formData.category_id),
-          expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
-          expenseable_id: parseInt(formData.account_id)
-        };
-        console.log('Final Recurrent Transaction Data being sent:', recurrentTransactionData);
-        result = await otpService.updateRecurrentExpense(session.access_token, transactionId, recurrentTransactionData);
+      if (isTypeChanging) {
+        // Handle type conversion by creating new and deleting old
+        if (formData.type === 'recurrent') {
+          // Converting to recurrent
+          const recurrentTransactionData = {
+            description: formData.description,
+            amount: -Math.abs(amount), // Recurrent expenses are always negative
+            start_date: formData.start_date || formData.transaction_date,
+            expense_category_id: parseInt(formData.category_id),
+            expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
+            expenseable_id: parseInt(formData.account_id)
+          };
+          
+          // Create new recurrent expense
+          result = await otpService.createRecurrentExpense(session.access_token, recurrentTransactionData);
+          
+          if (result.success) {
+            // Delete old regular expense
+            await otpService.deleteExpense(session.access_token, transactionId);
+          }
+        } else {
+          // Converting from recurrent to regular
+          const regularTransactionData = {
+            description: formData.description,
+            amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
+            due_at: formData.transaction_date,
+            expense_category_id: parseInt(formData.category_id),
+            expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
+            expenseable_id: parseInt(formData.account_id)
+          };
+          
+          // Create new regular expense
+          result = await otpService.createExpense(session.access_token, regularTransactionData);
+          
+          if (result.success) {
+            // Delete old recurrent expense
+            await otpService.deleteRecurrentExpense(session.access_token, transactionId);
+          }
+        }
       } else {
-        const regularTransactionData = {
-          description: formData.description,
-          amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
-          due_at: formData.transaction_date,
-          expense_category_id: parseInt(formData.category_id),
-          expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
-          expenseable_id: parseInt(formData.account_id)
-        };
-        console.log('Final Regular Transaction Data being sent:', regularTransactionData);
-        result = await otpService.updateExpense(session.access_token, transactionId, regularTransactionData);
+        // Regular update without type change
+        if (isRecurrent) {
+          const recurrentTransactionData = {
+            description: formData.description,
+            amount: -Math.abs(amount), // Recurrent expenses are always negative
+            start_date: formData.transaction_date,
+            expense_category_id: parseInt(formData.category_id),
+            expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
+            expenseable_id: parseInt(formData.account_id)
+          };
+          console.log('Final Recurrent Transaction Data being sent:', recurrentTransactionData);
+          result = await otpService.updateRecurrentExpense(session.access_token, transactionId, recurrentTransactionData);
+        } else {
+          const regularTransactionData = {
+            description: formData.description,
+            amount: formData.type === 'income' ? Math.abs(amount) : -Math.abs(amount),
+            due_at: formData.transaction_date,
+            expense_category_id: parseInt(formData.category_id),
+            expenseable_type: selectedAccount.type === 'credit_card' ? 'App\\Models\\CreditCard' : 'App\\Models\\Account',
+            expenseable_id: parseInt(formData.account_id)
+          };
+          console.log('Final Regular Transaction Data being sent:', regularTransactionData);
+          result = await otpService.updateExpense(session.access_token, transactionId, regularTransactionData);
+        }
       }
 
       if (result.success) {
-        const messageType = formData.type === 'income' ? 'receita' : 'despesa';
-        toast.success(`${messageType.charAt(0).toUpperCase() + messageType.slice(1)} atualizada com sucesso!`);
+        const actionType = isTypeChanging ? 'convertida' : 'atualizada';
+        const messageType = formData.type === 'income' ? 'receita' : 
+                           formData.type === 'recurrent' ? 'despesa recorrente' : 'despesa';
+        toast.success(`${messageType.charAt(0).toUpperCase() + messageType.slice(1)} ${actionType} com sucesso!`);
         onTransactionUpdated();
         onClose();
       } else {
-        toast.error(result.error || 'Erro ao atualizar transação');
+        toast.error(result.error || 'Erro ao processar transação');
       }
     } catch (error) {
-      console.error('Error updating transaction:', error);
-      toast.error('Erro ao atualizar transação');
+      console.error('Error processing transaction:', error);
+      toast.error('Erro ao processar transação');
     } finally {
       setLoading(false);
     }
@@ -392,20 +457,25 @@ const EditTransactionModal = ({ isOpen, onClose, onTransactionUpdated, transacti
             </select>
           </div>
 
-          {/* Date */}
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
-              Data
-            </label>
-            <Input
-              type="date"
-              value={formData.transaction_date}
-              onChange={(e) => setFormData({ ...formData, transaction_date: e.target.value })}
-              className="bg-white text-black rounded-md px-3 py-2"
-              style={{ border: '1px solid #E0E0E0' }}
-              required
-            />
-          </div>
+           {/* Date */}
+           <div>
+             <label className="block text-sm font-medium mb-2" style={{ color: '#666666' }}>
+               {formData.type === 'recurrent' ? 'Data da transação' : 'Data'}
+             </label>
+             <Input
+               type="date"
+               value={formData.transaction_date}
+               onChange={(e) => setFormData({ 
+                 ...formData, 
+                 transaction_date: e.target.value,
+                 // Update start_date for recurrent expenses
+                 start_date: formData.type === 'recurrent' ? e.target.value : formData.start_date
+               })}
+               className="bg-white text-black rounded-md px-3 py-2"
+               style={{ border: '1px solid #E0E0E0' }}
+               required
+             />
+           </div>
 
           {/* Recurrent Fields - Only show when type is 'recurrent' */}
           {formData.type === 'recurrent' && (
