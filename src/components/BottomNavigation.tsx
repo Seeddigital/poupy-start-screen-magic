@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, CreditCard, Plus, PieChart, GraduationCap } from 'lucide-react';
 
 interface BottomNavigationProps {
   onAddTransaction?: () => void;
@@ -14,28 +13,28 @@ const BottomNavigation = ({ onAddTransaction }: BottomNavigationProps) => {
   const navItems = [
     {
       path: '/dashboard',
-      Icon: Home,
+      icon: '/lovable-uploads/a67da8b5-f0b3-40ef-b607-f9f4b63b92ef.png',
       alt: 'Home'
     },
     {
       path: '/transactions',
-      Icon: CreditCard,
+      icon: '/lovable-uploads/61b0f927-79ec-4370-989a-00a94c406874.png',
       alt: 'Transactions'
     },
     {
       path: '/add',
-      Icon: Plus,
+      icon: '/lovable-uploads/6995c97d-5e23-40a7-bc6f-34dee745330b.png',
       alt: 'Add',
       isAddButton: true
     },
     {
       path: '/categories',
-      Icon: PieChart,
+      icon: '/lovable-uploads/8d5f4719-9c26-44b4-9b3a-7073a35f8ce7.png',
       alt: 'Categories'
     },
     {
       path: '/learning',
-      Icon: GraduationCap,
+      icon: '/lovable-uploads/cd861024-bba0-4c8d-ada9-dbc07070e800.png',
       alt: 'Learning'
     }
   ];
@@ -64,7 +63,6 @@ const BottomNavigation = ({ onAddTransaction }: BottomNavigationProps) => {
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             const isAddButton = item.isAddButton;
-            const { Icon } = item;
             
             return (
               <button 
@@ -74,13 +72,14 @@ const BottomNavigation = ({ onAddTransaction }: BottomNavigationProps) => {
                   transition-all transform hover:scale-105
                   ${isAddButton 
                     ? 'p-4 bg-[#D1FF00] rounded-full text-black hover:bg-[#B8E600]' 
-                    : `p-3 ${isActive ? 'text-white' : 'opacity-60 text-white/60'}`
+                    : `p-3 ${isActive ? '' : 'opacity-60'}`
                   }
                 `}
               >
-                <Icon 
-                  size={isAddButton ? 28 : 24}
-                  className={isAddButton ? "" : ""}
+                <img 
+                  src={item.icon} 
+                  alt={item.alt} 
+                  className={isAddButton ? "w-7 h-7" : "w-6 h-6"}
                 />
               </button>
             );

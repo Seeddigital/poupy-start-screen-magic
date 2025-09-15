@@ -291,7 +291,7 @@ const AddTransactionModal = ({
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl">
         {/* Header */}
         <div className="flex items-center justify-between p-4 pb-2 mx-[20px] px-[24px] py-[18px] my-[8px]">
-          <div className="w-6"></div>
+          <img src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" alt="Poupy Logo" className="h-6 w-auto" />
           
           <h2 className="text-lg font-bold text-black flex-1 text-center">
             Nova Transação

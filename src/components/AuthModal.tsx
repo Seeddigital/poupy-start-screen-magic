@@ -3,8 +3,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
-// Fixed Router context issue
-
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;

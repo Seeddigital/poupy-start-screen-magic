@@ -11,6 +11,7 @@ export interface MockCategory {
   category_id: number;
   name: string;
   color: string;
+  icon?: string;
   user_id: string;
   created_at: string;
 }
@@ -68,6 +69,7 @@ export const MOCK_CATEGORIES: MockCategory[] = [
     category_id: 1,
     name: 'Alimentação',
     color: '#FF6B6B',
+    icon: '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
     user_id: DEFAULT_USER.id,
     created_at: new Date().toISOString()
   },
@@ -75,6 +77,7 @@ export const MOCK_CATEGORIES: MockCategory[] = [
     category_id: 2,
     name: 'Transporte',
     color: '#4ECDC4',
+    icon: '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
     user_id: DEFAULT_USER.id,
     created_at: new Date().toISOString()
   },
@@ -82,6 +85,7 @@ export const MOCK_CATEGORIES: MockCategory[] = [
     category_id: 3,
     name: 'Lazer e Bem estar',
     color: '#45B7D1',
+    icon: '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
     user_id: DEFAULT_USER.id,
     created_at: new Date().toISOString()
   },
@@ -89,6 +93,7 @@ export const MOCK_CATEGORIES: MockCategory[] = [
     category_id: 4,
     name: 'Cuidados com saúde',
     color: '#96CEB4',
+    icon: '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
     user_id: DEFAULT_USER.id,
     created_at: new Date().toISOString()
   },
@@ -96,6 +101,7 @@ export const MOCK_CATEGORIES: MockCategory[] = [
     category_id: 5,
     name: 'Moradia',
     color: '#FFEAA7',
+    icon: '/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png',
     user_id: DEFAULT_USER.id,
     created_at: new Date().toISOString()
   },
@@ -103,6 +109,7 @@ export const MOCK_CATEGORIES: MockCategory[] = [
     category_id: 6,
     name: 'Mercado',
     color: '#DDA0DD',
+    icon: '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
     user_id: DEFAULT_USER.id,
     created_at: new Date().toISOString()
   }
