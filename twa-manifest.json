@@ -9,9 +9,9 @@
   "backgroundColor": "#ffffff",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://f4d2e326-a7a6-4252-9741-4585a4e3dae2.lovableproject.com/lovable-uploads/2f3aebd9-efad-4886-8ce5-2d0b5dfc408d.png",
-  "maskableIconUrl": "https://f4d2e326-a7a6-4252-9741-4585a4e3dae2.lovableproject.com/lovable-uploads/2f3aebd9-efad-4886-8ce5-2d0b5dfc408d.png",
-  "monochromeIconUrl": "https://f4d2e326-a7a6-4252-9741-4585a4e3dae2.lovableproject.com/lovable-uploads/2f3aebd9-efad-4886-8ce5-2d0b5dfc408d.png",
+  "iconUrl": "public/icon-512.png",
+  "maskableIconUrl": "public/icon-512.png",
+  "monochromeIconUrl": "public/icon-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "@play-store",
