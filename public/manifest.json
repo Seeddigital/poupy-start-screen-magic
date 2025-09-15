@@ -22,13 +22,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "screenshots": [
-    {
-      "src": "https://poupy-start-screen-magic.lovable.app/lovable-uploads/3e79f112-8b63-419b-b03c-370cdc90cefc.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
   ]
 }

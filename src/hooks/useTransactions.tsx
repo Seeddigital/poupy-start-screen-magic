@@ -53,21 +53,10 @@ interface Category extends MockCategory {
   percentage: number;
 }
 
-// Icon mapping for categories
-const categoryIcons: { [key: string]: string } = {
-  'Alimentação': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
-  'Família e Crianças': '/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png',
-  'Cuidados com saúde': '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
-  'Lazer e Bem estar': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
-  'Moradia': '/lovable-uploads/6ae08213-7de2-4e1e-8f10-fed260628827.png',
-  'Transporte': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
-  'Pet': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
-  'Outros': '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
-  'Mercado': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png',
-  'Gasolina': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
-  'Cinema': '/lovable-uploads/b86e683d-74fb-4388-bdbc-c21204e683ee.png',
-  'Material de escritório': '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
-  'Ração para o gato': '/lovable-uploads/a667bd8c-7cd8-48d8-a62f-7c9aa32c7ba0.png'
+// Default icon for categories (removed all lovable-uploads references)
+const getDefaultCategoryIcon = (categoryName: string): string => {
+  // Return generic local icon or empty string - icons will be handled by components
+  return '/icon-192.png';
 };
 
 // Color mapping for categories
@@ -267,7 +256,7 @@ export const useTransactions = () => {
           categories: expense.category ? {
             name: expense.category.name,
             color: getCategoryColor(expense.category.name, expense.expense_category_id),
-            icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
+            icon: getDefaultCategoryIcon(expense.category.name)
           } : undefined,
           accounts: expense.expenseable ? {
             name: expense.expenseable.name,
@@ -312,7 +301,7 @@ export const useTransactions = () => {
                 categories: expense.category ? {
                   name: expense.category.name,
                   color: getCategoryColor(expense.category.name, expense.expense_category_id),
-                  icon: categoryIcons[expense.category.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png'
+                  icon: getDefaultCategoryIcon(expense.category.name)
                 } : undefined,
                 accounts: expense.expenseable ? {
                   name: expense.expenseable.name,
@@ -382,7 +371,7 @@ export const useTransactions = () => {
             categories: category ? {
               name: category.name,
               color: category.color,
-              icon: categoryIcons[category.name] || category.icon
+              icon: getDefaultCategoryIcon(category.name)
             } : undefined,
             accounts: account ? {
               name: account.name,
@@ -466,7 +455,7 @@ export const useTransactions = () => {
           cat_id: Number(cat.id),
           name: cat.name,
           color: cat.color || getCategoryColor(cat.name, Number(cat.id)),
-          icon: categoryIcons[cat.name] || '/lovable-uploads/62fc26cb-a566-42b4-a3d8-126a6ec937c8.png',
+          icon: getDefaultCategoryIcon(cat.name),
           amount: categoryTotals[Number(cat.id)] || 0,
           percentage: totalExpenses > 0 ? Math.round(((categoryTotals[Number(cat.id)] || 0) / totalExpenses) * 100) : 0
         }))
@@ -534,7 +523,7 @@ export const useTransactions = () => {
         const categoriesWithAmounts = userCategories.map(cat => ({
           ...cat,
           cat_id: Number(cat.category_id),
-          icon: categoryIcons[cat.name] || cat.icon,
+          icon: getDefaultCategoryIcon(cat.name),
           amount: categoryTotals[Number(cat.category_id)] || 0,
           percentage: totalExpenses > 0 ? Math.round((categoryTotals[Number(cat.category_id)] || 0) / totalExpenses * 100) : 0
         }))
@@ -557,7 +546,7 @@ export const useTransactions = () => {
       setCategories(userCategories.map(cat => ({
         ...cat,
         cat_id: Number(cat.category_id),
-        icon: categoryIcons[cat.name] || cat.icon,
+        icon: getDefaultCategoryIcon(cat.name),
         amount: 0,
         percentage: 0
       })));

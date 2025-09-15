@@ -100,25 +100,13 @@ const Categories = () => {
                       {/* Top row with badge, title, and amount */}
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          {category.icon ? (
-                            <div 
-                              className="w-9 h-9 rounded-full flex items-center justify-center"
-                              style={{ backgroundColor: category.color }}
-                            >
-                              <img 
-                                src={category.icon} 
-                                alt={category.name}
-                                className="w-5 h-5 object-contain"
-                              />
-                            </div>
-                          ) : (
-                            <div 
-                              className="w-9 h-9 rounded-full flex items-center justify-center"
-                              style={{ backgroundColor: category.color }}
-                            >
-                              <div className="w-4 h-4 rounded-full bg-white/30"></div>
-                            </div>
-                          )}
+                          {/* Simple colored circle for all categories */}
+                          <div 
+                            className="w-9 h-9 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: category.color }}
+                          >
+                            <div className="w-4 h-4 rounded-full bg-white/30"></div>
+                          </div>
                           <h3 className="text-[#EDEDED] text-base font-semibold flex-1">
                             {category.name}
                           </h3>
@@ -168,15 +156,8 @@ const Categories = () => {
                             className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
                             style={{ backgroundColor: category.color }}
                           >
-                            {category.icon ? (
-                              <img 
-                                src={category.icon} 
-                                alt={category.name}
-                                className="w-6 h-6 object-contain"
-                              />
-                            ) : (
-                              <div className="w-5 h-5 rounded-full bg-white/30"></div>
-                            )}
+                            {/* Simple colored circle for all categories */}
+                            <div className="w-5 h-5 rounded-full bg-white/30"></div>
                           </div>
                           <h3 className="text-black text-lg font-semibold text-center">
                             {category.name}

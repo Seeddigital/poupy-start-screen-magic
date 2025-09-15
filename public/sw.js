@@ -1,4 +1,4 @@
-const CACHE_NAME = 'poupy-v3';
+const CACHE_NAME = 'poupy-v5';
 const timestamp = new Date().getTime();
 
 const urlsToCache = [
@@ -21,19 +21,33 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Fetch event
+// Fetch event - Network first for HTML, cache first for assets
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network with cache busting for HTML
-        if (!response || event.request.url.includes('.html')) {
-          return fetch(event.request + '?v=' + timestamp);
+    (async () => {
+      try {
+        // Network first for HTML files and API calls
+        if (event.request.url.includes('.html') || 
+            event.request.url.includes('/api/') ||
+            event.request.destination === 'document') {
+          const networkResponse = await fetch(event.request + '?v=' + timestamp);
+          return networkResponse;
         }
-        return response;
+        
+        // Cache first for other resources
+        const cachedResponse = await caches.match(event.request);
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        
+        // Fallback to network with cache busting
+        return fetch(event.request + '?cb=' + timestamp);
+      } catch (error) {
+        // Try cache as fallback
+        const cachedResponse = await caches.match(event.request);
+        return cachedResponse || new Response('Network error', { status: 408 });
       }
-      .catch(() => fetch(event.request))
-    )
+    })()
   );
 });
 
