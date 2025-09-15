@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signInWithOTP, sendOTP } = useAuth();
-  const navigate = useNavigate();
 
   const handleSendOTP = async () => {
     if (!phoneNumber) {
@@ -53,7 +52,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
       if (result.success) {
         toast.success('Login realizado com sucesso!');
         onClose();
-        navigate('/dashboard');
+        onSuccess?.();
       } else {
         toast.error(result.error || 'Código inválido');
       }

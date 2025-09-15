@@ -35,7 +35,11 @@ const Index = () => {
       </div>
       
       {/* Modal de autenticação */}
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={() => navigate('/dashboard')}
+      />
       
       {/* Página limpa com apenas a imagem de fundo */}
     </div>;
