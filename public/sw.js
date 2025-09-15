@@ -1,4 +1,4 @@
-const CACHE_NAME = 'poupy-v1';
+const CACHE_NAME = 'poupy-v2';
 const urlsToCache = [
   '/',
   '/dashboard',

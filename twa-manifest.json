@@ -8,9 +8,9 @@
   "backgroundColor": "#ffffff",
   "display": "standalone",
   "startUrl": "/",
-"iconUrl": "https://github.com/Seeddigital/poupy-start-screen-magic/releases/download/icon/icon-512.png?raw=true",
-"maskableIconUrl": "https://github.com/Seeddigital/poupy-start-screen-magic/releases/download/icon/icon-512.png?raw=true",
-"monochromeIconUrl": "https://github.com/Seeddigital/poupy-start-screen-magic/releases/download/icon/icon-192.png?raw=true",
+  "iconUrl": "/icon-512.png",
+  "maskableIconUrl": "/icon-512.png",
+  "monochromeIconUrl": "/icon-192.png",
 
 
   "splashScreenFadeOutDuration": 300,
@@ -19,6 +19,6 @@
     "path": "android.keystore",
     "alias": "poupy"
   },
-  "appVersionName": "v2",
-  "appVersionCode": 3
+  "appVersionName": "v3",
+  "appVersionCode": 4
 }
