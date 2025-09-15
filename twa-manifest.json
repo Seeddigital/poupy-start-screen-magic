@@ -19,6 +19,6 @@
     "path": "android.keystore",
     "alias": "poupy"
   },
-  "appVersionName": "v3",
-  "appVersionCode": 4
+  "appVersionName": "v4",
+  "appVersionCode": 5
 }

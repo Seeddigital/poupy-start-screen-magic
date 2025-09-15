@@ -1,13 +1,15 @@
-const CACHE_NAME = 'poupy-v2';
+const CACHE_NAME = 'poupy-v3';
+const timestamp = new Date().getTime();
+
 const urlsToCache = [
   '/',
   '/dashboard',
-  '/categories',
+  '/categories', 
   '/transactions',
   '/learning',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/lovable-uploads/2f3aebd9-efad-4886-8ce5-2d0b5dfc408d.png'
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 // Install event
@@ -24,9 +26,13 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
+        // Return cached version or fetch from network with cache busting for HTML
+        if (!response || event.request.url.includes('.html')) {
+          return fetch(event.request + '?v=' + timestamp);
+        }
+        return response;
       }
+      .catch(() => fetch(event.request))
     )
   );
 });

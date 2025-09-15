@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'app.lovable.f4d2e326a7a6425297414585a4e3dae2',
   appName: 'poupy-start-screen-magic',
   webDir: 'dist',
+  version: '1.0.0',
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
