@@ -15,12 +15,14 @@ import NotFound from "./pages/NotFound";
 import { useState } from "react";
 import AddTransactionModal from "@/components/AddTransactionModal";
 import ChatExpenseModal from "@/components/ChatExpenseModal";
+import { GuessExpenseInline } from "@/components/GuessExpenseInline";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const location = useLocation();
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  const [isGuessModalOpen, setIsGuessModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [preFilledData, setPreFilledData] = useState<any>(null);
   const { refetch } = useTransactions();
@@ -28,12 +30,12 @@ const AppContent = () => {
   const showBottomNav = location.pathname !== '/';
   
   const handleAddTransaction = () => {
-    setIsChatModalOpen(true);
+    setIsGuessModalOpen(true);
   };
 
   const handleExpenseParsed = (expenseData: any) => {
     setPreFilledData(expenseData);
-    setIsChatModalOpen(false);
+    setIsGuessModalOpen(false);
     setIsAddModalOpen(true);
   };
 
@@ -56,6 +58,13 @@ const AppContent = () => {
       
       {showBottomNav && (
         <BottomNavigation onAddTransaction={handleAddTransaction} />
+      )}
+      
+      {isGuessModalOpen && (
+        <GuessExpenseInline 
+          onExpenseParsed={handleExpenseParsed}
+          onClose={() => setIsGuessModalOpen(false)}
+        />
       )}
       
       <ChatExpenseModal

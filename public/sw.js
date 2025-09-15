@@ -1,4 +1,4 @@
-const CACHE_NAME = 'poupy-v6';
+const CACHE_NAME = 'poupy-v7';
 
 const urlsToCache = [
   '/manifest.json',
@@ -15,45 +15,53 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Fetch event - Safe caching strategy
+// Fetch event - Conservative caching strategy
 self.addEventListener('fetch', (event) => {
-  // Don't intercept JS modules, CSS imports, or hot reload requests
-  if (event.request.url.includes('/@') ||
-      event.request.url.includes('.tsx') ||
-      event.request.url.includes('.ts') ||
-      event.request.url.includes('.js') ||
-      event.request.url.includes('.css') ||
-      event.request.url.includes('/@vite') ||
-      event.request.url.includes('node_modules') ||
-      event.request.method !== 'GET') {
-    return;
+  const url = new URL(event.request.url);
+  
+  // Skip all module/asset requests that could conflict with bundler
+  if (
+    // Skip dev server and vite specific requests
+    url.pathname.includes('/@') ||
+    url.pathname.includes('/@vite') ||
+    url.pathname.includes('node_modules') ||
+    // Skip all JS/CSS/TS files to avoid MIME conflicts
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.mjs') ||
+    url.pathname.endsWith('.ts') ||
+    url.pathname.endsWith('.tsx') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.map') ||
+    url.pathname.endsWith('.wasm') ||
+    // Skip API calls
+    url.hostname === 'api.poupy.ai' ||
+    // Skip non-GET requests
+    event.request.method !== 'GET'
+  ) {
+    return; // Let browser handle these normally
   }
 
-  event.respondWith(
-    (async () => {
-      try {
-        // Network first for documents
-        if (event.request.destination === 'document') {
-          return fetch(event.request);
+  // Only handle essential static assets
+  if (url.pathname.includes('/icon-') || url.pathname.includes('manifest.json')) {
+    event.respondWith(
+      caches.match(event.request).then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        
-        // Cache first for static assets only
-        if (event.request.url.includes('/icon-') || 
-            event.request.url.includes('manifest.json')) {
-          const cachedResponse = await caches.match(event.request);
-          if (cachedResponse) {
-            return cachedResponse;
+        return fetch(event.request).then(response => {
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, responseClone);
+            });
           }
-        }
-        
-        // Default to network
+          return response;
+        });
+      }).catch(() => {
         return fetch(event.request);
-      } catch (error) {
-        const cachedResponse = await caches.match(event.request);
-        return cachedResponse || fetch(event.request);
-      }
-    })()
-  );
+      })
+    );
+  }
 });
 
 // Activate event
