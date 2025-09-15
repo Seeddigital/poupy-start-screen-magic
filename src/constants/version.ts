@@ -1,7 +1,7 @@
 // App versioning constants
-export const APP_VERSION = '1.0.0';
-export const CACHE_VERSION = 'v5';
-export const APP_BUILD = 6;
+export const APP_VERSION = '1.0.1';
+export const CACHE_VERSION = 'v6';
+export const APP_BUILD = 7;
 
 // Function to clear old caches when version changes
 export const clearOldCaches = () => {

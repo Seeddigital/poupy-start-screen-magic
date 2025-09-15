@@ -9,6 +9,7 @@
   "orientation": "portrait-primary",
   "categories": ["finance", "productivity"],
   "lang": "pt-BR",
+  "version": "1.0.1",
   "icons": [
     {
       "src": "/icon-192.png",

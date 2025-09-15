@@ -1,12 +1,6 @@
-const CACHE_NAME = 'poupy-v5';
-const timestamp = new Date().getTime();
+const CACHE_NAME = 'poupy-v6';
 
 const urlsToCache = [
-  '/',
-  '/dashboard',
-  '/categories', 
-  '/transactions',
-  '/learning',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
@@ -21,31 +15,42 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Fetch event - Network first for HTML, cache first for assets
+// Fetch event - Safe caching strategy
 self.addEventListener('fetch', (event) => {
+  // Don't intercept JS modules, CSS imports, or hot reload requests
+  if (event.request.url.includes('/@') ||
+      event.request.url.includes('.tsx') ||
+      event.request.url.includes('.ts') ||
+      event.request.url.includes('.js') ||
+      event.request.url.includes('.css') ||
+      event.request.url.includes('/@vite') ||
+      event.request.url.includes('node_modules') ||
+      event.request.method !== 'GET') {
+    return;
+  }
+
   event.respondWith(
     (async () => {
       try {
-        // Network first for HTML files and API calls
-        if (event.request.url.includes('.html') || 
-            event.request.url.includes('/api/') ||
-            event.request.destination === 'document') {
-          const networkResponse = await fetch(event.request + '?v=' + timestamp);
-          return networkResponse;
+        // Network first for documents
+        if (event.request.destination === 'document') {
+          return fetch(event.request);
         }
         
-        // Cache first for other resources
-        const cachedResponse = await caches.match(event.request);
-        if (cachedResponse) {
-          return cachedResponse;
+        // Cache first for static assets only
+        if (event.request.url.includes('/icon-') || 
+            event.request.url.includes('manifest.json')) {
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
         }
         
-        // Fallback to network with cache busting
-        return fetch(event.request + '?cb=' + timestamp);
+        // Default to network
+        return fetch(event.request);
       } catch (error) {
-        // Try cache as fallback
         const cachedResponse = await caches.match(event.request);
-        return cachedResponse || new Response('Network error', { status: 408 });
+        return cachedResponse || fetch(event.request);
       }
     })()
   );

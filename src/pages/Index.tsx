@@ -16,15 +16,12 @@ const Index = () => {
       navigate('/dashboard');
     }
   }, [user, navigate]);
-  return <div className="min-h-screen relative overflow-hidden flex items-center justify-center" style={{
-    backgroundImage: `url('/lovable-uploads/f3ee6670-5552-48cc-adb1-a46a742158df.png')`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat'
-  }}>
+  return <div className="min-h-screen relative overflow-hidden flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800">
       {/* Logo no canto inferior esquerdo */}
       <div className="absolute bottom-8 left-8 z-10 mx-[29px]">
-        <img alt="Logo" className="h-28 w-auto" src="/lovable-uploads/a5f7a3ad-fd73-4d04-979c-aa6192a26233.png" />
+        <div className="h-28 flex items-center justify-center">
+          <span className="text-4xl font-bold text-[#A8E202]">Poupy</span>
+        </div>
       </div>
 
       {/* Botão de login no canto inferior direito */}

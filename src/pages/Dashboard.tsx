@@ -122,7 +122,7 @@ const Dashboard = () => {
       <header className="flex items-center justify-between p-4 sm:p-6">
         {/* Logo Poupy */}
         <div className="flex items-center">
-          <img src="/lovable-uploads/ffd2aa23-a813-4b2b-8e8b-4bc791036c8c.png" alt="Poupy Logo" className="h-10 sm:h-12 w-auto" />
+          <span className="text-2xl font-bold text-[#A8E202]">Poupy</span>
         </div>
 
         {/* Icons */}
