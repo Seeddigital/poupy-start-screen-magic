@@ -33,13 +33,17 @@ const Dashboard = () => {
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const navigate = useNavigate();
 
-  // Redirect to home if not authenticated
+  // Redirect to home if not authenticated (com delay para evitar conflitos)
   useEffect(() => {
-    console.log('Dashboard - checking auth state:', { user: !!user });
-    if (!user) {
-      console.log('No user found, redirecting to home');
-      navigate('/');
-    }
+    const timer = setTimeout(() => {
+      console.log('Dashboard - checking auth state:', { user: !!user });
+      if (!user) {
+        console.log('No user found, redirecting to home');
+        navigate('/');
+      }
+    }, 100); // Pequeno delay para garantir que o auth seja verificado primeiro
+
+    return () => clearTimeout(timer);
   }, [user, navigate]);
 
   const formatCurrency = (value: number) => {

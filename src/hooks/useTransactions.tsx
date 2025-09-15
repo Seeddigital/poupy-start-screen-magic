@@ -114,9 +114,6 @@ export const useTransactions = () => {
   const [monthlyExpenses, setMonthlyExpenses] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Check if auth is ready
-  const authLoading = !user && !session;
-
   // Cache keys - only create if user exists
   const TRANSACTIONS_CACHE_KEY = user ? `transactions_${user.id}` : null;
   const CATEGORIES_CACHE_KEY = user ? `categories_${user.id}` : null;
@@ -124,19 +121,34 @@ export const useTransactions = () => {
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
   useEffect(() => {
-    if (user && session && !authLoading) {
+    console.log('useTransactions useEffect triggered:', { user: !!user, session: !!session });
+    
+    if (user && session) {
+      console.log('Auth ready, loading data...');
       loadFromCacheOrFetch();
     } else {
-      // If auth is not ready, set loading to false to avoid infinite loading
+      console.log('Auth not ready, setting loading to false');
       setLoading(false);
     }
-  }, [user, session, authLoading]);
+    
+    // Timeout de segurança para evitar loading infinito
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.log('Safety timeout triggered, stopping loading');
+        setLoading(false);
+      }
+    }, 10000); // 10 segundos
+
+    return () => clearTimeout(timeout);
+  }, [user?.id, session?.access_token]); // Dependências específicas para evitar loops
 
   // Load data from cache first, then fetch if needed
   const loadFromCacheOrFetch = async () => {
+    console.log('loadFromCacheOrFetch called');
     try {
       // Return early if cache keys are null (user not loaded)
       if (!TRANSACTIONS_CACHE_KEY || !CATEGORIES_CACHE_KEY || !CACHE_TIMESTAMP_KEY) {
+        console.log('Cache keys not available, fetching from API');
         await fetchDataFromAPI();
         return;
       }
@@ -197,6 +209,7 @@ export const useTransactions = () => {
           .reduce((sum: number, t: any) => sum + Math.abs(Number(t.amount)), 0);
         
         setMonthlyExpenses(monthlyTotal);
+        console.log('Data loaded from cache, setting loading to false');
         setLoading(false);
       } else {
         // Cache expired or doesn't exist, fetch from API
@@ -211,9 +224,15 @@ export const useTransactions = () => {
 
   // Fetch data from API and update cache
   const fetchDataFromAPI = async () => {
+    console.log('fetchDataFromAPI called');
     setLoading(true);
-    await fetchTransactions();
-    // Categories will be fetched in the useEffect when transactions change
+    try {
+      await fetchTransactions();
+      // Categories will be fetched in the useEffect when transactions change
+    } catch (error) {
+      console.error('Error in fetchDataFromAPI:', error);
+      setLoading(false);
+    }
   };
 
   // Pull to refresh function
@@ -226,7 +245,7 @@ export const useTransactions = () => {
       if (CACHE_TIMESTAMP_KEY) localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       
       // Fetch fresh data only if user is available
-      if (user && session && !authLoading) {
+      if (user && session) {
         await fetchDataFromAPI();
       }
     } finally {
@@ -407,7 +426,9 @@ export const useTransactions = () => {
           .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
         
         setMonthlyExpenses(monthlyTotal);
+        console.log('Fallback data loaded, setting loading to false');
       }
+      
     } catch (error) {
       console.error('Error fetching transactions:', error);
       // Fallback to mock data on error
@@ -429,6 +450,10 @@ export const useTransactions = () => {
         .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
       
       setMonthlyExpenses(monthlyTotal);
+      console.log('Error fallback data loaded, setting loading to false');
+    } finally {
+      // Garantir que o loading sempre seja false no final
+      setLoading(false);
     }
   };
 
@@ -583,7 +608,7 @@ export const useTransactions = () => {
       if (CACHE_TIMESTAMP_KEY) localStorage.removeItem(CACHE_TIMESTAMP_KEY);
       
       // Fetch fresh data only if user is available
-      if (user && session && !authLoading) {
+      if (user && session) {
         await fetchDataFromAPI();
       }
     }
