@@ -209,7 +209,7 @@ const EditRecurrentExpenseModal = ({
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "dd/MM/yyyy") : "Selecione uma data"}
+                  {startDate ? startDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) : "Selecione uma data"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -228,7 +228,7 @@ const EditRecurrentExpenseModal = ({
             <div className="space-y-2">
               <Label>Próxima Cobrança</Label>
               <div className="p-2 bg-muted rounded-md text-sm text-muted-foreground">
-                {format(nextChargeDate, "dd/MM/yyyy")}
+                {nextChargeDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
               </div>
             </div>
           )}

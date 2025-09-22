@@ -306,7 +306,11 @@ const Dashboard = () => {
                     ) : '••••••'}
                   </p>
                   <p className="text-gray-400 text-xs sm:text-sm">
-                    {new Date(transaction.transaction_date).toLocaleDateString('pt-BR')}
+                    {new Date(transaction.transaction_date).toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
                   </p>
                 </div>
               </div>
