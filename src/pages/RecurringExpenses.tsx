@@ -19,11 +19,13 @@ const RecurringExpenses = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+    if (!dateString) return '--';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '--';
+    
+    const day = date.getDate();
+    return `${day.toString().padStart(2, '0')}`;
   };
 
   const getStatusBadge = (nextChargeDate: string) => {
@@ -41,28 +43,10 @@ const RecurringExpenses = () => {
   };
 
   // Calculate total monthly recurring expenses
-  const totalMonthly = recurrentExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalMonthly = recurrentExpenses.reduce((sum, expense) => sum + Math.abs(expense.amount), 0);
 
-  // Group expenses by status
-  const overdueExpenses = recurrentExpenses.filter(expense => {
-    const today = new Date();
-    const chargeDate = new Date(expense.next_charge_date);
-    return chargeDate < today;
-  });
-
-  const upcomingExpenses = recurrentExpenses.filter(expense => {
-    const today = new Date();
-    const chargeDate = new Date(expense.next_charge_date);
-    const diffDays = Math.ceil((chargeDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return diffDays >= 0 && diffDays <= 7;
-  });
-
-  const scheduledExpenses = recurrentExpenses.filter(expense => {
-    const today = new Date();
-    const chargeDate = new Date(expense.next_charge_date);
-    const diffDays = Math.ceil((chargeDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return diffDays > 7;
-  });
+  // All expenses are for current month now
+  const allExpenses = recurrentExpenses;
 
   const handleBack = () => {
     navigate('/dashboard');
@@ -126,95 +110,15 @@ const RecurringExpenses = () => {
 
       {/* Expenses List */}
       <div className="px-4 space-y-6">
-        {/* Overdue Expenses */}
-        {overdueExpenses.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-destructive mb-3 flex items-center gap-2">
-              <AlertCircle className="w-5 h-5" />
-              Vencidos ({overdueExpenses.length})
-            </h3>
-            <div className="space-y-3">
-              {overdueExpenses.map((expense) => (
-                <Card key={expense.id} className="border-destructive/50">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: expense.category?.color || '#gray' }}
-                        />
-                        <div>
-                          <p className="font-medium">{expense.description}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {expense.category?.name} • {expense.account?.name}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold text-destructive">
-                          {showValues ? formatCurrency(expense.amount) : '••••••'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(expense.next_charge_date)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Upcoming Expenses */}
-        {upcomingExpenses.length > 0 && (
-          <div>
-            <h3 className="text-lg font-semibold text-warning mb-3 flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Próximos 7 dias ({upcomingExpenses.length})
-            </h3>
-            <div className="space-y-3">
-              {upcomingExpenses.map((expense) => (
-                <Card key={expense.id} className="border-warning/50">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
-                          style={{ backgroundColor: expense.category?.color || '#gray' }}
-                        />
-                        <div>
-                          <p className="font-medium">{expense.description}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {expense.category?.name} • {expense.account?.name}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">
-                          {showValues ? formatCurrency(expense.amount) : '••••••'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(expense.next_charge_date)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Scheduled Expenses */}
-        {scheduledExpenses.length > 0 && (
+        {/* Current Month Fixed Expenses */}
+        {allExpenses.length > 0 ? (
           <div>
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <RotateCcw className="w-5 h-5" />
-              Programados ({scheduledExpenses.length})
+              Gastos Fixos - Setembro ({allExpenses.length})
             </h3>
             <div className="space-y-3">
-              {scheduledExpenses.map((expense) => (
+              {allExpenses.map((expense) => (
                 <Card key={expense.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
@@ -235,7 +139,7 @@ const RecurringExpenses = () => {
                           {showValues ? formatCurrency(expense.amount) : '••••••'}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDate(expense.next_charge_date)}
+                          Dia {formatDate(expense.next_charge_date)}
                         </p>
                       </div>
                     </div>
@@ -244,10 +148,7 @@ const RecurringExpenses = () => {
               ))}
             </div>
           </div>
-        )}
-
-        {/* Empty State */}
-        {recurrentExpenses.length === 0 && (
+        ) : (
           <div className="text-center py-16">
             <RotateCcw className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">Nenhum gasto fixo cadastrado</h3>

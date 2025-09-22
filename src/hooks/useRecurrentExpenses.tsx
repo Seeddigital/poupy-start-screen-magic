@@ -78,80 +78,86 @@ export const useRecurrentExpenses = () => {
         console.log('Raw API response for recurrent expenses:', recurrentResult.recurrentExpenses);
         
         // Enrich recurrent expenses with category and account info
-        const enrichedExpenses = recurrentResult.recurrentExpenses.map((expense: any) => {
-          // Calculate next charge date based on createOnDom if not present
-          let nextChargeDate = expense.next_charge_date;
-          
-          console.log('Processing expense:', expense.description, 'Full expense object:', expense);
-          
-          // Try different field names that might come from API
-          const createOnDom = expense.createOnDom || expense.create_on_dom || expense.createOnDom;
-          
-          if (!nextChargeDate && createOnDom) {
-            const today = new Date();
-            const currentDay = today.getDate();
-            const targetDay = parseInt(createOnDom);
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+
+        const enrichedExpenses = recurrentResult.recurrentExpenses
+          .map((expense: any) => {
+            // Calculate next charge date based on createOnDom if not present
+            let nextChargeDate = expense.next_charge_date;
             
-            // Validate targetDay is a valid day of month
-            if (targetDay >= 1 && targetDay <= 31) {
-              // Create next charge date
-              let nextDate = new Date(today.getFullYear(), today.getMonth(), targetDay);
+            console.log('Processing expense:', expense.description, 'Full expense object:', expense);
+            
+            // Try different field names that might come from API
+            const createOnDom = expense.createOnDom || expense.create_on_dom || expense.createOnDom;
+            
+            if (!nextChargeDate && createOnDom) {
+              const currentDay = today.getDate();
+              const targetDay = parseInt(createOnDom);
               
-              // If the day has already passed this month, move to next month
-              if (currentDay >= targetDay) {
-                nextDate = new Date(today.getFullYear(), today.getMonth() + 1, targetDay);
+              // Validate targetDay is a valid day of month
+              if (targetDay >= 1 && targetDay <= 31) {
+                // Create next charge date for current month
+                let nextDate = new Date(currentYear, currentMonth, targetDay);
+                
+                // If the day has already passed this month, move to next month
+                if (currentDay >= targetDay) {
+                  nextDate = new Date(currentYear, currentMonth + 1, targetDay);
+                }
+                
+                nextChargeDate = nextDate.toISOString().split('T')[0];
+                console.log('Calculated nextChargeDate:', nextChargeDate);
               }
-              
-              nextChargeDate = nextDate.toISOString().split('T')[0];
-              console.log('Calculated nextChargeDate:', nextChargeDate);
             }
-          }
-          
-          // If still no valid date, try to use start_date as fallback
-          if (!nextChargeDate && expense.start_date) {
-            const startDate = new Date(expense.start_date);
-            if (!isNaN(startDate.getTime())) {
-              // Add one month to start date as approximation
-              const nextMonth = new Date(startDate);
-              nextMonth.setMonth(nextMonth.getMonth() + 1);
-              nextChargeDate = nextMonth.toISOString().split('T')[0];
-              console.log('Used start_date fallback:', nextChargeDate);
+            
+            // If still no valid date, try to use start_date as fallback
+            if (!nextChargeDate && expense.start_date) {
+              const startDate = new Date(expense.start_date);
+              if (!isNaN(startDate.getTime())) {
+                // Use current month as the charge month
+                const nextDate = new Date(currentYear, currentMonth, startDate.getDate());
+                nextChargeDate = nextDate.toISOString().split('T')[0];
+                console.log('Used start_date fallback for current month:', nextChargeDate);
+              }
             }
-          }
-          
-          // Final fallback: if no date available, use today + 30 days
-          if (!nextChargeDate) {
-            const today = new Date();
-            const fallbackDate = new Date(today);
-            fallbackDate.setDate(fallbackDate.getDate() + 30);
-            nextChargeDate = fallbackDate.toISOString().split('T')[0];
-            console.log('Used final fallback date (today + 30 days):', nextChargeDate);
-          }
-          
-          console.log('Final nextChargeDate:', nextChargeDate);
-          
-          return {
-            id: expense.id,
-            description: expense.description,
-            amount: expense.amount,
-            start_date: expense.start_date,
-            next_charge_date: nextChargeDate,
-            expense_category_id: expense.expense_category_id,
-            expenseable_type: expense.expenseable_type,
-            expenseable_id: expense.expenseable_id,
-            createOnDom: createOnDom,
-            category: categoriesResult.success && categoriesResult.categories 
-              ? categoriesResult.categories.find((cat: any) => cat.id === expense.expense_category_id || cat.category_id === expense.expense_category_id)
-              : undefined,
-            account: {
-              id: expense.expenseable_id,
-              name: expense.expenseable_type === 'conta_corrente' ? 'Conta Corrente' :
-                    expense.expenseable_type === 'cartao_credito' ? 'Cartão de Crédito' :
-                    expense.expenseable_type === 'poupanca' ? 'Poupança' : 'Conta',
-              type: expense.expenseable_type
+            
+            // Final fallback: use mid-month date of current month
+            if (!nextChargeDate) {
+              const fallbackDate = new Date(currentYear, currentMonth, 15);
+              nextChargeDate = fallbackDate.toISOString().split('T')[0];
+              console.log('Used final fallback date (current month 15th):', nextChargeDate);
             }
-          };
-        });
+            
+            console.log('Final nextChargeDate:', nextChargeDate);
+            
+            return {
+              id: expense.id,
+              description: expense.description,
+              amount: expense.amount,
+              start_date: expense.start_date,
+              next_charge_date: nextChargeDate,
+              expense_category_id: expense.expense_category_id,
+              expenseable_type: expense.expenseable_type,
+              expenseable_id: expense.expenseable_id,
+              createOnDom: createOnDom,
+              category: categoriesResult.success && categoriesResult.categories 
+                ? categoriesResult.categories.find((cat: any) => cat.id === expense.expense_category_id || cat.category_id === expense.expense_category_id)
+                : undefined,
+              account: {
+                id: expense.expenseable_id,
+                name: expense.expenseable_type === 'conta_corrente' ? 'Conta Corrente' :
+                      expense.expenseable_type === 'cartao_credito' ? 'Cartão de Crédito' :
+                      expense.expenseable_type === 'poupanca' ? 'Poupança' : 'Conta',
+                type: expense.expenseable_type
+              }
+            };
+          })
+          .filter((expense) => {
+            // Filter to show only current month expenses
+            const expenseDate = new Date(expense.next_charge_date);
+            return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
+          });
 
         setRecurrentExpenses(enrichedExpenses);
         

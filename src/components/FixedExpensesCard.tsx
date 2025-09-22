@@ -20,26 +20,17 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle, onExpenseC
   };
 
   const formatDate = (dateString: string): string => {
-    if (!dateString) return "--/--";
-
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return "--/--";
+    if (!dateString) return '--/--';
     
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'short'
-    });
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '--/--';
+    
+    const day = date.getDate();
+    return `${day.toString().padStart(2, '0')}`;
   };
 
-  // Calculate total monthly recurring expenses
-  const totalMonthly = recurrentExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-
-  // Get next 3 upcoming charges for preview
-  const upcomingCharges = recurrentExpenses
-    .sort((a, b) => new Date(a.next_charge_date).getTime() - new Date(b.next_charge_date).getTime())
-    .slice(0, 3);
-
-  // Get all expenses sorted for expanded view
+  const totalMonthly = recurrentExpenses.reduce((sum, expense) => sum + Math.abs(expense.amount), 0);
+  
   const allExpensesSorted = recurrentExpenses
     .sort((a, b) => new Date(a.next_charge_date).getTime() - new Date(b.next_charge_date).getTime());
 
@@ -140,7 +131,7 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle, onExpenseC
                         {expense.description}
                       </p>
                       <p className="text-gray-400 text-xs">
-                        Próxima: {expense.next_charge_date ? formatDate(expense.next_charge_date) : '--/--'}
+                        Dia: {expense.next_charge_date ? formatDate(expense.next_charge_date) : '--'}
                       </p>
                     </div>
                   </div>
