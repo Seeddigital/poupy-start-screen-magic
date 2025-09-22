@@ -77,18 +77,37 @@ export const useRecurrentExpenses = () => {
       if (recurrentResult.success && recurrentResult.recurrentExpenses) {
         // Enrich recurrent expenses with category and account info
         const enrichedExpenses = recurrentResult.recurrentExpenses.map((expense: any) => {
-          console.log('Raw recurrent expense data:', expense);
+          // Calculate next charge date based on createOnDom if not present
+          let nextChargeDate = expense.next_charge_date;
+          
+          if (!nextChargeDate && expense.createOnDom) {
+            const today = new Date();
+            const currentDay = today.getDate();
+            const targetDay = expense.createOnDom;
+            
+            // Create next charge date
+            let nextDate = new Date(today.getFullYear(), today.getMonth(), targetDay);
+            
+            // If the day has already passed this month, move to next month
+            if (currentDay > targetDay) {
+              nextDate = new Date(today.getFullYear(), today.getMonth() + 1, targetDay);
+            }
+            
+            nextChargeDate = nextDate.toISOString().split('T')[0];
+          }
+          
           return {
             id: expense.id,
             description: expense.description,
             amount: expense.amount,
             start_date: expense.start_date,
-            next_charge_date: expense.next_charge_date,
+            next_charge_date: nextChargeDate,
             expense_category_id: expense.expense_category_id,
             expenseable_type: expense.expenseable_type,
             expenseable_id: expense.expenseable_id,
+            createOnDom: expense.createOnDom,
             category: categoriesResult.success && categoriesResult.categories 
-              ? categoriesResult.categories.find((cat: any) => cat.category_id === expense.expense_category_id)
+              ? categoriesResult.categories.find((cat: any) => cat.id === expense.expense_category_id || cat.category_id === expense.expense_category_id)
               : undefined,
             account: {
               id: expense.expenseable_id,
