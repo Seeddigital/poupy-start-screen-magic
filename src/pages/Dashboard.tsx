@@ -8,6 +8,7 @@ import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 import EditTransactionModal from '../components/EditTransactionModal';
 import EditRecurrentExpenseModal from '../components/EditRecurrentExpenseModal';
+import RecurrentExpenseDetailModal from '../components/RecurrentExpenseDetailModal';
 import FixedExpensesCard from '../components/FixedExpensesCard';
 import AuthModal from '../components/AuthModal';
 import { toast } from 'sonner';
@@ -36,6 +37,7 @@ const Dashboard = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isEditRecurrentModalOpen, setIsEditRecurrentModalOpen] = useState(false);
+  const [isRecurrentDetailModalOpen, setIsRecurrentDetailModalOpen] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [selectedRecurrentExpense, setSelectedRecurrentExpense] = useState(null);
   const navigate = useNavigate();
@@ -89,6 +91,11 @@ const Dashboard = () => {
   const handleRecurrentExpenseClick = (expense: any) => {
     console.log('Clicked recurrent expense:', expense);
     setSelectedRecurrentExpense(expense);
+    setIsRecurrentDetailModalOpen(true);
+  };
+
+  const handleEditRecurrentExpense = (expense: any) => {
+    setIsRecurrentDetailModalOpen(false);
     setIsEditRecurrentModalOpen(true);
   };
 
@@ -139,6 +146,7 @@ const Dashboard = () => {
   const handleRecurrentExpenseDeleted = () => {
     refetchRecurrentExpenses(); // Refresh recurrent expenses
     setIsEditRecurrentModalOpen(false);
+    setIsRecurrentDetailModalOpen(false);
     setSelectedRecurrentExpense(null);
   };
 
@@ -345,6 +353,14 @@ const Dashboard = () => {
           isRecurrent={selectedTransaction?.isRecurrent || false}
         />
       )}
+
+      <RecurrentExpenseDetailModal
+        expense={selectedRecurrentExpense}
+        isOpen={isRecurrentDetailModalOpen}
+        onClose={() => setIsRecurrentDetailModalOpen(false)}
+        onEdit={handleEditRecurrentExpense}
+        onDelete={handleRecurrentExpenseDeleted}
+      />
 
       {selectedRecurrentExpense && (
         <EditRecurrentExpenseModal

@@ -141,7 +141,7 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle, onExpenseC
                         {expense.description}
                       </p>
                       <p className="text-gray-400 text-xs">
-                        Próxima: {formatDate(expense.next_charge_date)}
+                        Próxima: {expense.next_charge_date ? formatDate(expense.next_charge_date) : '--/--'}
                       </p>
                     </div>
                   </div>
