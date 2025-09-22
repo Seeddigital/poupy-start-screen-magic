@@ -19,18 +19,58 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle }: FixedExp
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return '--/--';
-    
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      console.warn('Invalid date string:', dateString);
+    if (!dateString) {
+      console.warn('formatDate: dateString is empty or null');
       return '--/--';
     }
     
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit'
-    });
+    console.log('formatDate: processing dateString:', dateString, 'type:', typeof dateString);
+    
+    // Try different date parsing approaches
+    let date: Date;
+    
+    // First, try direct Date constructor
+    date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      console.log('formatDate: Date constructor worked:', date);
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit'
+      });
+    }
+    
+    // Try parsing common formats: dd/mm/yyyy, yyyy-mm-dd, etc.
+    const formats = [
+      /^(\d{2})\/(\d{2})\/(\d{4})$/, // dd/mm/yyyy
+      /^(\d{4})-(\d{2})-(\d{2})/, // yyyy-mm-dd (ISO start)
+      /^(\d{2})-(\d{2})-(\d{4})$/, // dd-mm-yyyy  
+    ];
+    
+    for (const format of formats) {
+      const match = dateString.match(format);
+      if (match) {
+        if (format.source.includes('(\\d{4})')) { // yyyy format
+          if (format.source.startsWith('^(\\d{4})')) {
+            // yyyy-mm-dd
+            date = new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]));
+          } else {
+            // dd/mm/yyyy or dd-mm-yyyy
+            date = new Date(parseInt(match[3]), parseInt(match[2]) - 1, parseInt(match[1]));
+          }
+        }
+        
+        if (!isNaN(date.getTime())) {
+          console.log('formatDate: Custom parsing worked:', date, 'from format:', format.source);
+          return date.toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit'
+          });
+        }
+      }
+    }
+    
+    console.warn('formatDate: All parsing attempts failed for:', dateString);
+    return '--/--';
   };
 
   // Calculate total monthly recurring expenses
