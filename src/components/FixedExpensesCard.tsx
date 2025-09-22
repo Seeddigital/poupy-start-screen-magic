@@ -27,8 +27,7 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle, onExpenseC
     
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
-      month: 'short',
-      year: 'numeric'
+      month: 'short'
     });
   };
 

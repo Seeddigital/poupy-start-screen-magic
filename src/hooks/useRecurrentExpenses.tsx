@@ -80,21 +80,45 @@ export const useRecurrentExpenses = () => {
           // Calculate next charge date based on createOnDom if not present
           let nextChargeDate = expense.next_charge_date;
           
+          console.log('Processing expense:', expense.description, {
+            next_charge_date: expense.next_charge_date,
+            createOnDom: expense.createOnDom,
+            start_date: expense.start_date
+          });
+          
           if (!nextChargeDate && expense.createOnDom) {
             const today = new Date();
             const currentDay = today.getDate();
-            const targetDay = expense.createOnDom;
+            const targetDay = parseInt(expense.createOnDom);
             
-            // Create next charge date
-            let nextDate = new Date(today.getFullYear(), today.getMonth(), targetDay);
-            
-            // If the day has already passed this month, move to next month
-            if (currentDay > targetDay) {
-              nextDate = new Date(today.getFullYear(), today.getMonth() + 1, targetDay);
+            // Validate targetDay is a valid day of month
+            if (targetDay >= 1 && targetDay <= 31) {
+              // Create next charge date
+              let nextDate = new Date(today.getFullYear(), today.getMonth(), targetDay);
+              
+              // If the day has already passed this month, move to next month
+              if (currentDay >= targetDay) {
+                nextDate = new Date(today.getFullYear(), today.getMonth() + 1, targetDay);
+              }
+              
+              nextChargeDate = nextDate.toISOString().split('T')[0];
+              console.log('Calculated nextChargeDate:', nextChargeDate);
             }
-            
-            nextChargeDate = nextDate.toISOString().split('T')[0];
           }
+          
+          // If still no valid date, try to use start_date as fallback
+          if (!nextChargeDate && expense.start_date) {
+            const startDate = new Date(expense.start_date);
+            if (!isNaN(startDate.getTime())) {
+              // Add one month to start date as approximation
+              const nextMonth = new Date(startDate);
+              nextMonth.setMonth(nextMonth.getMonth() + 1);
+              nextChargeDate = nextMonth.toISOString().split('T')[0];
+              console.log('Used start_date fallback:', nextChargeDate);
+            }
+          }
+          
+          console.log('Final nextChargeDate:', nextChargeDate);
           
           return {
             id: expense.id,
