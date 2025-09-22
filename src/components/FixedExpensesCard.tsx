@@ -1,10 +1,10 @@
 import React from 'react';
-import { Calendar, RotateCcw, ChevronUp, ChevronDown, AlertCircle } from 'lucide-react';
+import { Calendar, RotateCcw, ChevronUp, ChevronDown, ChevronRight, AlertCircle } from 'lucide-react';
 import { useRecurrentExpenses } from '@/hooks/useRecurrentExpenses';
 
 interface FixedExpensesCardProps {
   showValues: boolean;
-  showFixedExpenses: boolean;
+  showFixedExpenses: number; // 0: minimal, 1: card summary, 2: detailed list
   onToggle: () => void;
 }
 
@@ -47,21 +47,36 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle }: FixedExp
 
   if (loading) {
     return (
-      <div className="bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8 relative z-10">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-700/20 rounded w-32 mb-2"></div>
-          <div className="h-8 bg-gray-700/20 rounded w-24"></div>
+      <div className="animate-pulse">
+        <div className="h-4 bg-gray-700/20 rounded w-32"></div>
+      </div>
+    );
+  }
+
+  // State 0: Minimal - just icon and text
+  if (showFixedExpenses === 0) {
+    return (
+      <div 
+        className="flex items-center justify-between cursor-pointer hover:bg-white/5 rounded-lg p-2 transition-all duration-200"
+        onClick={onToggle}
+      >
+        <div className="flex items-center gap-2">
+          <RotateCcw size={18} className="text-gray-400" />
+          <h3 className="text-base font-medium text-white">Gastos Fixos</h3>
         </div>
+        {recurrentExpenses.length > 0 && (
+          <ChevronRight className="w-4 h-4 text-gray-500" />
+        )}
       </div>
     );
   }
 
   return (
     <div className="relative">
-      {/* Main Card */}
+      {/* Main Card - States 1 and 2 */}
       <div 
         className={`bg-[#A8E202] rounded-2xl sm:rounded-3xl p-6 sm:p-8 cursor-pointer hover:bg-[#96D000] transition-all duration-300 relative z-10 ${
-          showFixedExpenses ? 'shadow-2xl shadow-black/50' : 'shadow-lg shadow-black/25'
+          showFixedExpenses === 2 ? 'shadow-2xl shadow-black/50' : 'shadow-lg shadow-black/25'
         }`}
         onClick={onToggle}
       >
@@ -71,7 +86,7 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle }: FixedExp
             <h3 className="text-lg font-semibold text-gray-700">Gastos Fixos</h3>
           </div>
           {recurrentExpenses.length > 0 && (
-            showFixedExpenses ? (
+            showFixedExpenses === 2 ? (
               <ChevronUp className="w-5 h-5 text-gray-600" />
             ) : (
               <ChevronDown className="w-4 h-4 text-gray-500" />
@@ -96,16 +111,16 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle }: FixedExp
         )}
       </div>
 
-      {/* Expanded List Container */}
+      {/* Expanded List Container - Only State 2 */}
       <div 
         className={`relative chart-preview-bg rounded-b-2xl sm:rounded-b-3xl transition-all duration-500 ease-out overflow-hidden ${
-          showFixedExpenses
+          showFixedExpenses === 2
             ? 'max-h-96 opacity-100 translate-y-0' 
             : 'max-h-0 opacity-0 translate-y-[-20px]'
         }`}
         style={{
           transformOrigin: 'top',
-          marginTop: showFixedExpenses ? '-8px' : '0',
+          marginTop: showFixedExpenses === 2 ? '-8px' : '0',
         }}
       >
         <div className="pt-8 pb-4 px-6 sm:px-8">

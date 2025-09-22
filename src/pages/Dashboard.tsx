@@ -25,7 +25,7 @@ const Dashboard = () => {
   } = useTransactions();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
-  const [showFixedExpenses, setShowFixedExpenses] = useState(false);
+  const [showFixedExpenses, setShowFixedExpenses] = useState(0); // 0: minimal, 1: card summary, 2: detailed list
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -78,7 +78,7 @@ const Dashboard = () => {
   };
 
   const handleFixedExpensesClick = () => {
-    setShowFixedExpenses(!showFixedExpenses);
+    setShowFixedExpenses(prev => (prev + 1) % 3); // Cycle through 0 → 1 → 2 → 0
   };
 
   const handleSignOut = async () => {
