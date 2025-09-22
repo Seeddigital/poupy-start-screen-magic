@@ -6,9 +6,10 @@ interface FixedExpensesCardProps {
   showValues: boolean;
   showFixedExpenses: number; // 0: minimal, 1: card summary, 2: detailed list
   onToggle: () => void;
+  onExpenseClick?: (expense: any) => void;
 }
 
-const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle }: FixedExpensesCardProps) => {
+const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle, onExpenseClick }: FixedExpensesCardProps) => {
   const { recurrentExpenses, loading } = useRecurrentExpenses();
 
   const formatCurrency = (value: number) => {
@@ -167,7 +168,11 @@ const FixedExpensesCard = ({ showValues, showFixedExpenses, onToggle }: FixedExp
           {allExpensesSorted.length > 0 ? (
             <div className="space-y-2">
               {allExpensesSorted.map((expense) => (
-                <div key={expense.id} className="flex items-center justify-between py-3 border-b border-white/10 last:border-b-0">
+                <div 
+                  key={expense.id} 
+                  className="flex items-center justify-between py-3 border-b border-white/10 last:border-b-0 cursor-pointer hover:bg-white/5 rounded-lg px-2 transition-colors"
+                  onClick={() => onExpenseClick?.(expense)}
+                >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div 
                       className="w-3 h-3 rounded-full flex-shrink-0" 

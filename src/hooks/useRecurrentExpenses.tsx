@@ -76,26 +76,29 @@ export const useRecurrentExpenses = () => {
 
       if (recurrentResult.success && recurrentResult.recurrentExpenses) {
         // Enrich recurrent expenses with category and account info
-        const enrichedExpenses = recurrentResult.recurrentExpenses.map((expense: any) => ({
-          id: expense.id,
-          description: expense.description,
-          amount: expense.amount,
-          start_date: expense.start_date,
-          next_charge_date: expense.next_charge_date,
-          expense_category_id: expense.expense_category_id,
-          expenseable_type: expense.expenseable_type,
-          expenseable_id: expense.expenseable_id,
-          category: categoriesResult.success && categoriesResult.categories 
-            ? categoriesResult.categories.find((cat: any) => cat.category_id === expense.expense_category_id)
-            : undefined,
-          account: {
-            id: expense.expenseable_id,
-            name: expense.expenseable_type === 'conta_corrente' ? 'Conta Corrente' :
-                  expense.expenseable_type === 'cartao_credito' ? 'Cartão de Crédito' :
-                  expense.expenseable_type === 'poupanca' ? 'Poupança' : 'Conta',
-            type: expense.expenseable_type
-          }
-        }));
+        const enrichedExpenses = recurrentResult.recurrentExpenses.map((expense: any) => {
+          console.log('Raw recurrent expense data:', expense);
+          return {
+            id: expense.id,
+            description: expense.description,
+            amount: expense.amount,
+            start_date: expense.start_date,
+            next_charge_date: expense.next_charge_date,
+            expense_category_id: expense.expense_category_id,
+            expenseable_type: expense.expenseable_type,
+            expenseable_id: expense.expenseable_id,
+            category: categoriesResult.success && categoriesResult.categories 
+              ? categoriesResult.categories.find((cat: any) => cat.category_id === expense.expense_category_id)
+              : undefined,
+            account: {
+              id: expense.expenseable_id,
+              name: expense.expenseable_type === 'conta_corrente' ? 'Conta Corrente' :
+                    expense.expenseable_type === 'cartao_credito' ? 'Cartão de Crédito' :
+                    expense.expenseable_type === 'poupanca' ? 'Poupança' : 'Conta',
+              type: expense.expenseable_type
+            }
+          };
+        });
 
         setRecurrentExpenses(enrichedExpenses);
         

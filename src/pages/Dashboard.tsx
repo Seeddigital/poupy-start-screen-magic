@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Bell, LogOut, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useRecurrentExpenses } from '@/hooks/useRecurrentExpenses';
 import CategoryChart from '../components/CategoryChart';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 import EditTransactionModal from '../components/EditTransactionModal';
+import EditRecurrentExpenseModal from '../components/EditRecurrentExpenseModal';
 import FixedExpensesCard from '../components/FixedExpensesCard';
 import AuthModal from '../components/AuthModal';
 import { toast } from 'sonner';
@@ -23,6 +25,7 @@ const Dashboard = () => {
     refreshing, 
     pullToRefresh
   } = useTransactions();
+  const { refetch: refetchRecurrentExpenses } = useRecurrentExpenses();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
   const [showFixedExpenses, setShowFixedExpenses] = useState(0); // 0: minimal, 1: card summary, 2: detailed list
@@ -32,7 +35,9 @@ const Dashboard = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditRecurrentModalOpen, setIsEditRecurrentModalOpen] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+  const [selectedRecurrentExpense, setSelectedRecurrentExpense] = useState(null);
   const navigate = useNavigate();
 
   // Redirect to home if not authenticated (com delay para evitar conflitos)
@@ -81,6 +86,12 @@ const Dashboard = () => {
     setShowFixedExpenses(prev => (prev + 1) % 3); // Cycle through 0 → 1 → 2 → 0
   };
 
+  const handleRecurrentExpenseClick = (expense: any) => {
+    console.log('Clicked recurrent expense:', expense);
+    setSelectedRecurrentExpense(expense);
+    setIsEditRecurrentModalOpen(true);
+  };
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -117,6 +128,18 @@ const Dashboard = () => {
     refetch();
     setIsTransactionModalOpen(false);
     setSelectedTransaction(null);
+  };
+
+  const handleRecurrentExpenseUpdated = () => {
+    refetchRecurrentExpenses(); // Refresh recurrent expenses
+    setIsEditRecurrentModalOpen(false);
+    setSelectedRecurrentExpense(null);
+  };
+
+  const handleRecurrentExpenseDeleted = () => {
+    refetchRecurrentExpenses(); // Refresh recurrent expenses
+    setIsEditRecurrentModalOpen(false);
+    setSelectedRecurrentExpense(null);
   };
 
   // Show loading or redirect if no user
@@ -219,6 +242,7 @@ const Dashboard = () => {
           showValues={showValues} 
           showFixedExpenses={showFixedExpenses}
           onToggle={handleFixedExpensesClick}
+          onExpenseClick={handleRecurrentExpenseClick}
         />
       </div>
 
@@ -315,6 +339,16 @@ const Dashboard = () => {
           onTransactionUpdated={handleTransactionUpdated}
           transactionId={selectedTransactionId}
           isRecurrent={selectedTransaction?.isRecurrent || false}
+        />
+      )}
+
+      {selectedRecurrentExpense && (
+        <EditRecurrentExpenseModal
+          isOpen={isEditRecurrentModalOpen}
+          onClose={() => setIsEditRecurrentModalOpen(false)}
+          onExpenseUpdated={handleRecurrentExpenseUpdated}
+          onExpenseDeleted={handleRecurrentExpenseDeleted}
+          expense={selectedRecurrentExpense}
         />
       )}
     </div>
