@@ -25,6 +25,7 @@ const Dashboard = () => {
   } = useTransactions();
   const [showValues, setShowValues] = useState(true);
   const [showChart, setShowChart] = useState(false);
+  const [showFixedExpenses, setShowFixedExpenses] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -74,6 +75,10 @@ const Dashboard = () => {
 
   const handleExpenseCardClick = () => {
     setShowChart(!showChart);
+  };
+
+  const handleFixedExpensesClick = () => {
+    setShowFixedExpenses(!showFixedExpenses);
   };
 
   const handleSignOut = async () => {
@@ -210,7 +215,11 @@ const Dashboard = () => {
 
       {/* Fixed Expenses Card */}
       <div className="px-4 sm:px-6 mb-6">
-        <FixedExpensesCard showValues={showValues} />
+        <FixedExpensesCard 
+          showValues={showValues} 
+          showFixedExpenses={showFixedExpenses}
+          onToggle={handleFixedExpensesClick}
+        />
       </div>
 
       {/* Transactions Section */}
