@@ -75,21 +75,22 @@ export const useRecurrentExpenses = () => {
       ]);
 
       if (recurrentResult.success && recurrentResult.recurrentExpenses) {
+        console.log('Raw API response for recurrent expenses:', recurrentResult.recurrentExpenses);
+        
         // Enrich recurrent expenses with category and account info
         const enrichedExpenses = recurrentResult.recurrentExpenses.map((expense: any) => {
           // Calculate next charge date based on createOnDom if not present
           let nextChargeDate = expense.next_charge_date;
           
-          console.log('Processing expense:', expense.description, {
-            next_charge_date: expense.next_charge_date,
-            createOnDom: expense.createOnDom,
-            start_date: expense.start_date
-          });
+          console.log('Processing expense:', expense.description, 'Full expense object:', expense);
           
-          if (!nextChargeDate && expense.createOnDom) {
+          // Try different field names that might come from API
+          const createOnDom = expense.createOnDom || expense.create_on_dom || expense.createOnDom;
+          
+          if (!nextChargeDate && createOnDom) {
             const today = new Date();
             const currentDay = today.getDate();
-            const targetDay = parseInt(expense.createOnDom);
+            const targetDay = parseInt(createOnDom);
             
             // Validate targetDay is a valid day of month
             if (targetDay >= 1 && targetDay <= 31) {
@@ -118,6 +119,15 @@ export const useRecurrentExpenses = () => {
             }
           }
           
+          // Final fallback: if no date available, use today + 30 days
+          if (!nextChargeDate) {
+            const today = new Date();
+            const fallbackDate = new Date(today);
+            fallbackDate.setDate(fallbackDate.getDate() + 30);
+            nextChargeDate = fallbackDate.toISOString().split('T')[0];
+            console.log('Used final fallback date (today + 30 days):', nextChargeDate);
+          }
+          
           console.log('Final nextChargeDate:', nextChargeDate);
           
           return {
@@ -129,7 +139,7 @@ export const useRecurrentExpenses = () => {
             expense_category_id: expense.expense_category_id,
             expenseable_type: expense.expenseable_type,
             expenseable_id: expense.expenseable_id,
-            createOnDom: expense.createOnDom,
+            createOnDom: createOnDom,
             category: categoriesResult.success && categoriesResult.categories 
               ? categoriesResult.categories.find((cat: any) => cat.id === expense.expense_category_id || cat.category_id === expense.expense_category_id)
               : undefined,
@@ -182,6 +192,11 @@ export const useRecurrentExpenses = () => {
     localStorage.removeItem(CACHE_KEY);
     fetchRecurrentExpenses();
   }, [fetchRecurrentExpenses]);
+
+  // Clear cache to force fresh fetch on next load
+  useEffect(() => {
+    localStorage.removeItem(CACHE_KEY);
+  }, []);
 
   useEffect(() => {
     loadFromCacheOrFetch();
