@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Categories from "./pages/Categories";
 import Transactions from "./pages/Transactions";
+import RecurringExpenses from "./pages/RecurringExpenses";
 import Learning from "./pages/Learning";
 import NotFound from "./pages/NotFound";
 import { useState } from "react";
@@ -50,6 +51,7 @@ const AppContent = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/transactions" element={<Transactions />} />
+        <Route path="/recurring-expenses" element={<RecurringExpenses />} />
         <Route path="/learning" element={<Learning />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

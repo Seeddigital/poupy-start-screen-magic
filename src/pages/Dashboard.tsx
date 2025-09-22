@@ -6,6 +6,7 @@ import CategoryChart from '../components/CategoryChart';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import CategoryTransactionsModal from '../components/CategoryTransactionsModal';
 import EditTransactionModal from '../components/EditTransactionModal';
+import FixedExpensesCard from '../components/FixedExpensesCard';
 import AuthModal from '../components/AuthModal';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -205,6 +206,11 @@ const Dashboard = () => {
             <CategoryChart data={categories} onCategoryClick={handleCategoryClick} />
           </div>
         </div>
+      </div>
+
+      {/* Fixed Expenses Card */}
+      <div className="px-4 sm:px-6 mb-6">
+        <FixedExpensesCard showValues={showValues} />
       </div>
 
       {/* Transactions Section */}

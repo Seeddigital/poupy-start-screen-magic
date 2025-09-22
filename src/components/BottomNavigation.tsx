@@ -28,9 +28,9 @@ const BottomNavigation = ({ onAddTransaction }: BottomNavigationProps) => {
       isAddButton: true
     },
     {
-      path: '/categories',
+      path: '/recurring-expenses',
       icon: '/lovable-uploads/8d5f4719-9c26-44b4-9b3a-7073a35f8ce7.png',
-      alt: 'Categories'
+      alt: 'Fixed Expenses'
     },
     {
       path: '/learning',
